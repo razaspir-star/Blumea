@@ -399,25 +399,44 @@ async function handlePlatformsContinue() {
   }
 }
 
-async function handleMockConnect(platformId: string) {
+// Real connection (the same OAuth flow as the Connections page): YouTube and
+// TikTok go to the platform's own sign-in page and come back through
+// /connections; the connected state is read from the database below.
+async function handleConnect(platformId: string) {
   if (connectedPlatforms.includes(platformId)) {
+    return;
+  }
+
+  if (platformId !== "youtube" && platformId !== "tiktok") {
     return;
   }
 
   setConnectingPlatform(platformId);
 
-  await new Promise((resolve) => setTimeout(resolve, 2400));
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  setConnectedPlatforms((current) => [
-    ...current,
-    platformId,
-  ]);
+  if (!session) {
+    setConnectingPlatform(null);
+    return;
+  }
 
-  setConnectingPlatform(null);
+  const response = await fetch(`/api/connections/${platformId}/authorize`, {
+    headers: { Authorization: `Bearer ${session.access_token}` },
+  });
+
+  if (!response.ok) {
+    setConnectingPlatform(null);
+    return;
+  }
+
+  const { url } = await response.json();
+  window.location.assign(url);
 }
 
 async function handleFinishOnboarding() {
-  if (!profile || connectedPlatforms.length === 0) {
+  if (!profile) {
     return;
   }
 
@@ -433,9 +452,18 @@ async function handleFinishOnboarding() {
     return;
   }
 
-  // The First Scan runs right after onboarding, then lands on the dashboard.
-  router.replace("/analyzing");
+  // Connecting is optional here: it can also be done later in Connections.
+  router.replace("/dashboard");
 }
+
+useEffect(() => {
+  supabase
+    .from("connected_accounts")
+    .select("platform")
+    .then(({ data }) => {
+      if (data) setConnectedPlatforms(data.map((row) => row.platform as string));
+    });
+}, []);
 
 useEffect(() => {
   async function checkAccess() {
@@ -761,7 +789,7 @@ return (
       </h1>
 
       <p className="mt-2 text-sm text-blumea-slate">
-        Connect at least one account so Blumea can start analyzing your content.
+        Connect an account so Blumea can read your videos. You can also do this later, in Connections.
       </p>
     </div>
 
@@ -790,8 +818,8 @@ return (
           </span>
 
         <button
-  onClick={() => handleMockConnect(platform.id)}
-  disabled={isConnecting || isConnected}
+  onClick={() => handleConnect(platform.id)}
+  disabled={isConnecting || isConnected || (platform.id !== "youtube" && platform.id !== "tiktok")}
   className={
     isConnected
       ? "mt-4 cursor-default rounded-full border border-blumea-blue bg-blumea-mist px-5 py-2 text-sm font-medium text-blumea-blue"
@@ -802,6 +830,8 @@ return (
     <BlumeaFlowerLoader size={24} />
   ) : isConnected ? (
     "Connected ✓"
+  ) : platform.id !== "youtube" && platform.id !== "tiktok" ? (
+    "Coming later"
   ) : (
     "Connect"
   )}
@@ -813,8 +843,7 @@ return (
    <div className="absolute bottom-20 left-1/2 -translate-x-1/2">
   <button
     onClick={handleFinishOnboarding}
-    disabled={connectedPlatforms.length === 0}
-    className="flex items-center justify-center gap-2 rounded-full bg-blumea-navy px-6 py-3 text-sm font-medium text-white transition-all duration-300 hover:-translate-y-1 hover:bg-blumea-blue disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:translate-y-0"
+    className="flex items-center justify-center gap-2 rounded-full bg-blumea-navy px-6 py-3 text-sm font-medium text-white transition-all duration-300 hover:-translate-y-1 hover:bg-blumea-blue"
   >
     <span>Go to my Dashboard</span>
 
