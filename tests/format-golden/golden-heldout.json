@@ -1,0 +1,605 @@
+{
+  "videos": [
+    {
+      "id": "NjzouhkAksk",
+      "purpose": "caption_clip",
+      "layout": "silent",
+      "oldFormat": "caption_clip"
+    },
+    {
+      "id": "4w4eNERM9Nk",
+      "purpose": "reaction_stitch",
+      "layout": null,
+      "oldFormat": "reaction_stitch",
+      "note": "with speech; several stitches of the same creator"
+    },
+    {
+      "id": "k3dCFFVDcR8",
+      "purpose": "reaction_stitch",
+      "layout": null,
+      "oldFormat": "reaction_stitch",
+      "note": "with speech; several stitches"
+    },
+    {
+      "id": "9SMQQs22RiQ",
+      "purpose": "reaction_stitch",
+      "layout": null,
+      "oldFormat": "reaction_stitch",
+      "note": "with speech; several stitches"
+    },
+    {
+      "id": "ybUur4EMb7E",
+      "purpose": "reaction_stitch",
+      "layout": null,
+      "oldFormat": "reaction_stitch",
+      "note": "a reaction that includes preparing food"
+    },
+    {
+      "id": "qFYbL0RjdnE",
+      "purpose": "self_dialogue",
+      "layout": "to_camera",
+      "oldFormat": "self_dialogue"
+    },
+    {
+      "id": "FZLqln2onFo",
+      "purpose": null,
+      "layout": "voiceover_on_activity",
+      "oldFormat": "voiceover_on_activity",
+      "note": "talks about the recipe and how it came out, over how she made it"
+    },
+    {
+      "id": "0TxJFAMG-uo",
+      "purpose": null,
+      "layout": "voiceover_on_activity",
+      "oldFormat": "voiceover_on_activity",
+      "note": "more of a story with a recipe on top; maybe also a reply to a user",
+      "purposeAlt": "reply_to_comment"
+    },
+    {
+      "id": "6WaZnI-S4x8",
+      "purpose": "reply_to_comment",
+      "layout": "to_camera",
+      "oldFormat": "reply_to_comment"
+    },
+    {
+      "id": "cDUAWEKS3Nc",
+      "purpose": "reply_to_comment",
+      "layout": "to_camera",
+      "oldFormat": "reply_to_comment"
+    },
+    {
+      "id": "TALn9NH2dAo",
+      "purpose": "skill_process",
+      "layout": "silent",
+      "oldFormat": "skill_process"
+    },
+    {
+      "id": "MJ0QDnOvQgQ",
+      "purpose": "skill_process",
+      "layout": "silent",
+      "oldFormat": "skill_process"
+    },
+    {
+      "id": "iAAGGoBOTVM",
+      "purpose": "skill_process",
+      "layout": "silent",
+      "oldFormat": "skill_process"
+    },
+    {
+      "id": "cwmUgIhPv2U",
+      "purpose": "skill_process",
+      "layout": "silent",
+      "oldFormat": "skill_process"
+    },
+    {
+      "id": "S5hlq72ntFY",
+      "purpose": "skill_process",
+      "layout": "silent",
+      "oldFormat": "skill_process"
+    },
+    {
+      "id": "VG-Y0p6IWMU",
+      "purpose": "skill_process",
+      "layout": "silent",
+      "oldFormat": "skill_process"
+    },
+    {
+      "id": "De4sEckr9nc",
+      "purpose": "caption_clip",
+      "layout": "silent",
+      "oldFormat": "caption_clip"
+    },
+    {
+      "id": "J2cHcluzsgg",
+      "purpose": "reaction_stitch",
+      "layout": "split_screen",
+      "oldFormat": "split_screen_reaction"
+    },
+    {
+      "id": "ACdmBvUUAPY",
+      "purpose": "reaction_stitch",
+      "layout": "split_screen",
+      "oldFormat": "split_screen_reaction"
+    },
+    {
+      "id": "R62vh5zIOjI",
+      "purpose": "self_dialogue",
+      "layout": "to_camera",
+      "oldFormat": "self_dialogue"
+    },
+    {
+      "id": "Q0BOH_s9gSU",
+      "purpose": "podcast_clip",
+      "layout": "conversation",
+      "oldFormat": "podcast_clip"
+    },
+    {
+      "id": "ANdL75NRtro",
+      "purpose": "podcast_clip",
+      "layout": "conversation",
+      "oldFormat": "podcast_clip"
+    },
+    {
+      "id": "w3uFToLMYTQ",
+      "purpose": "podcast_clip",
+      "layout": "conversation",
+      "oldFormat": "podcast_clip"
+    },
+    {
+      "id": "FP-_E7hcrWg",
+      "purpose": "podcast_clip",
+      "layout": "conversation",
+      "oldFormat": "podcast_clip"
+    },
+    {
+      "id": "qN0Wp_70qj0",
+      "purpose": null,
+      "layout": "voiceover_over_background",
+      "oldFormat": "voiceover_over_background"
+    },
+    {
+      "id": "aWF47U_zkr8",
+      "purpose": null,
+      "layout": "voiceover_over_background",
+      "oldFormat": "voiceover_over_background"
+    },
+    {
+      "id": "bwH-Ku8K9TY",
+      "purpose": null,
+      "layout": "voiceover_over_background",
+      "oldFormat": "voiceover_over_background"
+    },
+    {
+      "id": "SyUzTskQOsM",
+      "purpose": null,
+      "layout": "voiceover_over_background",
+      "oldFormat": "voiceover_over_background"
+    },
+    {
+      "id": "bBqfUtGtiWY",
+      "purpose": null,
+      "layout": "voiceover_over_background",
+      "oldFormat": "voiceover_over_background"
+    },
+    {
+      "id": "xvre-fPEOoY",
+      "purpose": "reply_to_comment",
+      "layout": "to_camera",
+      "oldFormat": "reply_to_comment"
+    },
+    {
+      "id": "_zyIW4Su4lw",
+      "purpose": null,
+      "layout": "green_screen",
+      "oldFormat": "green_screen"
+    },
+    {
+      "id": "Oju5uzHorpI",
+      "purpose": "trend_dance",
+      "layout": null,
+      "oldFormat": "trend_dance"
+    },
+    {
+      "id": "WN79904XxcI",
+      "purpose": "trend_dance",
+      "layout": null,
+      "oldFormat": "trend_dance"
+    },
+    {
+      "id": "9CRB8FTsErs",
+      "purpose": "trend_dance",
+      "layout": null,
+      "oldFormat": "trend_dance"
+    },
+    {
+      "id": "6bdaEQYM2Vw",
+      "purpose": "lip_sync",
+      "layout": null,
+      "oldFormat": "lip_sync"
+    },
+    {
+      "id": "TKfbwRCj70M",
+      "purpose": "lip_sync",
+      "layout": null,
+      "oldFormat": "lip_sync"
+    },
+    {
+      "id": "V1Jg3QNPhZQ",
+      "purpose": "lip_sync",
+      "layout": null,
+      "oldFormat": "lip_sync"
+    },
+    {
+      "id": "qRIYYQDG3v8",
+      "purpose": "lip_sync",
+      "layout": null,
+      "oldFormat": "lip_sync"
+    },
+    {
+      "id": "0briHIeZrss",
+      "purpose": "challenge",
+      "layout": null,
+      "oldFormat": "challenge"
+    },
+    {
+      "id": "ZFGmJh0qAyY",
+      "purpose": "challenge",
+      "layout": null,
+      "oldFormat": "challenge"
+    },
+    {
+      "id": "5bew5scFiPY",
+      "purpose": "unboxing_review",
+      "layout": null,
+      "oldFormat": "unboxing_review"
+    },
+    {
+      "id": "eO_Vj9wwMFM",
+      "purpose": "unboxing_review",
+      "layout": null,
+      "oldFormat": "unboxing_review"
+    },
+    {
+      "id": "qP1AUA6Gm2c",
+      "purpose": "unboxing_review",
+      "layout": null,
+      "oldFormat": "unboxing_review"
+    },
+    {
+      "id": "9XGf6Urn0Z0",
+      "purpose": "unboxing_review",
+      "layout": null,
+      "oldFormat": "unboxing_review"
+    },
+    {
+      "id": "DMTUdWkhCUc",
+      "purpose": "unboxing_review",
+      "layout": null,
+      "oldFormat": "unboxing_review"
+    },
+    {
+      "id": "n4W082xS4Rg",
+      "purpose": "music_performance",
+      "layout": null,
+      "oldFormat": "music_performance"
+    },
+    {
+      "id": "Ye08nC8DYXc",
+      "purpose": "music_performance",
+      "layout": null,
+      "oldFormat": "music_performance"
+    },
+    {
+      "id": "jii6gpSUc_Y",
+      "purpose": "music_performance",
+      "layout": null,
+      "oldFormat": "music_performance"
+    },
+    {
+      "id": "Zsdfrgvd4cc",
+      "purpose": "music_montage",
+      "layout": "silent",
+      "oldFormat": "music_montage"
+    },
+    {
+      "id": "ORRIEs44c38",
+      "purpose": "music_montage",
+      "layout": "silent",
+      "oldFormat": "music_montage"
+    },
+    {
+      "id": "L43i0jfc4R4",
+      "purpose": "music_montage",
+      "layout": "silent",
+      "oldFormat": "music_montage"
+    },
+    {
+      "id": "tWovqWaHXQg",
+      "purpose": "filter_game",
+      "layout": null,
+      "oldFormat": "filter_game"
+    },
+    {
+      "id": "J4L2RDaJ1Vs",
+      "purpose": "filter_game",
+      "layout": null,
+      "oldFormat": "filter_game"
+    },
+    {
+      "id": "fIXtlwPVf18",
+      "purpose": "comparison_vs",
+      "layout": null,
+      "oldFormat": "comparison_vs"
+    },
+    {
+      "id": "dKviWT-CTG0",
+      "purpose": "comparison_vs",
+      "layout": null,
+      "oldFormat": "comparison_vs"
+    },
+    {
+      "id": "H7MCTTr9S_0",
+      "purpose": "comparison_vs",
+      "layout": null,
+      "oldFormat": "comparison_vs"
+    },
+    {
+      "id": "jHmNKMCR03Q",
+      "purpose": "ranking",
+      "layout": null,
+      "oldFormat": "ranking"
+    },
+    {
+      "id": "tdMnSucPH4E",
+      "purpose": "ranking",
+      "layout": null,
+      "oldFormat": "ranking"
+    },
+    {
+      "id": "ja5ZNcx9s-I",
+      "purpose": "interview_street",
+      "layout": "conversation",
+      "oldFormat": "interview_street"
+    },
+    {
+      "id": "wIIcTdu6KOw",
+      "purpose": "interview_street",
+      "layout": "conversation",
+      "oldFormat": "interview_street"
+    },
+    {
+      "id": "j40ewKFsyBk",
+      "purpose": "interview_street",
+      "layout": "conversation",
+      "oldFormat": "interview_street"
+    },
+    {
+      "id": "9f1Ir9xQGFc",
+      "purpose": "interview_street",
+      "layout": "conversation",
+      "oldFormat": "interview_street"
+    },
+    {
+      "id": "MYvLcozbm3w",
+      "purpose": "interview_street",
+      "layout": "conversation",
+      "oldFormat": "interview_street"
+    },
+    {
+      "id": "0S4JaS-365E",
+      "purpose": "tutorial",
+      "layout": null,
+      "oldFormat": "tutorial"
+    },
+    {
+      "id": "cYjiizXKKR4",
+      "purpose": "tutorial",
+      "layout": null,
+      "oldFormat": "tutorial"
+    },
+    {
+      "id": "oXl1Zl171j8",
+      "purpose": "tutorial",
+      "layout": null,
+      "oldFormat": "tutorial"
+    },
+    {
+      "id": "3oYIekp2hTk",
+      "purpose": "tutorial",
+      "layout": null,
+      "oldFormat": "tutorial"
+    },
+    {
+      "id": "WwAhoEuRGec",
+      "purpose": "tutorial",
+      "layout": null,
+      "oldFormat": "tutorial"
+    },
+    {
+      "id": "c2GnCtr6JFs",
+      "purpose": "list_tips",
+      "layout": null,
+      "oldFormat": "list_tips"
+    },
+    {
+      "id": "uWlyfLpA3Qo",
+      "purpose": "reveal_before_after",
+      "layout": null,
+      "oldFormat": "reveal_before_after"
+    },
+    {
+      "id": "kDdimy_rs28",
+      "purpose": "reveal_before_after",
+      "layout": null,
+      "oldFormat": "reveal_before_after"
+    },
+    {
+      "id": "96WDe7C88aA",
+      "purpose": "reveal_before_after",
+      "layout": null,
+      "oldFormat": "reveal_before_after"
+    },
+    {
+      "id": "V2Me830aBfM",
+      "purpose": "routine_vlog",
+      "layout": null,
+      "oldFormat": "routine_vlog"
+    },
+    {
+      "id": "mZ_WLcJXGNc",
+      "purpose": "routine_vlog",
+      "layout": null,
+      "oldFormat": "routine_vlog"
+    },
+    {
+      "id": "ulH6K-RUT_s",
+      "purpose": "routine_vlog",
+      "layout": null,
+      "oldFormat": "routine_vlog"
+    },
+    {
+      "id": "QRdUpYOOzQI",
+      "purpose": "routine_vlog",
+      "layout": null,
+      "oldFormat": "routine_vlog"
+    },
+    {
+      "id": "z3dsB1ajKr8",
+      "purpose": "routine_vlog",
+      "layout": null,
+      "oldFormat": "routine_vlog"
+    },
+    {
+      "id": "db6gAI_vLSE",
+      "purpose": "behind_the_scenes",
+      "layout": null,
+      "oldFormat": "behind_the_scenes"
+    },
+    {
+      "id": "I9JYel4moP8",
+      "purpose": "behind_the_scenes",
+      "layout": null,
+      "oldFormat": "behind_the_scenes"
+    },
+    {
+      "id": "BIwqn2Ek0Eg",
+      "purpose": "behind_the_scenes",
+      "layout": null,
+      "oldFormat": "behind_the_scenes"
+    },
+    {
+      "id": "Ktf4C-7zjfE",
+      "purpose": "pov_skit",
+      "layout": null,
+      "oldFormat": "pov_skit"
+    },
+    {
+      "id": "1ATjA-0Ty5k",
+      "purpose": "pov_skit",
+      "layout": null,
+      "oldFormat": "pov_skit"
+    },
+    {
+      "id": "lQ0JIPtmbmM",
+      "purpose": "pov_skit",
+      "layout": null,
+      "oldFormat": "pov_skit"
+    },
+    {
+      "id": "ohlJX8Kk92g",
+      "purpose": "transition_edit",
+      "layout": null,
+      "oldFormat": "transition_edit"
+    },
+    {
+      "id": "DlOu3nXVpn0",
+      "purpose": "transition_edit",
+      "layout": null,
+      "oldFormat": "transition_edit"
+    },
+    {
+      "id": "BKwOa3ORWZ0",
+      "purpose": "ranking",
+      "layout": null,
+      "oldFormat": "ranking",
+      "note": "a ranking plus a filter",
+      "purposeAlt": "filter_game"
+    },
+    {
+      "id": "wJ1hBLiInK0",
+      "purpose": "ranking",
+      "layout": null,
+      "oldFormat": "ranking"
+    },
+    {
+      "id": "Tck2uBeF4GI",
+      "purpose": "ai_generated",
+      "layout": null,
+      "oldFormat": "ai_generated"
+    },
+    {
+      "id": "jg8m_CVpFtw",
+      "purpose": "ai_generated",
+      "layout": null,
+      "oldFormat": "ai_generated"
+    },
+    {
+      "id": "oVgp_rOjQds",
+      "purpose": "list_tips",
+      "layout": null,
+      "oldFormat": "list_tips"
+    },
+    {
+      "id": "-XACGb4cYj0",
+      "purpose": "list_tips",
+      "layout": null,
+      "oldFormat": "list_tips"
+    },
+    {
+      "id": "yVrKuaIaxzU",
+      "purpose": "behind_the_scenes",
+      "layout": null,
+      "oldFormat": "behind_the_scenes",
+      "note": "behind the scenes, then the reveal of the result",
+      "purposeAlt": "reveal_before_after"
+    },
+    {
+      "id": "uxK0r_dMX-M",
+      "purpose": "behind_the_scenes",
+      "layout": null,
+      "oldFormat": "behind_the_scenes",
+      "note": "behind the scenes, then the reveal of the result",
+      "purposeAlt": "reveal_before_after"
+    },
+    {
+      "id": "E1a4GLQgUC8",
+      "purpose": "meme_edit",
+      "layout": null,
+      "oldFormat": "meme_edit"
+    },
+    {
+      "id": "ShuNV1f4a6A",
+      "purpose": "meme_edit",
+      "layout": null,
+      "oldFormat": "meme_edit"
+    },
+    {
+      "id": "U3gnCka1ASw",
+      "purpose": "meme_edit",
+      "layout": null,
+      "oldFormat": "meme_edit"
+    },
+    {
+      "id": "zark0B5r2bQ",
+      "purpose": "meme_edit",
+      "layout": null,
+      "oldFormat": "meme_edit"
+    },
+    {
+      "id": "b1BeHEGzmFk",
+      "purpose": "meme_edit",
+      "layout": null,
+      "oldFormat": "meme_edit"
+    }
+  ]
+}

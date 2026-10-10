@@ -1,0 +1,48 @@
+{
+    "note":  "HELD-OUT SET 2: hook examples collected after the first held-out set was used for tuning (2026-10-10). Definitions must not be changed after looking at results on this set without saying so. Priority: hooks with no or one example.",
+    "hooks":  {
+                  "open_question":  [
+                                        "eWUE1BYCipM",
+                                        "G8sznLojF_0"
+                                    ],
+                  "personal_address":  [
+                                           "BB-UV9x8aLY",
+                                           "ZgQQ_S3ZVNo"
+                                       ],
+                  "visual_action":  [
+
+                                    ],
+                  "text_statement":  [
+                                         "Wgukw22We50"
+                                     ],
+                  "preview_then_start":  [
+
+                                         ],
+                  "provocative_claim":  [
+
+                                        ],
+                  "viewer_comment":  [
+
+                                     ],
+                  "setup_cutaway":  [
+
+                                    ],
+                  "straight_in":  [
+
+                                  ]
+              },
+    "familiar":  {
+                     "season_or_holiday":  [
+                                               "mu6zSQvrSA8"
+                                           ],
+                     "everyday_experience":  [
+
+                                             ],
+                     "trend":  [
+
+                               ],
+                     "nostalgia":  [
+                                       "uwvyZhHWfwo"
+                                   ]
+                 }
+}

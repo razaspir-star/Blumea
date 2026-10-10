@@ -1,0 +1,416 @@
+{
+  "_note": "Held-out batch 2 (never used for tuning definitions). Owner labels, 2026-10-06.",
+  "videos": [
+    {
+      "id": "NjzouhkAksk",
+      "format": "caption_clip"
+    },
+    {
+      "id": "4w4eNERM9Nk",
+      "format": "reaction_stitch",
+      "note": "with speech; several stitches of the same creator"
+    },
+    {
+      "id": "k3dCFFVDcR8",
+      "format": "reaction_stitch",
+      "note": "with speech; several stitches"
+    },
+    {
+      "id": "9SMQQs22RiQ",
+      "format": "reaction_stitch",
+      "note": "with speech; several stitches"
+    },
+    {
+      "id": "ybUur4EMb7E",
+      "format": "reaction_stitch",
+      "note": "a reaction that includes preparing food"
+    },
+    {
+      "id": "qFYbL0RjdnE",
+      "format": "self_dialogue"
+    },
+    {
+      "id": "FZLqln2onFo",
+      "format": "voiceover_on_activity",
+      "note": "talks about the recipe and how it came out, over how she made it"
+    },
+    {
+      "id": "0TxJFAMG-uo",
+      "format": "voiceover_on_activity",
+      "secondary": "reply_to_comment",
+      "note": "more of a story with a recipe on top; maybe also a reply to a user"
+    },
+    {
+      "id": "6WaZnI-S4x8",
+      "format": "reply_to_comment"
+    },
+    {
+      "id": "cDUAWEKS3Nc",
+      "format": "reply_to_comment"
+    },
+    {
+      "id": "TALn9NH2dAo",
+      "format": "skill_process"
+    },
+    {
+      "id": "MJ0QDnOvQgQ",
+      "format": "skill_process"
+    },
+    {
+      "id": "iAAGGoBOTVM",
+      "format": "skill_process"
+    },
+    {
+      "id": "cwmUgIhPv2U",
+      "format": "skill_process"
+    },
+    {
+      "id": "S5hlq72ntFY",
+      "format": "skill_process"
+    },
+    {
+      "id": "VG-Y0p6IWMU",
+      "format": "skill_process"
+    },
+    {
+      "id": "De4sEckr9nc",
+      "format": "caption_clip"
+    },
+    {
+      "id": "J2cHcluzsgg",
+      "format": "split_screen_reaction"
+    },
+    {
+      "id": "ACdmBvUUAPY",
+      "format": "split_screen_reaction"
+    },
+    {
+      "id": "R62vh5zIOjI",
+      "format": "self_dialogue"
+    },
+    {
+      "id": "Q0BOH_s9gSU",
+      "format": "podcast_clip"
+    },
+    {
+      "id": "ANdL75NRtro",
+      "format": "podcast_clip"
+    },
+    {
+      "id": "w3uFToLMYTQ",
+      "format": "podcast_clip"
+    },
+    {
+      "id": "FP-_E7hcrWg",
+      "format": "podcast_clip"
+    },
+    {
+      "id": "qN0Wp_70qj0",
+      "format": "voiceover_over_background"
+    },
+    {
+      "id": "aWF47U_zkr8",
+      "format": "voiceover_over_background"
+    },
+    {
+      "id": "bwH-Ku8K9TY",
+      "format": "voiceover_over_background"
+    },
+    {
+      "id": "SyUzTskQOsM",
+      "format": "voiceover_over_background"
+    },
+    {
+      "id": "bBqfUtGtiWY",
+      "format": "voiceover_over_background"
+    },
+    {
+      "id": "xvre-fPEOoY",
+      "format": "reply_to_comment"
+    },
+    {
+      "id": "_zyIW4Su4lw",
+      "format": "green_screen"
+    },
+    {
+      "id": "Oju5uzHorpI",
+      "format": "trend_dance"
+    },
+    {
+      "id": "WN79904XxcI",
+      "format": "trend_dance"
+    },
+    {
+      "id": "9CRB8FTsErs",
+      "format": "trend_dance"
+    },
+    {
+      "id": "6bdaEQYM2Vw",
+      "format": "lip_sync"
+    },
+    {
+      "id": "TKfbwRCj70M",
+      "format": "lip_sync"
+    },
+    {
+      "id": "V1Jg3QNPhZQ",
+      "format": "lip_sync"
+    },
+    {
+      "id": "qRIYYQDG3v8",
+      "format": "lip_sync"
+    },
+    {
+      "id": "0briHIeZrss",
+      "format": "challenge"
+    },
+    {
+      "id": "ZFGmJh0qAyY",
+      "format": "challenge"
+    },
+    {
+      "id": "5bew5scFiPY",
+      "format": "unboxing_review"
+    },
+    {
+      "id": "eO_Vj9wwMFM",
+      "format": "unboxing_review"
+    },
+    {
+      "id": "qP1AUA6Gm2c",
+      "format": "unboxing_review"
+    },
+    {
+      "id": "9XGf6Urn0Z0",
+      "format": "unboxing_review"
+    },
+    {
+      "id": "DMTUdWkhCUc",
+      "format": "unboxing_review"
+    },
+    {
+      "id": "n4W082xS4Rg",
+      "format": "music_performance"
+    },
+    {
+      "id": "Ye08nC8DYXc",
+      "format": "music_performance"
+    },
+    {
+      "id": "jii6gpSUc_Y",
+      "format": "music_performance"
+    },
+    {
+      "id": "Zsdfrgvd4cc",
+      "format": "music_montage"
+    },
+    {
+      "id": "ORRIEs44c38",
+      "format": "music_montage"
+    },
+    {
+      "id": "L43i0jfc4R4",
+      "format": "music_montage"
+    },
+    {
+      "id": "tWovqWaHXQg",
+      "format": "filter_game"
+    },
+    {
+      "id": "J4L2RDaJ1Vs",
+      "format": "filter_game"
+    },
+    {
+      "id": "fIXtlwPVf18",
+      "format": "comparison_vs"
+    },
+    {
+      "id": "dKviWT-CTG0",
+      "format": "comparison_vs"
+    },
+    {
+      "id": "H7MCTTr9S_0",
+      "format": "comparison_vs"
+    },
+    {
+      "id": "jHmNKMCR03Q",
+      "format": "ranking"
+    },
+    {
+      "id": "tdMnSucPH4E",
+      "format": "ranking"
+    },
+    {
+      "id": "ja5ZNcx9s-I",
+      "format": "interview_street"
+    },
+    {
+      "id": "wIIcTdu6KOw",
+      "format": "interview_street"
+    },
+    {
+      "id": "j40ewKFsyBk",
+      "format": "interview_street"
+    },
+    {
+      "id": "9f1Ir9xQGFc",
+      "format": "interview_street"
+    },
+    {
+      "id": "MYvLcozbm3w",
+      "format": "interview_street"
+    },
+    {
+      "id": "0S4JaS-365E",
+      "format": "tutorial"
+    },
+    {
+      "id": "cYjiizXKKR4",
+      "format": "tutorial"
+    },
+    {
+      "id": "oXl1Zl171j8",
+      "format": "tutorial"
+    },
+    {
+      "id": "3oYIekp2hTk",
+      "format": "tutorial"
+    },
+    {
+      "id": "WwAhoEuRGec",
+      "format": "tutorial"
+    },
+    {
+      "id": "c2GnCtr6JFs",
+      "format": "list_tips"
+    },
+    {
+      "id": "uWlyfLpA3Qo",
+      "format": "reveal_before_after"
+    },
+    {
+      "id": "kDdimy_rs28",
+      "format": "reveal_before_after"
+    },
+    {
+      "id": "96WDe7C88aA",
+      "format": "reveal_before_after"
+    },
+    {
+      "id": "V2Me830aBfM",
+      "format": "routine_vlog"
+    },
+    {
+      "id": "mZ_WLcJXGNc",
+      "format": "routine_vlog"
+    },
+    {
+      "id": "ulH6K-RUT_s",
+      "format": "routine_vlog"
+    },
+    {
+      "id": "QRdUpYOOzQI",
+      "format": "routine_vlog"
+    },
+    {
+      "id": "z3dsB1ajKr8",
+      "format": "routine_vlog"
+    },
+    {
+      "id": "db6gAI_vLSE",
+      "format": "behind_the_scenes"
+    },
+    {
+      "id": "I9JYel4moP8",
+      "format": "behind_the_scenes"
+    },
+    {
+      "id": "BIwqn2Ek0Eg",
+      "format": "behind_the_scenes"
+    },
+    {
+      "id": "Ktf4C-7zjfE",
+      "format": "pov_skit"
+    },
+    {
+      "id": "1ATjA-0Ty5k",
+      "format": "pov_skit"
+    },
+    {
+      "id": "lQ0JIPtmbmM",
+      "format": "pov_skit"
+    },
+    {
+      "id": "ohlJX8Kk92g",
+      "format": "transition_edit"
+    },
+    {
+      "id": "DlOu3nXVpn0",
+      "format": "transition_edit"
+    },
+    {
+      "id": "BKwOa3ORWZ0",
+      "format": "ranking",
+      "secondary": "filter_game",
+      "note": "a ranking plus a filter"
+    },
+    {
+      "id": "wJ1hBLiInK0",
+      "format": "ranking"
+    },
+    {
+      "id": "Tck2uBeF4GI",
+      "format": "ai_generated"
+    },
+    {
+      "id": "jg8m_CVpFtw",
+      "format": "ai_generated"
+    },
+    {
+      "id": "oVgp_rOjQds",
+      "format": "list_tips"
+    },
+    {
+      "id": "-XACGb4cYj0",
+      "format": "list_tips"
+    },
+    {
+      "id": "yVrKuaIaxzU",
+      "format": "behind_the_scenes",
+      "secondary": "reveal_before_after",
+      "note": "behind the scenes, then the reveal of the result"
+    },
+    {
+      "id": "uxK0r_dMX-M",
+      "format": "behind_the_scenes",
+      "secondary": "reveal_before_after",
+      "note": "behind the scenes, then the reveal of the result"
+    },
+    {
+      "id": "E1a4GLQgUC8",
+      "format": "meme_edit",
+      "note": "owner-approved meme edit, 2026-10-06"
+    },
+    {
+      "id": "ShuNV1f4a6A",
+      "format": "meme_edit",
+      "note": "owner-approved meme edit, 2026-10-06"
+    },
+    {
+      "id": "U3gnCka1ASw",
+      "format": "meme_edit",
+      "note": "owner-approved meme edit, 2026-10-06"
+    },
+    {
+      "id": "zark0B5r2bQ",
+      "format": "meme_edit",
+      "note": "owner-approved meme edit, 2026-10-06"
+    },
+    {
+      "id": "b1BeHEGzmFk",
+      "format": "meme_edit",
+      "note": "owner-approved meme edit, 2026-10-06"
+    }
+  ],
+  "note3": "Owner 2026-10-06: an unticked or X-marked candidate means NOT SURE (he does not know memes), not rejected. Only ticks are labels."
+}

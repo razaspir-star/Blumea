@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "blumea-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 3000
+    },
+    {
+      "name": "legal-site-preview",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-l", "5500", "legal-site"],
+      "port": 5500
+    }
+  ]
+}

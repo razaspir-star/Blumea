@@ -1,0 +1,43 @@
+{
+    "note":  "HELD-OUT hook examples: new videos the definitions were never sharpened on. Do not edit definitions after looking at results on this set without saying so. Collected category by category from 2026-10-10.",
+    "hooks":  {
+                  "preview_then_start":  [
+                                             "sjpy-YfH-98"
+                                         ],
+                  "provocative_claim":  [
+                                            "ChGoodCuNEU"
+                                        ],
+                  "viewer_comment":  [
+                                         "qzfJj8QqAF8",
+                                         "c25yfnEMT3k"
+                                     ],
+                  "open_question":  [
+
+                                    ],
+                  "personal_address":  [
+                                           "GWmcx3bx2_s"
+                                       ],
+                  "visual_action":  [
+                                        "OYYWZpyXGzU"
+                                    ],
+                  "text_statement":  [
+                                         "LeBN9h0cK8k"
+                                     ],
+                  "setup_cutaway":  [
+                                        "ociABmy14JU"
+                                    ],
+                  "straight_in":  [
+                                      "XtmAI3uPiRw"
+                                  ]
+              },
+    "familiar":  {
+
+                 },
+    "alsoAccepted":  {
+                         "LeBN9h0cK8k":  "personal_address (owner: it is also a personal address to a group)"
+                     },
+    "notes":  {
+                  "GWmcx3bx2_s":  "owner: speaks to the supporters of one specific club; understood by a normal viewer, probably not by the AI (local context)",
+                  "OYYWZpyXGzU":  "owner: the bag being thrown in the first second is the hook"
+              }
+}

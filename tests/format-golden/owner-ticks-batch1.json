@@ -1,0 +1,356 @@
+{
+  "silent_process": {
+    "yes": [
+      "86NHFK1RAJ0",
+      "GZTDYiSWtf0",
+      "wvnXL_ycTXQ",
+      "zPxQjuFoUBc",
+      "Qp83da4oZnQ",
+      "eqxk2rVPbdA"
+    ],
+    "no": []
+  },
+  "silent_reaction": {
+    "yes": [],
+    "no": [
+      "4GROCTH7FY8",
+      "qz91smv1cZ8",
+      "OXkmZST0_6Y",
+      "Da0y_7xZy2w",
+      "6k9r1sxwSg4",
+      "E5PsZN9AgTY"
+    ]
+  },
+  "talking_to_camera": {
+    "yes": [
+      "DrO8PWg7Nu8",
+      "f1yA47m-E4g",
+      "4V8_JKB0Uvw"
+    ],
+    "no": [
+      "ppgKG5M65Dc",
+      "4fOIVeh7zWw",
+      "QgN0nOBnX6w"
+    ]
+  },
+  "self_dialogue": {
+    "yes": [],
+    "no": [
+      "27jVjyLCgvw",
+      "I-mBHQai41c",
+      "aB1W0Q6fndg",
+      "7OU2Nu0ksl4",
+      "PaEAK7sGm7U"
+    ]
+  },
+  "podcast_clip": {
+    "yes": [
+      "pdTvnGQScRE",
+      "Ud7MnPBdN7I"
+    ],
+    "no": [
+      "s99kX0Jz6eA",
+      "c4-ZJbKKeZs"
+    ]
+  },
+  "voiceover_on_activity": {
+    "yes": [],
+    "no": [
+      "DrO8PWg7Nu8",
+      "UGULxhi3XFo",
+      "OQ_3WTjT9TI",
+      "2j-OfDFBGik",
+      "-3VY3tqzFaQ",
+      "d3Fi0k70r2U"
+    ]
+  },
+  "voiceover_over_background": {
+    "yes": [],
+    "no": [
+      "tDtRBxb627U",
+      "9CUghk1zR3M",
+      "epIPI7GnEbg",
+      "kKqPqyHHzj4",
+      "0wRhb44MrQg"
+    ]
+  },
+  "reaction_stitch": {
+    "yes": [
+      "xDMbbbHDe7M"
+    ],
+    "no": [
+      "L8yWyqWYClE",
+      "4L6IYpzcpg4",
+      "D7kJqPQvrio",
+      "ItKgbhpeab8",
+      "DUKfwwmV5Ss"
+    ]
+  },
+  "split_screen_reaction": {
+    "yes": [
+      "kegGG_JWCns"
+    ],
+    "no": [
+      "jPPH9pnXhzE",
+      "M96nMEEccxM",
+      "DEdHAWH33nk",
+      "VD7fJpw31QQ",
+      "pUvxfhLwtQc"
+    ]
+  },
+  "reply_to_comment": {
+    "yes": [],
+    "no": [
+      "92SfKm_icvQ",
+      "cqzdOBJFVkA",
+      "-wg_SYzNSA0",
+      "LBfHldtIeyQ",
+      "sJC3btDC39I",
+      "hpA0x3bOhjs"
+    ]
+  },
+  "green_screen": {
+    "yes": [],
+    "no": [
+      "JQrTtbXqRNY",
+      "wQwXWS7RE-I",
+      "HYWDtEMpDTQ",
+      "VR2YU3-XNn4",
+      "h6NWoIbWI78",
+      "mn3Wnn2F8GU"
+    ]
+  },
+  "pov_skit": {
+    "yes": [],
+    "no": [
+      "VrvYRmiMtrY",
+      "rPmbfhC2VdM",
+      "nlKgf_LMPSA",
+      "sLR-1sZqROo",
+      "mjaNqXqk-6c",
+      "99sucikTsNM"
+    ]
+  },
+  "trend_dance": {
+    "yes": [
+      "IC24FxUCPmY",
+      "6FljrpJG3pg",
+      "fFW01aVQ0Lw",
+      "V4SsQaOJXBI"
+    ],
+    "no": [
+      "mxb2sBLNK5Y",
+      "SMDpJEJgpFU"
+    ]
+  },
+  "lip_sync": {
+    "yes": [
+      "sx6cGAUQtCg",
+      "5JqxLbpKzgI",
+      "piakx-VIAoY"
+    ],
+    "no": [
+      "jPCJIB1f7jk",
+      "FiacxXdrHgY",
+      "14Ubv8FWbSo"
+    ]
+  },
+  "challenge": {
+    "yes": [
+      "gO6zCoFk_o8",
+      "hEZ9dqTtEMw",
+      "N4K9wNNVHjc"
+    ],
+    "no": [
+      "wl6EzRDu0yM",
+      "l0OgBVIjx10",
+      "phd6U9OYqJw"
+    ]
+  },
+  "unboxing_review": {
+    "yes": [
+      "R5IE7LvEKd8"
+    ],
+    "no": [
+      "jpfHRBMo-zE",
+      "gBDQ7tBR-7Y",
+      "s6E6ghZJ4Uw",
+      "X7nltXec54U",
+      "TNsgU52dPxY"
+    ]
+  },
+  "music_performance": {
+    "yes": [
+      "rc1n2aisgQ4",
+      "MJLjqcjgrpo",
+      "Y6yrilF6bBc",
+      "I4rnP_Yz018"
+    ],
+    "no": [
+      "9EDyegIVgic",
+      "dd_FSucSE74"
+    ]
+  },
+  "music_montage": {
+    "yes": [],
+    "no": [
+      "LiErJXjGTh0",
+      "6KpmvMSP9Sc",
+      "cypqGpxAX_0",
+      "LyXcgjj1x2A",
+      "eW8jmH116wM",
+      "pv4VZMeR9KQ"
+    ]
+  },
+  "filter_game": {
+    "yes": [
+      "BQmtBPRwX3w",
+      "ji5yXjJj03U",
+      "faW8uAN-Yag",
+      "h23f1uMZZY4",
+      "6nRcMBY6Ga8"
+    ],
+    "no": [
+      "V12-TWUDWmA"
+    ]
+  },
+  "transition_edit": {
+    "yes": [
+      "fEdEwpXjB14",
+      "ctuAvi-z2XI",
+      "CZhsPc4-00o",
+      "YwIA91yhVwk",
+      "U14P6iWSErQ"
+    ],
+    "no": [
+      "lQd2OLO1S4o"
+    ]
+  },
+  "comparison_vs": {
+    "yes": [
+      "n_CmFMbsT9o",
+      "oDihnbzhRVc"
+    ],
+    "no": [
+      "rgUENl4Yg8k",
+      "FdH8bsQSGA0",
+      "9xjFKWLr5NI",
+      "swMyEdUD6qk"
+    ]
+  },
+  "interview_street": {
+    "yes": [
+      "rBY7V9NSU4g",
+      "0Ht_SxSBQ1k",
+      "5X9JCZ85HJ8",
+      "PzAsJ-jwDl0",
+      "Cl14O2GD5dg",
+      "38Q-6KuQK2U"
+    ],
+    "no": []
+  },
+  "ai_generated": {
+    "yes": [],
+    "no": [
+      "-lT5cTcMLtc",
+      "9b6qXrRkWxo",
+      "-sp1iH7va6g",
+      "Ifau8bx7tiA",
+      "g5qCWcJ1sac",
+      "iHXAbsHYuyk"
+    ]
+  },
+  "tutorial": {
+    "yes": [
+      "geIPPUQBUh8",
+      "OFb0EUIkYac",
+      "G93NodTztKM",
+      "W1IKM9zXYEY",
+      "BV-K1zZy5_I"
+    ],
+    "no": [
+      "Qps9woUGkvI"
+    ]
+  },
+  "list_tips": {
+    "yes": [
+      "t9sqzC8ktlM",
+      "Q-ZPBXtMudQ",
+      "dnGrbLk_Fdo",
+      "bkc6CwHSLI8",
+      "ZscMDYw7Plo"
+    ],
+    "no": [
+      "dhjNimFeVeU"
+    ]
+  },
+  "reveal_before_after": {
+    "yes": [
+      "pPZ5TEVLbhM",
+      "Ce_gIbQt3iU"
+    ],
+    "no": [
+      "fiGTnRwAYdc",
+      "oK-rSjGD1e8",
+      "QQMrlQmJWMQ",
+      "cynR3kMLAYE"
+    ]
+  },
+  "routine_vlog": {
+    "yes": [
+      "keFVnfvfMAw"
+    ],
+    "no": [
+      "NhyLy2KvUuU",
+      "s_hAnPdkBTI",
+      "Lvkf2bwch7w",
+      "ufWndny-hiM",
+      "L31ExXwlsVc"
+    ]
+  },
+  "meme_edit": {
+    "yes": [
+      "8W7RA8Akfxo",
+      "KOd5S95hXzY"
+    ],
+    "no": [
+      "bqgxi6i4aBk",
+      "Upx9CyQIrE4",
+      "VmR07fg-LVg",
+      "SbKAh31Py4w"
+    ]
+  },
+  "storytelling": {
+    "yes": [],
+    "no": [
+      "fC1y-xgImjY",
+      "Eu3eRj-7Ino",
+      "DIYVY922Y0o",
+      "09lm3trVrgk",
+      "eEMOUQLBezQ"
+    ]
+  },
+  "behind_the_scenes": {
+    "yes": [
+      "XlEP108fYB8",
+      "DTuM31mWyOg",
+      "YsNba-adqpA",
+      "VW33an_YCPY"
+    ],
+    "no": [
+      "_ZS7QGPR3BM",
+      "0KLUxYJON7A"
+    ]
+  },
+  "caption_clip": {
+    "yes": [],
+    "no": [
+      "qjJlPPFxZiA",
+      "k0R7X_hyEcw",
+      "VeiEp69uxVo",
+      "qPzQtyZh-7Q",
+      "SLBtt7dB7VI",
+      "a-YZq1g4irc"
+    ]
+  }
+}

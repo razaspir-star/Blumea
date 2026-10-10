@@ -1,0 +1,60 @@
+{
+    "note":  "Owner-supplied example videos per hook (draft library src/lib/hook-library.ts). Only videos the owner chose or ticked are here. Collected category by category, 2026-10-10.",
+    "hooks":  {
+                  "preview_then_start":  [
+                                             "DovQvtyX4MI",
+                                             "-s1mOd12kuE",
+                                             "DZv3nluo50o",
+                                             "TscWplBfaUI",
+                                             "balHYDuPuF0"
+                                         ],
+                  "provocative_claim":  [
+                                            "DLErAVRR_Uo",
+                                            "E_44gV1USOM"
+                                        ],
+                  "open_question":  [
+                                        "Ar9DIuCkl6c"
+                                    ],
+                  "personal_address":  [
+                                           "PPEsC4Cc0dk"
+                                       ],
+                  "visual_action":  [
+                                        "4zgYjFjCQKI"
+                                    ],
+                  "text_statement":  [
+                                         "rlBclXYl5xk",
+                                         "MuVKiM0hfSs",
+                                         "uQsOa8o8pIo"
+                                     ],
+                  "setup_cutaway":  [
+                                        "AHE8bHge75w",
+                                        "IAkrrajpRTE"
+                                    ],
+                  "straight_in":  [
+                                      "dxsZ3JIl-2A",
+                                      "z2tOvnD5KsM"
+                                  ],
+                  "viewer_comment":  [
+                                         "ZY9cTpqBr9o",
+                                         "KHs09HoPg10",
+                                         "2w-1Un3rX6Q"
+                                     ]
+              },
+    "familiar":  {
+                     "everyday_experience":  [
+                                                 "rS3YG8c06_4"
+                                             ],
+                     "nostalgia":  [
+                                       "uQsOa8o8pIo"
+                                   ]
+                 },
+    "unsure":  [
+                   "PHKyqZ70GAw  (owner: a mix of provocation and question; accept either open_question or provocative_claim)"
+               ],
+    "alsoAccepted":  {
+                         "rlBclXYl5xk":  "personal_address (caption invites comments with a promise)",
+                         "PHKyqZ70GAw":  "open_question / provocative_claim",
+                         "4zgYjFjCQKI":  "text_statement (owner: a mix of visual and caption)",
+                         "E_44gV1USOM":  "preview_then_start (a quote first, then the host\u0027s question; the provocative part comes in the first sentence)"
+                     }
+}

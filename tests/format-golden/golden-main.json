@@ -1,0 +1,683 @@
+{
+  "videos": [
+    {
+      "id": "86NHFK1RAJ0",
+      "purpose": "skill_process",
+      "layout": "silent",
+      "oldFormat": "skill_process"
+    },
+    {
+      "id": "GZTDYiSWtf0",
+      "purpose": "skill_process",
+      "layout": "silent",
+      "oldFormat": "skill_process"
+    },
+    {
+      "id": "wvnXL_ycTXQ",
+      "purpose": "skill_process",
+      "layout": "silent",
+      "oldFormat": "skill_process"
+    },
+    {
+      "id": "zPxQjuFoUBc",
+      "purpose": "skill_process",
+      "layout": "silent",
+      "oldFormat": "skill_process"
+    },
+    {
+      "id": "Qp83da4oZnQ",
+      "purpose": "skill_process",
+      "layout": "silent",
+      "oldFormat": "skill_process"
+    },
+    {
+      "id": "eqxk2rVPbdA",
+      "purpose": "skill_process",
+      "layout": "silent",
+      "oldFormat": "skill_process",
+      "note": "cooking, no speech, a song plays instead of natural sounds"
+    },
+    {
+      "id": "NbXD-TBp2Tc",
+      "purpose": "skill_process",
+      "layout": "silent",
+      "oldFormat": "skill_process",
+      "note": "NOT cooking ג€” shows the format is broader than food"
+    },
+    {
+      "id": "wkE1hEfsurA",
+      "purpose": "reaction_stitch",
+      "layout": null,
+      "oldFormat": "reaction_stitch",
+      "note": "owner's silent-reaction example: a clip, then a stitch of a person reacting; no speech"
+    },
+    {
+      "id": "02S6IpcpSpU",
+      "purpose": "reaction_stitch",
+      "layout": null,
+      "oldFormat": "reaction_stitch",
+      "note": "no speech"
+    },
+    {
+      "id": "xDMbbbHDe7M",
+      "purpose": "reaction_stitch",
+      "layout": null,
+      "oldFormat": "reaction_stitch"
+    },
+    {
+      "id": "DrO8PWg7Nu8",
+      "purpose": "chat_opinion",
+      "layout": "to_camera",
+      "oldFormat": "talking_to_camera"
+    },
+    {
+      "id": "f1yA47m-E4g",
+      "purpose": "chat_opinion",
+      "layout": "to_camera",
+      "oldFormat": "talking_to_camera"
+    },
+    {
+      "id": "4V8_JKB0Uvw",
+      "purpose": "chat_opinion",
+      "layout": "to_camera",
+      "oldFormat": "talking_to_camera",
+      "note": "owner 2026-10-05: could not decide; the story IS the talking to camera; either is accepted",
+      "purposeAlt": "storytelling"
+    },
+    {
+      "id": "NuuqrQfXfkE",
+      "purpose": "self_dialogue",
+      "layout": "to_camera",
+      "oldFormat": "self_dialogue"
+    },
+    {
+      "id": "3FpuIcxFId0",
+      "purpose": "self_dialogue",
+      "layout": "to_camera",
+      "oldFormat": "self_dialogue"
+    },
+    {
+      "id": "gAnEMpHoavc",
+      "purpose": "self_dialogue",
+      "layout": "to_camera",
+      "oldFormat": "self_dialogue"
+    },
+    {
+      "id": "pdTvnGQScRE",
+      "purpose": "podcast_clip",
+      "layout": "conversation",
+      "oldFormat": "podcast_clip"
+    },
+    {
+      "id": "Ud7MnPBdN7I",
+      "purpose": "podcast_clip",
+      "layout": "conversation",
+      "oldFormat": "podcast_clip"
+    },
+    {
+      "id": "s99kX0Jz6eA",
+      "purpose": "tutorial",
+      "layout": null,
+      "oldFormat": "tutorial",
+      "note": "corrected 2026-10-05: explains how to do something; looks like a podcast but is not"
+    },
+    {
+      "id": "Ng7Wxf-9DdY",
+      "purpose": null,
+      "layout": "voiceover_on_activity",
+      "oldFormat": "voiceover_on_activity"
+    },
+    {
+      "id": "Yj1faVRTj90",
+      "purpose": null,
+      "layout": "voiceover_on_activity",
+      "oldFormat": "voiceover_on_activity"
+    },
+    {
+      "id": "mgoHCuZYFEQ",
+      "purpose": null,
+      "layout": "voiceover_over_background",
+      "oldFormat": "voiceover_over_background"
+    },
+    {
+      "id": "_GYw24lKnpc",
+      "purpose": null,
+      "layout": "voiceover_over_background",
+      "oldFormat": "voiceover_over_background"
+    },
+    {
+      "id": "4fOIVeh7zWw",
+      "purpose": null,
+      "layout": "voiceover_over_background",
+      "oldFormat": "voiceover_over_background",
+      "note": "story read over unrelated 'oddly satisfying' footage ג€” background is not always gameplay"
+    },
+    {
+      "id": "kegGG_JWCns",
+      "purpose": "reaction_stitch",
+      "layout": "split_screen",
+      "oldFormat": "split_screen_reaction"
+    },
+    {
+      "id": "u0dqrYvYm7Q",
+      "purpose": "reaction_stitch",
+      "layout": "split_screen",
+      "oldFormat": "split_screen_reaction"
+    },
+    {
+      "id": "xfZG-CZj4JY",
+      "purpose": "reply_to_comment",
+      "layout": "to_camera",
+      "oldFormat": "reply_to_comment"
+    },
+    {
+      "id": "Wo3mqPCdaxA",
+      "purpose": "reply_to_comment",
+      "layout": "to_camera",
+      "oldFormat": "reply_to_comment"
+    },
+    {
+      "id": "ZRkzyJ_84nA",
+      "purpose": "reply_to_comment",
+      "layout": "to_camera",
+      "oldFormat": "reply_to_comment",
+      "note": "question-and-answer style"
+    },
+    {
+      "id": "kKwraanq3Ro",
+      "purpose": null,
+      "layout": "green_screen",
+      "oldFormat": "green_screen"
+    },
+    {
+      "id": "ppgKG5M65Dc",
+      "purpose": null,
+      "layout": "green_screen",
+      "oldFormat": "green_screen",
+      "note": "person talking in front of an image; found among the talking_to_camera candidates"
+    },
+    {
+      "id": "mn3Wnn2F8GU",
+      "purpose": "behind_the_scenes",
+      "layout": null,
+      "oldFormat": "behind_the_scenes",
+      "note": "how things look behind the scenes; found among the green_screen candidates"
+    },
+    {
+      "id": "CLJBmlQL61U",
+      "purpose": "pov_skit",
+      "layout": null,
+      "oldFormat": "pov_skit"
+    },
+    {
+      "id": "umi0ZaJm5Uo",
+      "purpose": "pov_skit",
+      "layout": null,
+      "oldFormat": "pov_skit"
+    },
+    {
+      "id": "IC24FxUCPmY",
+      "purpose": "trend_dance",
+      "layout": null,
+      "oldFormat": "trend_dance"
+    },
+    {
+      "id": "6FljrpJG3pg",
+      "purpose": "trend_dance",
+      "layout": null,
+      "oldFormat": "trend_dance"
+    },
+    {
+      "id": "fFW01aVQ0Lw",
+      "purpose": "trend_dance",
+      "layout": null,
+      "oldFormat": "trend_dance"
+    },
+    {
+      "id": "V4SsQaOJXBI",
+      "purpose": "trend_dance",
+      "layout": null,
+      "oldFormat": "trend_dance"
+    },
+    {
+      "id": "sx6cGAUQtCg",
+      "purpose": "lip_sync",
+      "layout": null,
+      "oldFormat": "lip_sync",
+      "note": "owner 2026-10-05: partly lip-sync, partly silent question/answer captions; either is accepted",
+      "purposeAlt": "caption_clip"
+    },
+    {
+      "id": "5JqxLbpKzgI",
+      "purpose": "lip_sync",
+      "layout": null,
+      "oldFormat": "lip_sync"
+    },
+    {
+      "id": "piakx-VIAoY",
+      "purpose": "lip_sync",
+      "layout": null,
+      "oldFormat": "lip_sync"
+    },
+    {
+      "id": "gO6zCoFk_o8",
+      "purpose": "challenge",
+      "layout": null,
+      "oldFormat": "challenge"
+    },
+    {
+      "id": "hEZ9dqTtEMw",
+      "purpose": "challenge",
+      "layout": null,
+      "oldFormat": "challenge"
+    },
+    {
+      "id": "N4K9wNNVHjc",
+      "purpose": "challenge",
+      "layout": null,
+      "oldFormat": "challenge",
+      "note": "a challenge, also cooking with ASMR sounds"
+    },
+    {
+      "id": "IvATO7gvWhA",
+      "purpose": "challenge",
+      "layout": null,
+      "oldFormat": "challenge"
+    },
+    {
+      "id": "R5IE7LvEKd8",
+      "purpose": "unboxing_review",
+      "layout": null,
+      "oldFormat": "unboxing_review",
+      "note": "unboxing with ASMR sounds"
+    },
+    {
+      "id": "KmzARlc7riw",
+      "purpose": "unboxing_review",
+      "layout": null,
+      "oldFormat": "unboxing_review"
+    },
+    {
+      "id": "3cJ1rkliRHU",
+      "purpose": "unboxing_review",
+      "layout": null,
+      "oldFormat": "unboxing_review"
+    },
+    {
+      "id": "rc1n2aisgQ4",
+      "purpose": "music_performance",
+      "layout": null,
+      "oldFormat": "music_performance"
+    },
+    {
+      "id": "MJLjqcjgrpo",
+      "purpose": "music_performance",
+      "layout": null,
+      "oldFormat": "music_performance"
+    },
+    {
+      "id": "Y6yrilF6bBc",
+      "purpose": "music_performance",
+      "layout": null,
+      "oldFormat": "music_performance"
+    },
+    {
+      "id": "I4rnP_Yz018",
+      "purpose": "music_performance",
+      "layout": null,
+      "oldFormat": "music_performance"
+    },
+    {
+      "id": "FRjUM170Zzg",
+      "purpose": "list_tips",
+      "layout": null,
+      "oldFormat": "list_tips",
+      "note": "owner 2026-10-05: numbered captions over clips = list_tips, the AI was right"
+    },
+    {
+      "id": "1QevMSvq6-M",
+      "purpose": "comparison_vs",
+      "layout": null,
+      "oldFormat": "comparison_vs",
+      "note": "owner 2026-10-05: a comparison with a ranking inside it; either is accepted",
+      "purposeAlt": "ranking"
+    },
+    {
+      "id": "n_CmFMbsT9o",
+      "purpose": "comparison_vs",
+      "layout": null,
+      "oldFormat": "comparison_vs"
+    },
+    {
+      "id": "oDihnbzhRVc",
+      "purpose": "comparison_vs",
+      "layout": null,
+      "oldFormat": "comparison_vs"
+    },
+    {
+      "id": "mhbWZ3mh-a0",
+      "purpose": "ai_generated",
+      "layout": null,
+      "oldFormat": "ai_generated"
+    },
+    {
+      "id": "N39I7LysXGg",
+      "purpose": "ai_generated",
+      "layout": null,
+      "oldFormat": "ai_generated"
+    },
+    {
+      "id": "vtGIm_CX1YA",
+      "purpose": "routine_vlog",
+      "layout": null,
+      "oldFormat": "routine_vlog"
+    },
+    {
+      "id": "Gmk6177k-Xk",
+      "purpose": "storytelling",
+      "layout": null,
+      "oldFormat": "storytelling"
+    },
+    {
+      "id": "EecJHTfQkME",
+      "purpose": "storytelling",
+      "layout": null,
+      "oldFormat": "storytelling"
+    },
+    {
+      "id": "hgtWoFUT_yw",
+      "purpose": "behind_the_scenes",
+      "layout": null,
+      "oldFormat": "behind_the_scenes"
+    },
+    {
+      "id": "abRLt0TE_Nc",
+      "purpose": "ranking",
+      "layout": null,
+      "oldFormat": "ranking"
+    },
+    {
+      "id": "J8Ggqg0R5cY",
+      "purpose": "ranking",
+      "layout": null,
+      "oldFormat": "ranking"
+    },
+    {
+      "id": "pXuPFGnccLY",
+      "purpose": "ranking",
+      "layout": null,
+      "oldFormat": "ranking"
+    },
+    {
+      "id": "BQmtBPRwX3w",
+      "purpose": "filter_game",
+      "layout": null,
+      "oldFormat": "filter_game"
+    },
+    {
+      "id": "ji5yXjJj03U",
+      "purpose": "filter_game",
+      "layout": null,
+      "oldFormat": "filter_game"
+    },
+    {
+      "id": "faW8uAN-Yag",
+      "purpose": "filter_game",
+      "layout": null,
+      "oldFormat": "filter_game"
+    },
+    {
+      "id": "h23f1uMZZY4",
+      "purpose": "filter_game",
+      "layout": null,
+      "oldFormat": "filter_game"
+    },
+    {
+      "id": "6nRcMBY6Ga8",
+      "purpose": "filter_game",
+      "layout": null,
+      "oldFormat": "filter_game"
+    },
+    {
+      "id": "fEdEwpXjB14",
+      "purpose": "transition_edit",
+      "layout": null,
+      "oldFormat": "transition_edit"
+    },
+    {
+      "id": "ctuAvi-z2XI",
+      "purpose": "transition_edit",
+      "layout": null,
+      "oldFormat": "transition_edit"
+    },
+    {
+      "id": "CZhsPc4-00o",
+      "purpose": "transition_edit",
+      "layout": null,
+      "oldFormat": "transition_edit"
+    },
+    {
+      "id": "YwIA91yhVwk",
+      "purpose": "transition_edit",
+      "layout": null,
+      "oldFormat": "transition_edit"
+    },
+    {
+      "id": "U14P6iWSErQ",
+      "purpose": "transition_edit",
+      "layout": null,
+      "oldFormat": "transition_edit"
+    },
+    {
+      "id": "rBY7V9NSU4g",
+      "purpose": "interview_street",
+      "layout": "conversation",
+      "oldFormat": "interview_street"
+    },
+    {
+      "id": "0Ht_SxSBQ1k",
+      "purpose": "interview_street",
+      "layout": "conversation",
+      "oldFormat": "interview_street"
+    },
+    {
+      "id": "5X9JCZ85HJ8",
+      "purpose": "interview_street",
+      "layout": "conversation",
+      "oldFormat": "interview_street"
+    },
+    {
+      "id": "PzAsJ-jwDl0",
+      "purpose": "interview_street",
+      "layout": "conversation",
+      "oldFormat": "interview_street"
+    },
+    {
+      "id": "Cl14O2GD5dg",
+      "purpose": "interview_street",
+      "layout": "conversation",
+      "oldFormat": "interview_street"
+    },
+    {
+      "id": "38Q-6KuQK2U",
+      "purpose": "interview_street",
+      "layout": "conversation",
+      "oldFormat": "interview_street"
+    },
+    {
+      "id": "geIPPUQBUh8",
+      "purpose": "tutorial",
+      "layout": null,
+      "oldFormat": "tutorial"
+    },
+    {
+      "id": "OFb0EUIkYac",
+      "purpose": "tutorial",
+      "layout": null,
+      "oldFormat": "tutorial"
+    },
+    {
+      "id": "G93NodTztKM",
+      "purpose": "tutorial",
+      "layout": null,
+      "oldFormat": "tutorial"
+    },
+    {
+      "id": "W1IKM9zXYEY",
+      "purpose": "tutorial",
+      "layout": null,
+      "oldFormat": "tutorial"
+    },
+    {
+      "id": "BV-K1zZy5_I",
+      "purpose": "tutorial",
+      "layout": null,
+      "oldFormat": "tutorial",
+      "note": "owner 2026-10-05: a dance tutorial is a tutorial"
+    },
+    {
+      "id": "t9sqzC8ktlM",
+      "purpose": "list_tips",
+      "layout": null,
+      "oldFormat": "list_tips"
+    },
+    {
+      "id": "Q-ZPBXtMudQ",
+      "purpose": "list_tips",
+      "layout": null,
+      "oldFormat": "list_tips"
+    },
+    {
+      "id": "dnGrbLk_Fdo",
+      "purpose": "list_tips",
+      "layout": null,
+      "oldFormat": "list_tips"
+    },
+    {
+      "id": "bkc6CwHSLI8",
+      "purpose": "tutorial",
+      "layout": null,
+      "oldFormat": "tutorial",
+      "note": "owner 2026-10-05: tips on how to do it = tutorial (AI was right)"
+    },
+    {
+      "id": "ZscMDYw7Plo",
+      "purpose": "list_tips",
+      "layout": null,
+      "oldFormat": "list_tips"
+    },
+    {
+      "id": "pPZ5TEVLbhM",
+      "purpose": "reveal_before_after",
+      "layout": null,
+      "oldFormat": "reveal_before_after"
+    },
+    {
+      "id": "Ce_gIbQt3iU",
+      "purpose": "comparison_vs",
+      "layout": null,
+      "oldFormat": "comparison_vs",
+      "note": "owner 2026-10-05: expectation vs reality = comparison (AI was right)"
+    },
+    {
+      "id": "keFVnfvfMAw",
+      "purpose": "routine_vlog",
+      "layout": null,
+      "oldFormat": "routine_vlog"
+    },
+    {
+      "id": "8W7RA8Akfxo",
+      "purpose": "meme_edit",
+      "layout": null,
+      "oldFormat": "meme_edit"
+    },
+    {
+      "id": "KOd5S95hXzY",
+      "purpose": "meme_edit",
+      "layout": null,
+      "oldFormat": "meme_edit"
+    },
+    {
+      "id": "XlEP108fYB8",
+      "purpose": "behind_the_scenes",
+      "layout": null,
+      "oldFormat": "behind_the_scenes"
+    },
+    {
+      "id": "DTuM31mWyOg",
+      "purpose": "behind_the_scenes",
+      "layout": null,
+      "oldFormat": "behind_the_scenes"
+    },
+    {
+      "id": "YsNba-adqpA",
+      "purpose": "behind_the_scenes",
+      "layout": null,
+      "oldFormat": "behind_the_scenes"
+    },
+    {
+      "id": "VW33an_YCPY",
+      "purpose": "behind_the_scenes",
+      "layout": null,
+      "oldFormat": "behind_the_scenes"
+    },
+    {
+      "id": "MuVKiM0hfSs",
+      "purpose": "caption_clip",
+      "layout": "silent",
+      "oldFormat": "caption_clip",
+      "note": "owner's own video, confirmed 2026-10-04: everyday action + text + his song"
+    },
+    {
+      "id": "rlBclXYl5xk",
+      "purpose": "caption_clip",
+      "layout": "silent",
+      "oldFormat": "caption_clip",
+      "note": "owner's own video, confirmed 2026-10-04: everyday action + text + his song"
+    },
+    {
+      "id": "31uhIHquNvs",
+      "purpose": "caption_clip",
+      "layout": "silent",
+      "oldFormat": "caption_clip",
+      "note": "owner's own video, confirmed 2026-10-04: everyday action + text + his song"
+    },
+    {
+      "id": "hgdfyfZQkLo",
+      "purpose": "caption_clip",
+      "layout": "silent",
+      "oldFormat": "caption_clip",
+      "note": "owner's own video, confirmed 2026-10-04: everyday action + text + his song"
+    },
+    {
+      "id": "jiMGViYr7MA",
+      "purpose": "lip_sync",
+      "layout": null,
+      "oldFormat": "lip_sync",
+      "note": "owner: lip-syncs his own song while running after a car; the AI was right"
+    },
+    {
+      "id": "ba76czy7s10",
+      "purpose": "transition_edit",
+      "layout": null,
+      "oldFormat": "transition_edit",
+      "note": "owner decision 2026-10-04: the transition is the primary format; the caption is a layer",
+      "purposeAlt": "caption_clip"
+    },
+    {
+      "id": "CTzwSw3TsCQ",
+      "purpose": "trend_dance",
+      "layout": null,
+      "oldFormat": "trend_dance",
+      "note": "owner decision 2026-10-04: a trend/dance; the AI was right",
+      "purposeAlt": "caption_clip"
+    },
+    {
+      "id": "M0sFb_yBYHM",
+      "purpose": "caption_clip",
+      "layout": "silent",
+      "oldFormat": "caption_clip",
+      "note": "owner-supplied example from another creator (pending his decision on caption vs technique)"
+    }
+  ]
+}
