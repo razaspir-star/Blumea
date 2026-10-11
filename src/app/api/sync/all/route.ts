@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { timingSafeEqual } from "node:crypto";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { syncProfile } from "@/lib/sync";
+import { cleanupStaleUploads } from "@/lib/upload-cleanup";
 
 // Syncing many creators in one call can take a while.
 export const maxDuration = 60;
@@ -30,7 +31,9 @@ async function run(request: NextRequest) {
   for (const profileId of profileIds) {
     results[profileId] = await syncProfile(profileId).catch((error) => ({ error: String(error) }));
   }
-  return NextResponse.json({ profiles: profileIds.length, results });
+  // Also sweep any uploaded video that was left behind (normally none).
+  const uploadsRemoved = await cleanupStaleUploads(getSupabaseAdmin()).catch(() => -1);
+  return NextResponse.json({ profiles: profileIds.length, uploadsRemoved, results });
 }
 
 export const POST = run;

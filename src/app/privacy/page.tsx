@@ -36,8 +36,10 @@ export default function PrivacyPage() {
           numbers (title, cover image, likes, comments, shares, views as TikTok reports them).
         </li>
         <li>
-          <strong>Videos you upload yourself:</strong> if you choose to upload a TikTok video for analysis, the file is sent to the
-          AI service for analysis and deleted right afterwards. We do not keep the video file.
+          <strong>Videos you upload yourself:</strong> if you choose to upload a TikTok video for analysis (from your computer, or
+          from your phone through a QR code), the file is held in a private temporary storage of ours while it is sent to the AI service
+          for analysis, and deleted right afterwards. We do not keep the video file; if something goes wrong, a daily sweep removes any
+          leftover within a day.
         </li>
         <li>
           <strong>Our analysis of your videos:</strong> structured notes produced by AI about each video (for example its format, how it
@@ -92,7 +94,8 @@ export default function PrivacyPage() {
       <h2>Who processes it for us</h2>
       <ul>
         <li>
-          <strong>Supabase</strong> hosts our database and sign-in (servers in Mumbai, India). Connection tokens are stored encrypted.
+          <strong>Supabase</strong> hosts our database and sign-in (servers in Mumbai, India), and the temporary storage described
+          above. Connection tokens are stored encrypted.
         </li>
         <li>
           <strong>Google (Gemini API)</strong> reads a video to produce the AI notes about it. For YouTube videos this is the public
