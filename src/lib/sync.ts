@@ -94,7 +94,11 @@ export async function syncProfile(profileId: string): Promise<SyncResult> {
   return result;
 }
 
-async function syncVideos(profileId: string, platform: string, token: string, result: SyncResult) {
+// A few videos at a time: a First Scan covers up to 50 videos and each YouTube
+// video needs several Analytics calls.
+const CONCURRENCY = 4;
+
+export async function syncVideos(profileId: string, platform: string, token: string, result: SyncResult) {
   const supabase = getSupabaseAdmin();
   const { data: videos } = await supabase
     .from("videos")
@@ -102,7 +106,7 @@ async function syncVideos(profileId: string, platform: string, token: string, re
     .eq("profile_id", profileId)
     .eq("platform", platform);
 
-  for (const video of videos ?? []) {
+  async function syncOne(video: { id: string; platform_video_id: string; published_at: string | null }) {
     const { data: last } = await supabase
       .from("video_metric_snapshots")
       .select("captured_at, avg_watch_sec")
@@ -113,7 +117,7 @@ async function syncVideos(profileId: string, platform: string, token: string, re
 
     if (hoursSince(last?.captured_at) < MIN_GAP_HOURS) {
       result.videos.skipped += 1;
-      continue;
+      return;
     }
 
     try {
@@ -123,7 +127,7 @@ async function syncVideos(profileId: string, platform: string, token: string, re
         // Had watch data before, none now: the Analytics call failed quietly. Retry later.
         if (last?.avg_watch_sec !== null && last?.avg_watch_sec !== undefined && analytics?.avgWatchSec == null) {
           result.videos.failed += 1;
-          continue;
+          return;
         }
         const breakdowns =
           analytics?.trafficSource || analytics?.subscribedStatus || analytics?.engagement || analytics?.growth
@@ -158,4 +162,11 @@ async function syncVideos(profileId: string, platform: string, token: string, re
       result.videos.failed += 1;
     }
   }
+
+  const queue = [...(videos ?? [])];
+  await Promise.all(
+    Array.from({ length: CONCURRENCY }, async () => {
+      for (let video = queue.shift(); video; video = queue.shift()) await syncOne(video);
+    })
+  );
 }

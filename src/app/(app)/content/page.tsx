@@ -10,12 +10,13 @@ import { loadDashboardData, type DashboardVideo } from "@/lib/dashboard-data";
 import { formatLabel } from "@/lib/format-library";
 import { formatCount } from "@/lib/format";
 import { platformLabels } from "@/lib/mock-data";
+import { supabase } from "@/lib/supabase";
 
 type Filter = "all" | "youtube" | "tiktok";
 const filters: Filter[] = ["all", "youtube", "tiktok"];
 
-// Only real data: the videos Blumea has analyzed for this creator, with the
-// numbers the platforms gave us. (The prototype's made-up list is gone.)
+// Only real data: the creator's videos as the First Scan found them (numbers from
+// the platform), and which of them Blumea has read with AI.
 function thumbnailOf(video: DashboardVideo): string | null {
   return video.platform === "youtube" ? `https://i.ytimg.com/vi/${video.platformVideoId}/mqdefault.jpg` : null;
 }
@@ -28,6 +29,8 @@ export default function ContentPage() {
   const [videos, setVideos] = useState<DashboardVideo[] | null>(null);
   const [filter, setFilter] = useState<Filter>("all");
   const [analyzeOpen, setAnalyzeOpen] = useState(false);
+  const [analyzeTarget, setAnalyzeTarget] = useState<DashboardVideo | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -39,6 +42,19 @@ export default function ContentPage() {
     };
   }, []);
 
+  // Looks for new videos on the connected accounts (numbers only, no AI cost).
+  async function refreshVideos() {
+    setRefreshing(true);
+    const { data: session } = await supabase.auth.getSession();
+    await fetch("/api/scan", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${session.session?.access_token ?? ""}` },
+    }).catch(() => null);
+    const data = await loadDashboardData();
+    setVideos(data.videos);
+    setRefreshing(false);
+  }
+
   const visible = (videos ?? [])
     .filter((video) => filter === "all" || video.platform === filter)
     .sort((a, b) => (b.publishedAt ?? "").localeCompare(a.publishedAt ?? ""));
@@ -49,17 +65,30 @@ export default function ContentPage() {
         <div>
           <h1 className="text-3xl font-semibold tracking-tight text-blumea-navy sm:text-4xl">Content</h1>
 
-          <p className="mt-2 text-blumea-slate">The videos Blumea has analyzed on your connected accounts.</p>
+          <p className="mt-2 text-blumea-slate">
+            Your videos, with the numbers each platform reports. Analyze one to see what Blumea understood.
+          </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setAnalyzeOpen(true)}
-          className="flex items-center gap-2 rounded-full bg-blumea-navy px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-blumea-blue hover:shadow-md"
-        >
-          <PlaySquare size={17} strokeWidth={1.8} />
-          Analyze a video
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={refreshVideos}
+            disabled={refreshing}
+            className="rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-blumea-navy transition-colors hover:border-blumea-blue hover:text-blumea-blue disabled:opacity-60"
+          >
+            {refreshing ? "Looking…" : "Refresh my videos"}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setAnalyzeOpen(true)}
+            className="flex items-center gap-2 rounded-full bg-blumea-navy px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-blumea-blue hover:shadow-md"
+          >
+            <PlaySquare size={17} strokeWidth={1.8} />
+            Analyze a video
+          </button>
+        </div>
       </div>
 
       <div className="mt-6 flex flex-wrap gap-2">
@@ -85,7 +114,7 @@ export default function ContentPage() {
       <div className="mt-6 grid grid-cols-1 gap-4 pb-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {visible.map((video) => {
           const thumbnail = thumbnailOf(video);
-          const format = video.formatId ? formatLabel(video.formatId) : null;
+          const format = video.analyzed && video.formatId ? formatLabel(video.formatId) : null;
 
           return (
             <div
@@ -111,19 +140,35 @@ export default function ContentPage() {
                   {video.likes !== null ? ` · ${formatCount(video.likes)} likes` : ""}
                 </p>
 
-                {format && (
-                  <p className="mt-3">
-                    <span className="rounded-full bg-blumea-mist px-2.5 py-1 text-xs font-medium text-blumea-slate">{format}</span>
-                  </p>
-                )}
+                <p className="mt-3">
+                  {video.analyzed ? (
+                    format && (
+                      <span className="rounded-full bg-blumea-mist px-2.5 py-1 text-xs font-medium text-blumea-slate">{format}</span>
+                    )
+                  ) : (
+                    <span className="rounded-full border border-dashed border-slate-300 px-2.5 py-1 text-xs text-slate-400">
+                      Numbers only
+                    </span>
+                  )}
+                </p>
 
                 <div className="mt-auto pt-4">
-                  <AppLink
-                    href={`/analysis/${video.id}`}
-                    className="text-sm font-semibold text-blumea-blue transition-opacity hover:opacity-70"
-                  >
-                    View analysis →
-                  </AppLink>
+                  {video.analyzed ? (
+                    <AppLink
+                      href={`/analysis/${video.id}`}
+                      className="text-sm font-semibold text-blumea-blue transition-opacity hover:opacity-70"
+                    >
+                      View analysis →
+                    </AppLink>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setAnalyzeTarget(video)}
+                      className="text-sm font-semibold text-blumea-blue transition-opacity hover:opacity-70"
+                    >
+                      Analyze this video →
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -134,9 +179,11 @@ export default function ContentPage() {
       {videos !== null && visible.length === 0 && (
         <div className="mt-8 rounded-2xl border border-dashed border-slate-300 bg-white/60 p-8 text-center">
           <p className="text-sm font-semibold text-blumea-navy">
-            {videos.length === 0 ? "No analyzed videos yet." : "No analyzed videos on this platform yet."}
+            {videos.length === 0 ? "No videos yet." : "No videos on this platform yet."}
           </p>
-          <p className="mt-1 text-sm text-blumea-slate">Pick a video and Blumea will read it for you.</p>
+          <p className="mt-1 text-sm text-blumea-slate">
+            Connect an account in Connections, then press &quot;Refresh my videos&quot;, or pick a video to analyze.
+          </p>
           <button
             type="button"
             onClick={() => setAnalyzeOpen(true)}
@@ -148,6 +195,16 @@ export default function ContentPage() {
       )}
 
       {analyzeOpen && <AnalyzeModal onClose={() => setAnalyzeOpen(false)} />}
+
+      {analyzeTarget && (
+        <AnalyzeModal
+          onClose={() => setAnalyzeTarget(null)}
+          startReal={{
+            platform: analyzeTarget.platform === "tiktok" ? "tiktok" : "youtube",
+            platformVideoId: analyzeTarget.platform === "youtube" ? analyzeTarget.platformVideoId : undefined,
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -71,11 +71,19 @@ function useDashboardData() {
 
       const newest = newestCapture(loaded);
       const stale = loaded.accounts.length > 0 && (!newest || Date.now() - new Date(newest).getTime() > STALE_AFTER_MS);
-      if (!stale) return;
+      // First Scan: a creator who connected an account but has no videos yet.
+      const needsScan = loaded.accounts.length > 0 && loaded.videos.length === 0;
+      if (!stale && !needsScan) return;
 
       setSyncing(true);
       try {
         const { data: session } = await supabase.auth.getSession();
+        if (needsScan) {
+          await fetch("/api/scan", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${session.session?.access_token ?? ""}` },
+          });
+        }
         await fetch("/api/sync", {
           method: "POST",
           headers: { Authorization: `Bearer ${session.session?.access_token ?? ""}` },
@@ -258,7 +266,7 @@ export default function DashboardPage() {
         All time
       </span>
       {(syncing || updatedLabel) && (
-        <span className="text-xs text-blumea-slate">{syncing ? "Syncing your accounts…" : updatedLabel}</span>
+        <span className="text-xs text-blumea-slate">{syncing ? "Reading your videos…" : updatedLabel}</span>
       )}
     </div>
   </div>
@@ -363,7 +371,7 @@ export default function DashboardPage() {
     <div className="mt-5 flex flex-col items-start gap-2">
       {hasRealVideos ? (
         <span className="text-xs text-blumea-slate">
-          Likes + comments per view, across {derived.analyzedCount} analyzed videos
+          Likes + comments per view, across {derived.analyzedCount} videos
         </span>
       ) : (
         <span className="text-xs text-blumea-slate">Connect an account to see this</span>
@@ -392,7 +400,7 @@ export default function DashboardPage() {
       {hasRealVideos ? (
         <>
           <span className="text-xs text-blumea-slate">
-            Likes + comments on your {derived.analyzedCount} analyzed videos
+            Likes + comments on your {derived.analyzedCount} videos
           </span>
           <Breakdown
             parts={derived.interactionsByPlatform.map((part) => ({ label: platformLabel(part.platform), value: part.interactions }))}
@@ -558,8 +566,8 @@ export default function DashboardPage() {
     <p className="mt-1 text-sm text-blumea-slate">
       {hasRealVideos
         ? derived.topPerPlatform
-          ? "Your most-viewed analyzed video on each platform (views aren't comparable across platforms)."
-          : "Your most-viewed analyzed videos."
+          ? "Your most-viewed video on each platform (views aren't comparable across platforms)."
+          : "Your most-viewed videos."
         : "Your most-viewed videos."}
     </p>
   </div>
@@ -605,7 +613,7 @@ export default function DashboardPage() {
          </div>
        ) : (
          <div className="rounded-2xl border border-dashed border-slate-300 bg-white/60 p-6 text-sm text-blumea-slate">
-           Your most-viewed videos will show here once Blumea has analyzed some.
+           Your most-viewed videos will show here once Blumea has read your account.
          </div>
        )}
       </div>

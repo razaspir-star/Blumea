@@ -53,6 +53,9 @@ export type DashboardVideo = {
   // videos analyzed before v7 -- "no ask found" and "never looked" differ.
   ctaRead: boolean;
   cta: { type: string; text: string } | null;
+  // True when Blumea has read the video with AI (an AI profile exists). A video
+  // found by the First Scan has numbers only.
+  analyzed: boolean;
   // From the YouTube Analytics breakdowns (null when not available yet).
   analyticsViews: number | null;
   subscribedViews: number | null;
@@ -140,6 +143,7 @@ export async function loadDashboardData(): Promise<DashboardData> {
       keyMoments: (fields?.key_moments?.value as KeyMoment[] | undefined) ?? null,
       publishedAt: video.published_at ?? null,
       formatId: typeof fields?.format?.value === "string" ? (fields.format.value as string) : null,
+      analyzed: fields !== undefined,
       ctaRead: fields !== undefined && "call_to_action" in fields,
       cta: ctaOf(fields?.call_to_action?.value),
       ...followerFields(snapshot.breakdowns as Record<string, unknown> | null),

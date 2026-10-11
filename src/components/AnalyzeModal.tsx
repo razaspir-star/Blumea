@@ -54,19 +54,26 @@ type AnalyzeModalProps = {
   onClose: () => void;
   // Starting from a specific video (e.g. from Content) skips the platform/video pickers.
   initialVideoId?: string;
+  // Real videos (from the First Scan): start straight at a YouTube video, or at a
+  // platform's video list.
+  startReal?: { platform: "youtube" | "tiktok"; platformVideoId?: string };
 };
 
-export default function AnalyzeModal({ onClose, initialVideoId }: AnalyzeModalProps) {
+export default function AnalyzeModal({ onClose, initialVideoId, startReal }: AnalyzeModalProps) {
   const router = useAppRouter();
   const profile = useProfile();
   const { analyzedIds, deepIds, markAnalyzed } = useMockStore(seedAnalyzedIds);
 
   const [platform, setPlatform] = useState<VideoPlatformId | null>(
-    initialVideoId ? (getVideo(initialVideoId)?.platform ?? null) : null
+    startReal ? startReal.platform : initialVideoId ? (getVideo(initialVideoId)?.platform ?? null) : null
   );
   const [selectedId, setSelectedId] = useState<string | null>(initialVideoId ?? null);
   const [stage, setStage] = useState<Stage>(() =>
-    initialVideoId ? stageFor(initialVideoId, deepIds) : "browse"
+    startReal?.platform === "youtube" && startReal.platformVideoId
+      ? "analyzing"
+      : initialVideoId
+        ? stageFor(initialVideoId, deepIds)
+        : "browse"
   );
   const [step, setStep] = useState(0);
 
@@ -75,7 +82,9 @@ export default function AnalyzeModal({ onClose, initialVideoId }: AnalyzeModalPr
   const [realVideos, setRealVideos] = useState<RealVideoSummary[] | null>(null);
   const [realLoading, setRealLoading] = useState(false);
   const [realListError, setRealListError] = useState<string | null>(null);
-  const [realSelectedId, setRealSelectedId] = useState<string | null>(null);
+  const [realSelectedId, setRealSelectedId] = useState<string | null>(
+    startReal?.platform === "youtube" ? (startReal.platformVideoId ?? null) : null
+  );
   const [realResult, setRealResult] = useState<{ id: string } | null>(null);
   const [analyzeError, setAnalyzeError] = useState<string | null>(null);
 

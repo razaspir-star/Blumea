@@ -167,6 +167,37 @@ export async function getVideoById(accessToken: string, videoId: string): Promis
   };
 }
 
+// First Scan: the creator's most recent videos with their numbers. video/list
+// gives no stats and returns at most 20 per page, so one video/query call (up
+// to 20 ids) adds views, likes, comments and shares.
+export async function listVideosWithStats(accessToken: string, count = 20): Promise<TiktokVideoMeta[]> {
+  const summaries = await listRecentVideos(accessToken, Math.min(count, 20));
+  if (summaries.length === 0) return [];
+
+  const response = await fetch(`https://open.tiktokapis.com/v2/video/query/?fields=${QUERY_FIELDS}`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ filters: { video_ids: summaries.map((summary) => summary.platformVideoId) } }),
+  });
+  const body = await response.json();
+  if (!response.ok) throw new Error(body?.error?.message ?? "Could not load TikTok video numbers.");
+
+  const byId = new Map<string, Record<string, number>>(
+    (body?.data?.videos ?? []).map((video: Record<string, number> & { id: string }) => [video.id, video])
+  );
+
+  return summaries.map((summary) => {
+    const video = byId.get(summary.platformVideoId) ?? {};
+    return {
+      ...summary,
+      durationSec: Number(video.duration ?? 0),
+      views: Number(video.view_count ?? 0),
+      likes: Number(video.like_count ?? 0),
+      comments: Number(video.comment_count ?? 0),
+      shares: Number(video.share_count ?? 0),
+    };
+  });
+}
 export type TiktokAccountStats = {
   followerCount: number;
 };

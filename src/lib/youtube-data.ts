@@ -176,6 +176,34 @@ async function withStats(accessToken: string, summary: YoutubeVideoSummary): Pro
   };
 }
 
+// First Scan: the creator's most recent uploads WITH their numbers, in two API
+// calls (playlist page, then one videos.list for up to 50 ids).
+export async function listVideosWithStats(accessToken: string, count = 50): Promise<YoutubeVideoMeta[]> {
+  const summaries = await listRecentVideos(accessToken, Math.min(count, 50));
+  if (summaries.length === 0) return [];
+
+  const ids = summaries.map((summary) => summary.platformVideoId).join(",");
+  const response = await fetch(
+    `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics&id=${ids}`,
+    { headers: { Authorization: `Bearer ${accessToken}` } }
+  );
+  const data = await response.json();
+  const byId = new Map<string, { contentDetails?: { duration?: string }; statistics?: Record<string, string> }>(
+    (data.items ?? []).map((item: { id: string; contentDetails?: { duration?: string }; statistics?: Record<string, string> }) => [item.id, item])
+  );
+
+  return summaries.map((summary) => {
+    const item = byId.get(summary.platformVideoId);
+    const stats = item?.statistics ?? {};
+    return {
+      ...summary,
+      durationSec: parseIso8601Duration(item?.contentDetails?.duration ?? "PT0S"),
+      views: Number(stats.viewCount ?? 0),
+      likes: Number(stats.likeCount ?? 0),
+      comments: Number(stats.commentCount ?? 0),
+    };
+  });
+}
 // The owner's single most recent public upload -- used by the first proof-of-
 // pipeline call (doc/Insight_Engine_Spec.md §13#6) when no specific video id
 // is requested.
