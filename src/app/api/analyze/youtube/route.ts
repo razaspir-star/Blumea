@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
         published_at: videoMeta.publishedAt,
         duration_sec: videoMeta.durationSec,
       },
-      { onConflict: "platform,platform_video_id" }
+      { onConflict: "profile_id,platform,platform_video_id" }
     )
     .select("id")
     .single();
