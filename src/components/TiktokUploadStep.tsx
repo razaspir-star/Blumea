@@ -51,8 +51,19 @@ export default function TiktokUploadStep({ video, onDone }: TiktokUploadStepProp
 
   // When the upload is made from the phone, the analysis appears in the creator's
   // library: notice it here and move on.
+  // The parent passes a new onDone function on every render. Keep the latest in a
+  // ref so the polling below is NOT restarted each time (a restart before the
+  // first tick meant it could never fire).
+  // The analyses this video already had when the step opened (no clocks involved:
+  // anything new that appears later is the one we are waiting for).
+  const knownProfiles = useRef<Set<string> | null>(null);
+  const onDoneRef = useRef(onDone);
   useEffect(() => {
-    const timer = setInterval(async () => {
+    onDoneRef.current = onDone;
+  });
+
+  useEffect(() => {
+    async function poll() {
       const { data: progress } = await supabase
         .from("upload_progress")
         .select("stage, message")
@@ -60,17 +71,25 @@ export default function TiktokUploadStep({ video, onDone }: TiktokUploadStepProp
         .maybeSingle();
       setRemote(progress ? { stage: progress.stage as string, message: (progress.message as string | null) ?? null } : null);
 
+      // Only an analysis that appears AFTER this step opened counts: a video
+      // analyzed before must not jump straight to its old result.
       const { data } = await supabase
         .from("videos")
         .select("id, video_ai_profiles(id)")
         .eq("platform", "tiktok")
         .eq("platform_video_id", video.platformVideoId)
         .maybeSingle();
-      const profiles = (data as { id: string; video_ai_profiles: unknown[] } | null)?.video_ai_profiles;
-      if (data && Array.isArray(profiles) && profiles.length > 0) onDone(data.id);
-    }, 2000);
+      const profiles = (data as { id: string; video_ai_profiles: { id: string }[] } | null)?.video_ai_profiles ?? [];
+      if (knownProfiles.current === null) {
+        knownProfiles.current = new Set(profiles.map((profile) => profile.id));
+        return;
+      }
+      if (data && profiles.some((profile) => !knownProfiles.current?.has(profile.id))) onDoneRef.current(data.id);
+    }
+    poll();
+    const timer = setInterval(poll, 2000);
     return () => clearInterval(timer);
-  }, [video.platformVideoId, onDone]);
+  }, [video.platformVideoId]);
 
   async function startAnalysis() {
     if (!file) return;
