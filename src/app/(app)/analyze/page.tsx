@@ -64,7 +64,7 @@ export default function AnalyzePage() {
               <span className="text-sm font-semibold text-blumea-slate">Compare</span>
             </button>
 
-            <p className="mt-2 text-center text-xs text-blumea-slate">Coming soon</p>
+            <p className="mt-2 text-center text-xs text-blumea-slate">Part of Blumea Pro, coming soon</p>
           </div>
         </div>
       </div>

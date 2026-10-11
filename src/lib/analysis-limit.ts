@@ -1,0 +1,50 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+// Free creators get a taste, not the whole meal: a monthly cap on AI analyses
+// (each one costs real money, owner decision 2026-10-11). The First Look (3
+// videos) counts toward it, so 8 leaves 5 for the creator to choose. A creator on
+// the 'pro' plan has a much higher cap; 'owner' (the founder) is unlimited. The
+// numbers are proposals to revisit once real usage is known (doc/CLAUDE.md §10).
+export const FREE_MONTHLY_ANALYSES = 8;
+export const PRO_MONTHLY_ANALYSES = 200;
+
+export type AnalysisUsage = {
+  plan: string;
+  used: number;
+  // null = unlimited
+  cap: number | null;
+  // First day of next month (UTC), when the count starts over.
+  resetsOn: string;
+};
+
+function monthBounds(now = new Date()) {
+  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+  const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+  return { start, next };
+}
+
+export async function getAnalysisUsage(admin: SupabaseClient, profileId: string): Promise<AnalysisUsage> {
+  const { start, next } = monthBounds();
+
+  const [{ data: profile }, { count }] = await Promise.all([
+    admin.from("profiles").select("plan").eq("id", profileId).maybeSingle(),
+    // Every AI run stores a row in video_ai_profiles; count this month's runs on
+    // this creator's videos (re-analysis costs money too, so it counts).
+    admin
+      .from("video_ai_profiles")
+      .select("id, videos!inner(profile_id)", { count: "exact", head: true })
+      .eq("videos.profile_id", profileId)
+      .gte("created_at", start.toISOString()),
+  ]);
+
+  const plan = (profile?.plan as string | undefined) ?? "free";
+  const cap = plan === "owner" ? null : plan === "pro" ? PRO_MONTHLY_ANALYSES : FREE_MONTHLY_ANALYSES;
+
+  return { plan, used: count ?? 0, cap, resetsOn: next.toISOString() };
+}
+
+// Words for the creator, in the product's voice: what happened, when it resets.
+export function limitMessage(usage: AnalysisUsage): string {
+  const resets = new Date(usage.resetsOn).toLocaleDateString("en-US", { month: "long", day: "numeric", timeZone: "UTC" });
+  return `You've used your ${usage.cap} free analyses this month. They start over on ${resets}. Your numbers keep updating, and more analyses are coming with Blumea Pro.`;
+}

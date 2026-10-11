@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { getAnalysisUsage, limitMessage } from "@/lib/analysis-limit";
 import { getValidTiktokAccessToken, getVideoById, getAccountStats, getSoundInfo } from "@/lib/tiktok-data";
 import { analyzeUploadedVideo, MODEL, PROMPT_VERSION, THINKING_LEVEL } from "@/lib/gemini-analysis";
 
@@ -23,6 +24,14 @@ export async function POST(request: NextRequest) {
   }
 
   const profileId = userData.user.id;
+  // Monthly cap on AI analyses for free creators (src/lib/analysis-limit.ts).
+  const usage = await getAnalysisUsage(supabaseAdmin, profileId);
+  if (usage.cap !== null && usage.used >= usage.cap) {
+    return NextResponse.json(
+      { error: limitMessage(usage), code: "limit", used: usage.used, cap: usage.cap, resetsOn: usage.resetsOn },
+      { status: 402 }
+    );
+  }
 
   const formData = await request.formData().catch(() => null);
   const file = formData?.get("file");

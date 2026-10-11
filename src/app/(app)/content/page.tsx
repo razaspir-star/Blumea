@@ -11,6 +11,7 @@ import { formatLabel } from "@/lib/format-library";
 import { formatCount } from "@/lib/format";
 import { platformLabels } from "@/lib/mock-data";
 import { supabase } from "@/lib/supabase";
+import type { AnalysisUsage } from "@/lib/analysis-limit";
 
 type Filter = "all" | "youtube" | "tiktok";
 const filters: Filter[] = ["all", "youtube", "tiktok"];
@@ -31,12 +32,22 @@ export default function ContentPage() {
   const [analyzeOpen, setAnalyzeOpen] = useState(false);
   const [analyzeTarget, setAnalyzeTarget] = useState<DashboardVideo | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [usage, setUsage] = useState<AnalysisUsage | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     loadDashboardData().then((data) => {
       if (!cancelled) setVideos(data.videos);
     });
+    // How many AI analyses are left this month (monthly cap, src/lib/analysis-limit.ts).
+    supabase.auth.getSession().then(({ data: session }) =>
+      fetch("/api/usage", { headers: { Authorization: `Bearer ${session.session?.access_token ?? ""}` } })
+        .then((response) => (response.ok ? response.json() : null))
+        .then((body) => {
+          if (!cancelled && body) setUsage(body);
+        })
+        .catch(() => null)
+    );
     return () => {
       cancelled = true;
     };
@@ -68,6 +79,14 @@ export default function ContentPage() {
           <p className="mt-2 text-blumea-slate">
             Your videos, with the numbers each platform reports. Analyze one to see what Blumea understood.
           </p>
+
+          {usage && usage.cap !== null && (
+            <p className="mt-1 text-sm text-blumea-slate">
+              {usage.used >= usage.cap
+                ? `You've used all ${usage.cap} free analyses this month. They start over on ${new Date(usage.resetsOn).toLocaleDateString("en-US", { month: "long", day: "numeric", timeZone: "UTC" })}.`
+                : `${usage.used} of ${usage.cap} free analyses used this month.`}
+            </p>
+          )}
         </div>
 
         <div className="flex items-center gap-3">

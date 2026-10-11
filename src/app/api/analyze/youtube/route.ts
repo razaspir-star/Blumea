@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { getAnalysisUsage, limitMessage } from "@/lib/analysis-limit";
 import {
   getValidYoutubeAccessToken,
   getMostRecentVideo,
@@ -29,6 +30,14 @@ export async function POST(request: NextRequest) {
   }
 
   const profileId = userData.user.id;
+  // Monthly cap on AI analyses for free creators (src/lib/analysis-limit.ts).
+  const usage = await getAnalysisUsage(supabaseAdmin, profileId);
+  if (usage.cap !== null && usage.used >= usage.cap) {
+    return NextResponse.json(
+      { error: limitMessage(usage), code: "limit", used: usage.used, cap: usage.cap, resetsOn: usage.resetsOn },
+      { status: 402 }
+    );
+  }
   const requestedVideoId: string | undefined = await request
     .json()
     .then((body) => body?.videoId)
