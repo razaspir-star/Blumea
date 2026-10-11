@@ -121,7 +121,7 @@ function ViewerBehaviorUnavailable({ platform, publishedAt }: { platform: string
     <section className="mt-8 rounded-2xl border border-dashed border-slate-200 bg-white/60 p-4">
       <div className="flex items-center gap-2 text-blumea-slate">
         <Clock3 size={16} strokeWidth={1.8} className="text-blumea-blue" />
-        <span className="text-sm font-semibold">Viewer behavior not available</span>
+        <span className="text-sm font-semibold">How viewers watched</span>
       </div>
       <p className="mt-2 text-sm leading-6 text-blumea-slate">{message}</p>
     </section>

@@ -36,7 +36,7 @@ const PLATFORMS: Record<string, PlatformCapabilities> = {
     // not a separate number there (folded into shares).
     has: { shares: true, saves: false, reposts: false, avgWatch: false, retentionCurve: false, trafficSource: false, subscribers: false, accountViews: false },
     viewerBehaviorNote:
-      "TikTok doesn't share watch time or where viewers leave with apps like Blumea, so there is no viewer-behavior section for this video. That also means the opening, the biggest drop and \"the payoff comes after viewers have left\" can't be assessed here. Everything Blumea reads from the video itself — format, content, sound, hook — is shown below.",
+      "How people watched a TikTok video (watch time, where they left) is shown only inside the TikTok app. Below is everything Blumea reads from the video itself: its format, content, sound and hook.",
   },
   instagram: {
     name: "Instagram",
