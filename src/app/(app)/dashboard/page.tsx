@@ -16,6 +16,7 @@ import {
 } from "@/lib/dashboard-data";
 import { platformName } from "@/lib/platform-capabilities";
 import { realInsightCards } from "@/lib/insight-cards";
+import { pickFirstLook } from "@/lib/first-look";
 import {
   Users,
   Eye,
@@ -49,10 +50,15 @@ function agoLabel(iso: string | null, now: number): string | null {
   return `Updated ${days} ${days === 1 ? "day" : "days"} ago`;
 }
 
+// Guards the First Look against React's development double-run, which would
+// start the same three AI analyses twice.
+let firstLookStarted = false;
+
 function useDashboardData() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [syncing, setSyncing] = useState(false);
   const [updatedLabel, setUpdatedLabel] = useState<string | null>(null);
+  const [lookProgress, setLookProgress] = useState<{ done: number; total: number } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -64,38 +70,57 @@ function useDashboardData() {
       );
 
     async function run() {
-      const loaded = await loadDashboardData();
+      let current = await loadDashboardData();
       if (cancelled) return;
-      setData(loaded);
-      setUpdatedLabel(agoLabel(newestCapture(loaded), Date.now()));
+      setData(current);
+      setUpdatedLabel(agoLabel(newestCapture(current), Date.now()));
 
-      const newest = newestCapture(loaded);
-      const stale = loaded.accounts.length > 0 && (!newest || Date.now() - new Date(newest).getTime() > STALE_AFTER_MS);
+      const { data: session } = await supabase.auth.getSession();
+      const headers = { Authorization: `Bearer ${session.session?.access_token ?? ""}` };
+
+      const newest = newestCapture(current);
+      const stale = current.accounts.length > 0 && (!newest || Date.now() - new Date(newest).getTime() > STALE_AFTER_MS);
       // First Scan: a creator who connected an account but has no videos yet.
-      const needsScan = loaded.accounts.length > 0 && loaded.videos.length === 0;
-      if (!stale && !needsScan) return;
+      const needsScan = current.accounts.length > 0 && current.videos.length === 0;
 
-      setSyncing(true);
-      try {
-        const { data: session } = await supabase.auth.getSession();
-        if (needsScan) {
-          await fetch("/api/scan", {
-            method: "POST",
-            headers: { Authorization: `Bearer ${session.session?.access_token ?? ""}` },
-          });
+      if (stale || needsScan) {
+        setSyncing(true);
+        try {
+          if (needsScan) await fetch("/api/scan", { method: "POST", headers });
+          await fetch("/api/sync", { method: "POST", headers });
+          current = await loadDashboardData();
+          if (!cancelled) {
+            setData(current);
+            setUpdatedLabel(agoLabel(newestCapture(current), Date.now()));
+          }
+        } finally {
+          if (!cancelled) setSyncing(false);
         }
-        await fetch("/api/sync", {
-          method: "POST",
-          headers: { Authorization: `Bearer ${session.session?.access_token ?? ""}` },
-        });
-        const fresh = await loadDashboardData();
-        if (!cancelled) {
-          setData(fresh);
-          setUpdatedLabel(agoLabel(newestCapture(fresh), Date.now()));
-        }
-      } finally {
-        if (!cancelled) setSyncing(false);
       }
+
+      // First Look: three videos read by AI, once, for a creator with none yet.
+      const picks = pickFirstLook(current.videos);
+      if (cancelled || picks.length === 0 || firstLookStarted) return;
+      firstLookStarted = true;
+
+      setLookProgress({ done: 0, total: picks.length });
+      let done = 0;
+      await Promise.allSettled(
+        picks.map((video) =>
+          fetch("/api/analyze/youtube", {
+            method: "POST",
+            headers: { ...headers, "Content-Type": "application/json" },
+            body: JSON.stringify({ videoId: video.platformVideoId }),
+          }).finally(() => {
+            done += 1;
+            if (!cancelled) setLookProgress({ done, total: picks.length });
+          })
+        )
+      );
+      if (cancelled) return;
+      const fresh = await loadDashboardData();
+      if (!cancelled) setData(fresh);
+      setLookProgress(null);
     }
 
     run();
@@ -104,9 +129,8 @@ function useDashboardData() {
     };
   }, []);
 
-  return { data, syncing, updatedLabel };
+  return { data, syncing, updatedLabel, lookProgress };
 }
-
 // "↑ 23 (0.7%) since 6 days ago" -- only when a comparison snapshot exists; no
 // change is ever invented.
 function ChangeBadge({ change, unit }: { change: Change | null; unit: string }) {
@@ -202,7 +226,7 @@ const platformIcon: Record<string, React.ReactNode> = {
 export default function DashboardPage() {
   const router = useAppRouter();
   const profile = useProfile();
-  const { data, syncing, updatedLabel } = useDashboardData();
+  const { data, syncing, updatedLabel, lookProgress } = useDashboardData();
 
   // Platforms shown in the selector: the ones picked at onboarding plus every
   // connected account (YouTube was connected but missing from this list).
@@ -270,7 +294,18 @@ export default function DashboardPage() {
       )}
     </div>
   </div>
-  
+
+  {lookProgress && (
+    <div className="mt-6 flex items-center gap-3 rounded-2xl border border-blumea-blue/30 bg-blumea-mist px-5 py-4">
+      <Image src="/blumea-logo-v2.png" alt="" width={28} height={28} className="h-7 w-7 animate-pulse" />
+      <div>
+        <p className="text-sm font-semibold text-blumea-navy">Blumea is reading your strongest, latest and weakest videos…</p>
+        <p className="text-xs text-blumea-slate">
+          {lookProgress.done} of {lookProgress.total} done. This takes about a minute, and you can keep exploring.
+        </p>
+      </div>
+    </div>
+  )}
 
 <div className="mx-auto w-full max-w-5xl">
 
