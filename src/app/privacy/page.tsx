@@ -42,6 +42,12 @@ export default function PrivacyPage() {
           leftover within a day.
         </li>
         <li>
+          <strong>Screenshots of your TikTok video analytics (optional):</strong> TikTok shows how people watched a video only inside
+          its own app, so you can choose to share screenshots of that screen. They are read by the AI service for the numbers written on
+          them (average watch time, traffic sources, followers versus others, and similar totals), held in the same temporary storage
+          and deleted right after. We keep only the numbers, marked as coming from your screenshots, and never the pictures.
+        </li>
+        <li>
           <strong>Our analysis of your videos:</strong> structured notes produced by AI about each video (for example its format, how it
           opens, text on screen, and the ask it makes of viewers), and the patterns Blumea computes from your own numbers.
         </li>

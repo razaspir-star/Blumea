@@ -6,6 +6,7 @@ import { Check, Smartphone, UploadCloud } from "lucide-react";
 import BlumeaFlowerLoader from "@/components/BlumeaFlowerLoader";
 import { supabase } from "@/lib/supabase";
 import { uploadTiktokVideo, type UploadStage } from "@/lib/tiktok-upload-client";
+import TiktokScreensPicker from "@/components/TiktokScreensPicker";
 
 type TiktokUploadStepProps = {
   video: { platformVideoId: string; title: string };
@@ -21,6 +22,7 @@ type TiktokUploadStepProps = {
 export default function TiktokUploadStep({ video, onDone }: TiktokUploadStepProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
+  const [screens, setScreens] = useState<File[]>([]);
   const [stage, setStage] = useState<UploadStage | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [qr, setQr] = useState<string | null>(null);
@@ -94,7 +96,7 @@ export default function TiktokUploadStep({ video, onDone }: TiktokUploadStepProp
   async function startAnalysis() {
     if (!file) return;
     setError(null);
-    const result = await uploadTiktokVideo({ file, platformVideoId: video.platformVideoId, onStage: setStage });
+    const result = await uploadTiktokVideo({ file, screenshots: screens, platformVideoId: video.platformVideoId, onStage: setStage });
     if (!result.ok) {
       setError(result.error);
       setStage(null);
@@ -193,6 +195,13 @@ export default function TiktokUploadStep({ video, onDone }: TiktokUploadStepProp
           <p className="min-w-0 flex-1 truncate text-sm font-medium text-blumea-navy">{file.name}</p>
         </div>
       )}
+
+      <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
+        <p className="text-sm font-semibold text-blumea-navy">Optional: how people watched it</p>
+        <div className="mt-2">
+          <TiktokScreensPicker files={screens} onChange={setScreens} compact />
+        </div>
+      </div>
 
       {remote?.stage === "failed" && (
         <p className="mt-3 text-sm text-red-500">{remote.message ?? "Something went wrong with the upload from your phone."}</p>

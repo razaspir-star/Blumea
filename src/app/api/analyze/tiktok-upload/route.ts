@@ -3,6 +3,7 @@ import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { getAnalysisUsage, limitMessage } from "@/lib/analysis-limit";
 import { UPLOAD_BUCKET, uploadActor } from "@/lib/upload-auth";
 import { setUploadStage } from "@/lib/upload-progress";
+import { saveTiktokScreens } from "@/lib/save-tiktok-screens";
 import { getValidTiktokAccessToken, getVideoById, getAccountStats, getSoundInfo } from "@/lib/tiktok-data";
 import { analyzeUploadedVideo, MODEL, PROMPT_VERSION, THINKING_LEVEL } from "@/lib/gemini-analysis";
 
@@ -152,10 +153,16 @@ export async function POST(request: NextRequest) {
     return fail("Could not save the analysis.", 500);
   }
 
+  // Optional: screenshots of the video's TikTok analytics shared with it. Best
+  // effort: a problem reading them does not undo the analysis; the reply says so.
+  const screenPaths: string[] = Array.isArray(body?.screenshotPaths) ? body.screenshotPaths.map(String) : [];
+  const screens = screenPaths.length > 0 ? await saveTiktokScreens(supabaseAdmin, profileId, video.id, screenPaths) : null;
+
   await setUploadStage(supabaseAdmin, profileId, platformVideoId, "done");
 
   return NextResponse.json({
     video: { id: video.id, ...videoMeta },
     fields,
+    screens: screens ? (screens.ok ? { ok: true } : { ok: false, error: screens.error }) : null,
   });
 }

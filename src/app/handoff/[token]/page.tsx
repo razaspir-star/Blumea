@@ -4,6 +4,7 @@ import { use, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Check, ExternalLink, UploadCloud } from "lucide-react";
 import BlumeaFlowerLoader from "@/components/BlumeaFlowerLoader";
+import TiktokScreensPicker from "@/components/TiktokScreensPicker";
 import { uploadTiktokVideo, type UploadStage } from "@/lib/tiktok-upload-client";
 
 // The video id carried by the link (not a secret: it is the creator's own video).
@@ -27,6 +28,8 @@ export default function HandoffPage({ params }: { params: Promise<{ token: strin
   const videoId = videoIdOf(token);
   const [expired, setExpired] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const [screens, setScreens] = useState<File[]>([]);
+  const [screensNote, setScreensNote] = useState<string | null>(null);
   const [stage, setStage] = useState<UploadStage | null>(null);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,12 +50,13 @@ export default function HandoffPage({ params }: { params: Promise<{ token: strin
   async function send() {
     if (!file || !videoId) return;
     setError(null);
-    const result = await uploadTiktokVideo({ file, platformVideoId: videoId, handoffToken: token, onStage: setStage });
+    const result = await uploadTiktokVideo({ file, screenshots: screens, platformVideoId: videoId, handoffToken: token, onStage: setStage });
     setStage(null);
     if (!result.ok) {
       setError(result.error);
       return;
     }
+    setScreensNote(result.screensError);
     setDone(true);
   }
 
@@ -73,8 +77,9 @@ export default function HandoffPage({ params }: { params: Promise<{ token: strin
               <h1 className="text-xl font-semibold text-blumea-navy">Done</h1>
             </div>
             <p className="mt-2 text-sm leading-6 text-blumea-slate">
-              Your video was read. Go back to your computer, where Blumea shows what it understood. The file has been deleted.
+              Your video was read. Go back to your computer, where Blumea shows what it understood. The files have been deleted.
             </p>
+            {screensNote && <p className="mt-3 text-sm leading-6 text-blumea-slate">{screensNote}</p>}
           </>
         ) : stage ? (
           <div className="flex flex-col items-center py-6 text-center">
@@ -109,7 +114,7 @@ export default function HandoffPage({ params }: { params: Promise<{ token: strin
               to step 2.
             </p>
 
-            <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-blumea-slate">Step 2 · Send it to Blumea</p>
+            <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-blumea-slate">Step 2 · Choose the video</p>
 
             <button
               type="button"
@@ -121,6 +126,11 @@ export default function HandoffPage({ params }: { params: Promise<{ token: strin
             </button>
 
             <input ref={inputRef} type="file" accept="video/*" className="hidden" onChange={(event) => setFile(event.target.files?.[0] ?? null)} />
+
+            <p className="mt-6 text-xs font-semibold uppercase tracking-wide text-blumea-slate">Step 3 · TikTok&apos;s numbers (optional)</p>
+            <div className="mt-2">
+              <TiktokScreensPicker files={screens} onChange={setScreens} />
+            </div>
 
             {error && <p className="mt-3 text-sm text-red-500">{error}</p>}
 

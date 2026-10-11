@@ -58,6 +58,7 @@ import {
   styleTags,
 } from "@/lib/format-library";
 import { FAMILIAR_KINDS, hookTypeLabel } from "@/lib/hook-library";
+import TiktokViewerCard, { type SavedTiktokScreens } from "@/components/TiktokViewerCard";
 import {
   biggestDrop,
   formatPublished,
@@ -153,6 +154,8 @@ type Breakdowns = {
 } | null;
 
 type RealVideoData = {
+  platformVideoId: string;
+  tiktokScreens: SavedTiktokScreens | null;
   title: string;
   platform: "youtube" | "tiktok" | string;
   publishedAt: string | null;
@@ -298,7 +301,7 @@ function RealVideoAnalysis({ id }: { id: string }) {
     async function load() {
       const { data: video } = await supabase
         .from("videos")
-        .select("title, platform, published_at, duration_sec")
+        .select("title, platform, platform_video_id, published_at, duration_sec")
         .eq("id", id)
         .maybeSingle();
 
@@ -331,16 +334,36 @@ function RealVideoAnalysis({ id }: { id: string }) {
           : null;
       const commentBaseline = video.platform === "youtube" ? await loadCommentBaseline(id) : null;
 
+      // TikTok gives apps no watch time. If the creator shared screenshots of the
+      // video's TikTok analytics, the numbers read from them live in an older
+      // snapshot (the daily sync adds newer ones without them): fetch that one.
+      const { data: screensRow } =
+        video.platform === "tiktok"
+          ? await supabase
+              .from("video_metric_snapshots")
+              .select("breakdowns")
+              .eq("video_id", id)
+              .not("breakdowns->tiktokScreens", "is", null)
+              .order("captured_at", { ascending: false })
+              .limit(1)
+              .maybeSingle()
+          : { data: null };
+      const tiktokScreens =
+        ((screensRow?.breakdowns as { tiktokScreens?: SavedTiktokScreens } | null)?.tiktokScreens as SavedTiktokScreens | undefined) ?? null;
+
       if (!cancelled) {
         setData({
+          platformVideoId: video.platform_video_id,
+          tiktokScreens,
           title: video.title,
           platform: video.platform,
           publishedAt: video.published_at,
           durationSec: video.duration_sec,
           metrics: metric ?? null,
-          avgWatchSec: metric?.avg_watch_sec ?? null,
-          retentionCurve: (metric?.retention_curve as RetentionPoint[] | null) ?? null,
-          breakdowns: (metric?.breakdowns as Breakdowns) ?? null,
+          // TikTok: never mix the screenshot numbers into the YouTube-style sections.
+          avgWatchSec: video.platform === "tiktok" ? null : (metric?.avg_watch_sec ?? null),
+          retentionCurve: video.platform === "tiktok" ? null : ((metric?.retention_curve as RetentionPoint[] | null) ?? null),
+          breakdowns: video.platform === "tiktok" ? null : ((metric?.breakdowns as Breakdowns) ?? null),
           baseline,
           commentBaseline,
           fields: (profile?.fields as Record<string, RealAnalyzedField>) ?? null,
@@ -517,7 +540,11 @@ function RealVideoAnalysis({ id }: { id: string }) {
         );
       })()}
 
-      {data.avgWatchSec === null && !data.breakdowns && (
+      {data.platform === "tiktok" && (
+        <TiktokViewerCard platformVideoId={data.platformVideoId} stats={data.tiktokScreens} durationSec={data.durationSec} />
+      )}
+
+      {data.platform !== "tiktok" && data.avgWatchSec === null && !data.breakdowns && (
         <ViewerBehaviorUnavailable platform={data.platform} publishedAt={data.publishedAt} />
       )}
 
