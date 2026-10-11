@@ -111,7 +111,7 @@ export default function HandoffPage({ params }: { params: Promise<{ token: strin
             ) : null}
             <p className="mt-2 text-sm leading-6 text-blumea-slate">
               In TikTok tap Share, then Save video. Then come back to this page. If the video is already saved on your phone, skip
-              to step 2.
+              to step 2. (The analytics in step 3 are found from your Profile, not from this link.)
             </p>
 
             <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-blumea-slate">Step 2 · Choose the video</p>
