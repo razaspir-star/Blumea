@@ -6,6 +6,7 @@ import {
   getVideoById,
   getChannelStatistics,
   getVideoAnalytics,
+  getOwnChannelId,
 } from "@/lib/youtube-data";
 import { analyzeYoutubeVideo, MODEL, PROMPT_VERSION, THINKING_LEVEL } from "@/lib/gemini-analysis";
 
@@ -40,6 +41,11 @@ export async function POST(request: NextRequest) {
     videoMeta = requestedVideoId
       ? await getVideoById(accessToken, requestedVideoId)
       : await getMostRecentVideo(accessToken);
+
+    // Only the creator's own videos: a public video of someone else is refused.
+    if (requestedVideoId && videoMeta.channelId && videoMeta.channelId !== (await getOwnChannelId(accessToken))) {
+      return NextResponse.json({ error: "You can only analyze videos from your own channel." }, { status: 403 });
+    }
   } catch (error) {
     return NextResponse.json({ error: String(error instanceof Error ? error.message : error) }, { status: 400 });
   }

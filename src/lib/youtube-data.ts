@@ -81,6 +81,8 @@ export type YoutubeVideoSummary = {
 };
 
 export type YoutubeVideoMeta = YoutubeVideoSummary & {
+  // Channel that published the video (set when the video is looked up by id).
+  channelId?: string;
   durationSec: number;
   views: number;
   likes: number;
@@ -199,11 +201,25 @@ export async function getVideoById(accessToken: string, videoId: string): Promis
 
   return {
     ...toSummary(videoId, item.snippet),
+    channelId: item.snippet?.channelId,
     durationSec: parseIso8601Duration(item.contentDetails?.duration ?? "PT0S"),
     views: Number(stats.viewCount ?? 0),
     likes: Number(stats.likeCount ?? 0),
     comments: Number(stats.commentCount ?? 0),
   };
+}
+
+// The signed-in creator's own channel id. Blumea analyzes only a creator's own
+// videos (doc/CLAUDE.md §8): a video id that is public but belongs to someone
+// else must not be analyzed (it would spend AI credit and break that rule).
+export async function getOwnChannelId(accessToken: string): Promise<string> {
+  const response = await fetch("https://www.googleapis.com/youtube/v3/channels?part=id&mine=true", {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  const data = await response.json();
+  const id = data.items?.[0]?.id;
+  if (!id) throw new Error("Could not find your channel.");
+  return id;
 }
 
 export type YoutubeVideoAnalytics = {
