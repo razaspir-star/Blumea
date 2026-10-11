@@ -44,6 +44,20 @@ export default function TiktokScreensPicker({
     <div>
       <p className="text-sm font-semibold text-blumea-navy">How to get to the numbers</p>
 
+      <details className="mt-2 rounded-xl border border-slate-200 bg-white p-3">
+        <summary className="cursor-pointer text-sm font-semibold text-blumea-blue">Watch how (30 sec)</summary>
+        {/* Muted guide recorded on a phone: the three screens, the screenshot moments, and the way back to Blumea. */}
+        <video
+          className="mx-auto mt-3 w-full max-w-[260px] rounded-xl bg-slate-100"
+          src="/guides/tiktok-analytics-guide.mp4"
+          poster="/guides/tiktok-analytics-guide-poster.jpg"
+          controls
+          muted
+          playsInline
+          preload="none"
+        />
+      </details>
+
       <ol className="mt-1 list-decimal space-y-1 pl-5 text-sm leading-6 text-blumea-slate">
         <li>
           In TikTok, go to your <span className="font-semibold text-blumea-navy">Profile</span> and open the video{" "}
