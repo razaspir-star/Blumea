@@ -87,6 +87,12 @@ export default function ContentPage() {
                 : `${usage.used} of ${usage.cap} free analyses used this month.`}
             </p>
           )}
+
+          {usage?.plan === "free" && (
+            <p className="mt-1 text-sm text-blumea-slate">
+              Blumea shows your 20 most recent videos on each platform. Blumea Pro reads more.
+            </p>
+          )}
         </div>
 
         <div className="flex items-center gap-3">

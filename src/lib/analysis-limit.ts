@@ -8,6 +8,17 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 export const FREE_MONTHLY_ANALYSES = 8;
 export const PRO_MONTHLY_ANALYSES = 200;
 
+// How many of a creator's most recent videos the First Scan brings in per
+// platform. The scan itself costs nothing (platform APIs, no AI); the cap is about
+// what is worth paying for: free creators see their 20 most recent videos, Pro
+// sees more (owner decision 2026-10-11). TikTok's API returns at most 20 anyway.
+export const FREE_SCAN_VIDEOS = 20;
+export const PRO_SCAN_VIDEOS = 50;
+
+export function scanLimitFor(plan: string): number {
+  return plan === "free" ? FREE_SCAN_VIDEOS : PRO_SCAN_VIDEOS;
+}
+
 export type AnalysisUsage = {
   plan: string;
   used: number;
