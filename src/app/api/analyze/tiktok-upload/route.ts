@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { getAnalysisUsage, limitMessage } from "@/lib/analysis-limit";
 import { UPLOAD_BUCKET, uploadActor } from "@/lib/upload-auth";
+import { setUploadStage } from "@/lib/upload-progress";
 import { getValidTiktokAccessToken, getVideoById, getAccountStats, getSoundInfo } from "@/lib/tiktok-data";
 import { analyzeUploadedVideo, MODEL, PROMPT_VERSION, THINKING_LEVEL } from "@/lib/gemini-analysis";
 
@@ -36,20 +37,24 @@ export async function POST(request: NextRequest) {
   // Whatever happens below, the uploaded file does not stay in our storage.
   const removeUpload = () => supabaseAdmin.storage.from(UPLOAD_BUCKET).remove([path]).catch(() => null);
 
+  // A failure: delete the file, tell the computer (live progress), answer the caller.
+  const fail = async (error: string, status: number, extra: Record<string, unknown> = {}) => {
+    await removeUpload();
+    await setUploadStage(supabaseAdmin, profileId, platformVideoId, "failed", error);
+    return NextResponse.json({ error, ...extra }, { status });
+  };
+
   // Monthly cap on AI analyses for free creators (src/lib/analysis-limit.ts).
   const usage = await getAnalysisUsage(supabaseAdmin, profileId);
   if (usage.cap !== null && usage.used >= usage.cap) {
-    await removeUpload();
-    return NextResponse.json(
-      { error: limitMessage(usage), code: "limit", used: usage.used, cap: usage.cap, resetsOn: usage.resetsOn },
-      { status: 402 }
-    );
+    return fail(limitMessage(usage), 402, { code: "limit", used: usage.used, cap: usage.cap, resetsOn: usage.resetsOn });
   }
 
   const { data: file, error: downloadError } = await supabaseAdmin.storage.from(UPLOAD_BUCKET).download(path);
   if (downloadError || !file) {
-    return NextResponse.json({ error: "The upload didn't arrive. Please try again." }, { status: 400 });
+    return fail("The upload didn't arrive. Please try again.", 400);
   }
+  await setUploadStage(supabaseAdmin, profileId, platformVideoId, "analyzing");
 
   let accessToken: string;
   let videoMeta: Awaited<ReturnType<typeof getVideoById>>;
@@ -57,8 +62,7 @@ export async function POST(request: NextRequest) {
     accessToken = await getValidTiktokAccessToken(profileId);
     videoMeta = await getVideoById(accessToken, platformVideoId);
   } catch (error) {
-    await removeUpload();
-    return NextResponse.json({ error: String(error instanceof Error ? error.message : error) }, { status: 400 });
+    return fail(String(error instanceof Error ? error.message : error), 400);
   }
 
   const { data: connectedAccount } = await supabaseAdmin
@@ -87,8 +91,7 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (videoUpsertError || !video) {
-    await removeUpload();
-    return NextResponse.json({ error: "Could not save the video record." }, { status: 500 });
+    return fail("Could not save the video record.", 500);
   }
 
   await supabaseAdmin.from("video_metric_snapshots").insert({
@@ -115,8 +118,7 @@ export async function POST(request: NextRequest) {
   try {
     analysis = await analyzeUploadedVideo(file, file.type || "video/mp4");
   } catch (error) {
-    await removeUpload();
-    return NextResponse.json({ error: String(error instanceof Error ? error.message : error) }, { status: 502 });
+    return fail(String(error instanceof Error ? error.message : error), 502);
   }
   await removeUpload();
 
@@ -147,8 +149,10 @@ export async function POST(request: NextRequest) {
   });
 
   if (profileInsertError) {
-    return NextResponse.json({ error: "Could not save the analysis." }, { status: 500 });
+    return fail("Could not save the analysis.", 500);
   }
+
+  await setUploadStage(supabaseAdmin, profileId, platformVideoId, "done");
 
   return NextResponse.json({
     video: { id: video.id, ...videoMeta },

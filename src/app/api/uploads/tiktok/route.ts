@@ -2,6 +2,7 @@ import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { UPLOAD_BUCKET, uploadActor } from "@/lib/upload-auth";
+import { setUploadStage } from "@/lib/upload-progress";
 
 // Step 1 of a TikTok video upload: hands the browser a one-time signed address in
 // our private temporary bucket, so the video goes straight from the creator's
@@ -22,5 +23,6 @@ export async function POST(request: NextRequest) {
   const { data, error } = await getSupabaseAdmin().storage.from(UPLOAD_BUCKET).createSignedUploadUrl(path);
   if (error || !data) return NextResponse.json({ error: "Could not prepare the upload." }, { status: 500 });
 
+  await setUploadStage(getSupabaseAdmin(), actor.profileId, platformVideoId, "uploading");
   return NextResponse.json({ path: data.path, token: data.token });
 }

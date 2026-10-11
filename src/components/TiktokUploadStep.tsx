@@ -24,6 +24,8 @@ export default function TiktokUploadStep({ video, onDone }: TiktokUploadStepProp
   const [stage, setStage] = useState<UploadStage | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [qr, setQr] = useState<string | null>(null);
+  // What the phone is doing (live progress written by the server).
+  const [remote, setRemote] = useState<{ stage: string; message: string | null } | null>(null);
 
   // A link for the creator's phone, shown as a QR code. Valid for 15 minutes.
   useEffect(() => {
@@ -51,6 +53,13 @@ export default function TiktokUploadStep({ video, onDone }: TiktokUploadStepProp
   // library: notice it here and move on.
   useEffect(() => {
     const timer = setInterval(async () => {
+      const { data: progress } = await supabase
+        .from("upload_progress")
+        .select("stage, message")
+        .eq("platform_video_id", video.platformVideoId)
+        .maybeSingle();
+      setRemote(progress ? { stage: progress.stage as string, message: (progress.message as string | null) ?? null } : null);
+
       const { data } = await supabase
         .from("videos")
         .select("id, video_ai_profiles(id)")
@@ -59,7 +68,7 @@ export default function TiktokUploadStep({ video, onDone }: TiktokUploadStepProp
         .maybeSingle();
       const profiles = (data as { id: string; video_ai_profiles: unknown[] } | null)?.video_ai_profiles;
       if (data && Array.isArray(profiles) && profiles.length > 0) onDone(data.id);
-    }, 4000);
+    }, 2000);
     return () => clearInterval(timer);
   }, [video.platformVideoId, onDone]);
 
@@ -73,6 +82,23 @@ export default function TiktokUploadStep({ video, onDone }: TiktokUploadStepProp
       return;
     }
     onDone(result.videoId);
+  }
+
+  // The phone is working on it: show that right away, with what it is doing.
+  if (!stage && remote && ["opened", "uploading", "analyzing"].includes(remote.stage)) {
+    const text =
+      remote.stage === "opened"
+        ? { title: "Your phone opened the page", body: "Choose the saved video there, and tap Send to Blumea." }
+        : remote.stage === "uploading"
+          ? { title: "Uploading from your phone", body: "Keep the page open on your phone. This can take a little, depending on the connection." }
+          : { title: "Blumea is reading your video", body: "About a minute. This window moves on by itself when it is done." };
+    return (
+      <div className="mt-5 flex flex-col items-center py-8 text-center">
+        <BlumeaFlowerLoader size={56} />
+        <h3 className="mt-5 text-lg font-semibold text-blumea-navy">{text.title}</h3>
+        <p className="mt-2 max-w-sm text-sm text-blumea-slate">{text.body}</p>
+      </div>
+    );
   }
 
   if (stage) {
@@ -105,8 +131,8 @@ export default function TiktokUploadStep({ video, onDone }: TiktokUploadStepProp
               Easier from your phone
             </p>
             <p className="mt-1 text-sm leading-6 text-blumea-slate">
-              Scan this with your phone camera. Save the video in TikTok, then pick it on the page that opens. This window moves on by
-              itself when it&apos;s done.
+              Scan this with your phone camera. On the page that opens you can open the video in TikTok to save it, then pick it. This
+              window shows what your phone is doing and moves on by itself when it&apos;s done.
             </p>
           </div>
         </div>
@@ -147,6 +173,10 @@ export default function TiktokUploadStep({ video, onDone }: TiktokUploadStepProp
           <Check size={16} strokeWidth={2.2} className="shrink-0 text-blumea-success" />
           <p className="min-w-0 flex-1 truncate text-sm font-medium text-blumea-navy">{file.name}</p>
         </div>
+      )}
+
+      {remote?.stage === "failed" && (
+        <p className="mt-3 text-sm text-red-500">{remote.message ?? "Something went wrong with the upload from your phone."}</p>
       )}
 
       {error && <p className="mt-3 text-sm text-red-500">{error}</p>}

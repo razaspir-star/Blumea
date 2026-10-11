@@ -2,7 +2,7 @@
 
 import { use, useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { Check, UploadCloud } from "lucide-react";
+import { Check, ExternalLink, UploadCloud } from "lucide-react";
 import BlumeaFlowerLoader from "@/components/BlumeaFlowerLoader";
 import { uploadTiktokVideo, type UploadStage } from "@/lib/tiktok-upload-client";
 
@@ -23,6 +23,7 @@ export default function HandoffPage({ params }: { params: Promise<{ token: strin
   const { token } = use(params);
   const inputRef = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState<string | null>(null);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
   const videoId = videoIdOf(token);
   const [expired, setExpired] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -35,7 +36,10 @@ export default function HandoffPage({ params }: { params: Promise<{ token: strin
       .then(async (response) => {
         const body = await response.json();
         if (!response.ok) setExpired(true);
-        else setTitle(body.title);
+        else {
+          setTitle(body.title);
+          setShareUrl(body.shareUrl ?? null);
+        }
       })
       .catch(() => setExpired(true));
   }, [token]);
@@ -87,15 +91,30 @@ export default function HandoffPage({ params }: { params: Promise<{ token: strin
             <h1 className="text-xl font-semibold text-blumea-navy">Upload your TikTok video</h1>
             <p className="mt-2 text-sm leading-6 text-blumea-slate">{title ? `For: ${title}` : "Loading…"}</p>
 
-            <ol className="mt-4 list-decimal space-y-1 pl-5 text-sm leading-6 text-blumea-slate">
-              <li>In TikTok, open the video, tap Share, then Save video.</li>
-              <li>Come back to this page and pick it from your gallery.</li>
-            </ol>
+            <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-blumea-slate">Step 1 · Get the video</p>
+
+            {shareUrl ? (
+              <a
+                href={shareUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-blumea-navy px-4 py-4 text-sm font-semibold text-white"
+              >
+                <ExternalLink size={18} strokeWidth={1.8} />
+                Open the video in TikTok
+              </a>
+            ) : null}
+            <p className="mt-2 text-sm leading-6 text-blumea-slate">
+              In TikTok tap Share, then Save video. Then come back to this page. If the video is already saved on your phone, skip
+              to step 2.
+            </p>
+
+            <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-blumea-slate">Step 2 · Send it to Blumea</p>
 
             <button
               type="button"
               onClick={() => inputRef.current?.click()}
-              className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-200 bg-blumea-mist/50 px-4 py-6 text-sm font-semibold text-blumea-navy"
+              className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-200 bg-blumea-mist/50 px-4 py-6 text-sm font-semibold text-blumea-navy"
             >
               <UploadCloud size={20} strokeWidth={1.8} className="text-blumea-blue" />
               {file ? file.name : "Choose the saved video"}
