@@ -17,6 +17,8 @@ import {
 import { platformName } from "@/lib/platform-capabilities";
 import { realInsightCards } from "@/lib/insight-cards";
 import { pickFirstLook } from "@/lib/first-look";
+import { nextExperiments } from "@/lib/next-experiments";
+import NextExperiments from "@/components/NextExperiments";
 import {
   Users,
   Eye,
@@ -529,6 +531,13 @@ export default function DashboardPage() {
     Pick a video and see what works in it.
   </p>
 </div>
+
+{hasRealVideos && (
+  <div className="mx-auto w-full max-w-7xl">
+    <NextExperiments experiments={nextExperiments(derived, selectedVideos)} />
+  </div>
+)}
+
 <section className="mt-5">
   <div className="mx-auto w-full max-w-7xl">
   
