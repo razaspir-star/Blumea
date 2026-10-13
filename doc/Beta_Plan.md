@@ -2,6 +2,11 @@
 
 Written 2026-10-13. Working rule: we go stage by stage. Each stage ends with a short **stage summary** (what was done, what was checked, what was NOT checked, open items) and an explicit owner sign-off before the next stage starts. Stage summaries are appended to `doc/CLAUDE.md`.
 
+## Decisions (owner, 2026-10-13)
+1. Compare in the beta = video vs video on the creator's own analysed videos, Pro/owner only, locked preview for free.
+2. The beta is in Hebrew **and** English (both languages ship).
+3. Access = guest list by email: a "Request access" form on the homepage, the owner approves emails, only approved emails can use the app. (Invite codes may be added later for groups.)
+
 ## 0. Honest readiness check (today)
 
 | Area | State | Beta blocker? |
