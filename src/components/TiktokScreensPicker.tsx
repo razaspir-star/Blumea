@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useRef } from "react";
 import { Camera, Check, ImagePlus } from "lucide-react";
@@ -46,7 +46,7 @@ export default function TiktokScreensPicker({
           Stacked above the steps on a phone, beside the steps and the upload button on a wide screen. */}
       <video
         className="mx-auto mb-3 w-full max-w-[170px] rounded-xl bg-slate-100 sm:order-2 sm:mb-0 sm:max-w-none"
-        src="/guides/tiktok-analytics-guide.mp4?v=2"
+        src="/guides/tiktok-analytics-guide.mp4?v=3"
         poster="/guides/tiktok-analytics-guide-poster.jpg"
         autoPlay
         loop
@@ -76,7 +76,7 @@ export default function TiktokScreensPicker({
             <p className="flex items-center gap-2 text-sm font-semibold text-blumea-navy">
               <Camera size={15} strokeWidth={1.8} className="text-blumea-blue" />
               {shot.title}
-              <span className="font-normal text-blumea-slate">· {shot.where}</span>
+              <span className="font-normal text-blumea-slate">ֲ· {shot.where}</span>
             </p>
             <p className="mt-2 flex flex-wrap gap-1.5">
               {shot.see.map((word) => (
