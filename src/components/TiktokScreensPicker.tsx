@@ -41,23 +41,23 @@ export default function TiktokScreensPicker({
   const inputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div>
+    <div className={compact ? "" : "sm:grid sm:grid-cols-[minmax(0,1fr)_200px] sm:items-start sm:gap-5"}>
+      {/* Muted loop that starts by itself: the three screens, the screenshot moments and the way back to Blumea.
+          Stacked above the steps on a phone, beside the steps and the upload button on a wide screen. */}
+      <video
+        className="mx-auto mb-3 w-full max-w-[170px] rounded-xl bg-slate-100 sm:order-2 sm:mb-0 sm:max-w-none"
+        src="/guides/tiktok-analytics-guide.mp4?v=2"
+        poster="/guides/tiktok-analytics-guide-poster.jpg"
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        aria-label="Short animation: how to take the three screenshots in TikTok"
+      />
+
+      <div className="sm:order-1">
       <p className="text-sm font-semibold text-blumea-navy">How to get to the numbers</p>
-
-      <details className="mt-2 rounded-xl border border-slate-200 bg-white p-3">
-        <summary className="cursor-pointer text-sm font-semibold text-blumea-blue">Watch how (30 sec)</summary>
-        {/* Muted guide recorded on a phone: the three screens, the screenshot moments, and the way back to Blumea. */}
-        <video
-          className="mx-auto mt-3 w-full max-w-[260px] rounded-xl bg-slate-100"
-          src="/guides/tiktok-analytics-guide.mp4"
-          poster="/guides/tiktok-analytics-guide-poster.jpg"
-          controls
-          muted
-          playsInline
-          preload="none"
-        />
-      </details>
-
       <ol className="mt-1 list-decimal space-y-1 pl-5 text-sm leading-6 text-blumea-slate">
         <li>
           In TikTok, go to your <span className="font-semibold text-blumea-navy">Profile</span> and open the video{" "}
@@ -123,6 +123,7 @@ export default function TiktokScreensPicker({
         className="hidden"
         onChange={(event) => onChange(Array.from(event.target.files ?? []).slice(0, MAX_SCREENSHOTS))}
       />
+      </div>
     </div>
   );
 }
