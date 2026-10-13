@@ -46,7 +46,7 @@ export default function TiktokScreensPicker({
           Stacked above the steps on a phone, beside the steps and the upload button on a wide screen. */}
       <video
         className="mx-auto mb-3 w-full max-w-[170px] rounded-xl bg-slate-100 sm:order-2 sm:mb-0 sm:max-w-none"
-        src="/guides/tiktok-analytics-guide.mp4?v=3"
+        src="/guides/tiktok-analytics-guide.mp4?v=4"
         poster="/guides/tiktok-analytics-guide-poster.jpg"
         autoPlay
         loop
