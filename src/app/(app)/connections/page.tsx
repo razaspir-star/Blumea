@@ -229,6 +229,19 @@ function ConnectionsPageInner() {
 
                 {!soon && (
                   <div className="flex gap-2">
+                    {status === "connected" && real[platform.id] && (
+                      // Signs in again at the platform and refreshes the stored access in place, so the videos
+                      // and analyses stay (Disconnect deletes them).
+                      <button
+                        type="button"
+                        disabled={real[platform.id]?.busy}
+                        onClick={() => real[platform.id]!.connect()}
+                        className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-blumea-navy transition-colors hover:border-blumea-blue hover:text-blumea-blue disabled:opacity-60"
+                      >
+                        Reconnect
+                      </button>
+                    )}
+
                     {status === "connected" && (
                       <button
                         type="button"
