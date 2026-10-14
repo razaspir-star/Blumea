@@ -1,9 +1,13 @@
 ﻿// English texts. This file defines the shape: Hebrew (he.ts) must have exactly the same keys.
 // Texts live in one module per area (en/*.ts); add a module, then spread it here and in he.ts.
 import auth from "./en/auth";
+import onboarding from "./en/onboarding";
+import dashboard from "./en/dashboard";
 
 const en = {
   ...auth,
+  ...onboarding,
+  ...dashboard,
   common: {
     language: "Language",
     english: "English",

@@ -10,6 +10,9 @@ import { getCurrentProfile } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import BlumeaLoader from "@/components/BlumeaLoader";
 import BlumeaFlowerLoader from "@/components/BlumeaFlowerLoader";
+import LanguageSwitch from "@/components/LanguageSwitch";
+import { useT } from "@/lib/i18n/client";
+import type { TextKey } from "@/lib/i18n/translate";
 
 
 import {
@@ -34,6 +37,7 @@ import {
 
 
 export default function OnboardingPage() {
+  const t = useT();
   const router = useAppRouter();
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [profile, setProfile] = useState<{
@@ -60,104 +64,74 @@ const [connectedPlatforms, setConnectedPlatforms] = useState<string[]>([]);
 const [connectingPlatform, setConnectingPlatform] = useState<string | null>(null);
 
  const goals = [
-  { id: "get_more_views", label: "Get more views" },
-  { id: "gain_followers", label: "Gain more followers" },
-  { id: "understand_content", label: "Understand my content" },
-  { id: "improve_engagement", label: "Improve engagement" },
-  { id: "find_uniqueness", label: "Find what makes me unique" },
-  { id: "improve_content", label: "Improve my content" },
-  { id: "no_specific_goal", label: "I'm just exploring" },
-];
+  "get_more_views",
+  "gain_followers",
+  "understand_content",
+  "improve_engagement",
+  "find_uniqueness",
+  "improve_content",
+  "no_specific_goal",
+].map((id) => ({ id, label: t(`onboarding.goal.${id}` as TextKey) }));
 
 const contentCategories = [
   {
     id: "food",
-    label: "Food",
-    description: "Cooking, recipes, reviews & more",
     icon: Utensils,
   },
   {
     id: "music",
-    label: "Music",
-    description: "Singing, instruments, production & more",
     icon: Music,
   },
   {
     id: "gaming",
-    label: "Gaming",
-    description: "Gameplay, streaming, esports & more",
     icon: Gamepad2,
   },
   {
     id: "fitness_wellness",
-    label: "Fitness & Wellness",
-    description: "Workouts, nutrition, wellness & more",
     icon: Dumbbell,
   },
   {
     id: "fashion_beauty",
-    label: "Fashion & Beauty",
-    description: "Fashion, makeup, skincare & more",
     icon: Sparkles,
   },
   {
     id: "tech",
-    label: "Tech",
-    description: "Gadgets, software, AI & more",
     icon: Laptop,
   },
   {
     id: "travel",
-    label: "Travel",
-    description: "Destinations, adventures, travel tips & more",
     icon: Plane,
   },
   {
     id: "business_finance",
-    label: "Business & Finance",
-    description: "Business, investing, entrepreneurship & more",
     icon: ChartNoAxesCombined,
   },
   {
     id: "education",
-    label: "Education",
-    description: "Tutorials, explainers, learning & more",
     icon: GraduationCap,
   },
   {
     id: "entertainment_comedy",
-    label: "Entertainment & Comedy",
-    description: "Comedy, sketches, reactions & more",
     icon: Drama,
   },
   {
     id: "lifestyle",
-    label: "Lifestyle",
-    description: "Daily life, routines, home & more",
     icon: House,
   },
   {
     id: "sports",
-    label: "Sports",
-    description: "Sports, training, commentary & more",
     icon: Trophy,
   },
   {
     id: "automotive",
-    label: "Automotive",
-    description: "Cars, motorcycles, reviews & more",
     icon: Car,
   },
   {
     id: "art_creative",
-    label: "Art & Creative",
-    description: "Design, photography, drawing & more",
     icon: Palette,
   },
   {
     id: "other",
-    label: "Other",
-    description: "Something else? Choose this",
     icon: Ellipsis,
   },
 ];
@@ -526,10 +500,11 @@ return (
   className="relative h-screen overflow-hidden bg-gradient-to-b from-white to-blumea-mist"
 >
   {/* Permanent Blumea logo */}
-  <div className="fixed left-6 top-6 z-50 flex items-center gap-3">
+  <div className="fixed start-6 top-6 z-50">
+<div dir="ltr" className="flex items-center gap-3">
 <Image
             src="/blumea-logo-v2.png"
-            alt="Blumea logo"
+            alt="Blumea"
             width={44}
             height={44}
             priority
@@ -538,7 +513,9 @@ return (
      <span className="text-2xl font-semibold tracking-tight text-blumea-navy">
             Blum<span className="text-blumea-blue">ea</span>
           </span>
+</div>
   </div>
+  <LanguageSwitch className="fixed end-6 top-7 z-50" />
 
 
   {/* STEP 1 - GOALS */}
@@ -549,11 +526,11 @@ return (
 >
       <div className="flex w-full max-w-2xl flex-col gap-4">
         <h1 className="text-center text-3xl font-semibold tracking-tight text-blumea-navy">
-          What are your goals?
+          {t("onboarding.goalsTitle")}
         </h1>
 
         <p className="mb-2 text-center text-sm text-blumea-slate">
-          Choose what you want Blumea to help you achieve.
+          {t("onboarding.goalsSubtitle")}
         </p>
 
         {/* Goals */}
@@ -580,14 +557,14 @@ return (
           <button
             onClick={handleContinue}
             disabled={selectedGoals.length === 0}
-            aria-label="Continue"
+            aria-label={t("onboarding.continue")}
             className="flex h-12 w-12 items-center justify-center rounded-full bg-blumea-navy text-white transition-all duration-300 hover:translate-y-1 hover:bg-blumea-blue disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:translate-y-0"
           >
             <ChevronDown size={26} strokeWidth={2} />
           </button>
 
           <span className="text-xs font-medium text-blumea-slate">
-            Continue
+            {t("onboarding.continue")}
           </span>
         </div>
       </div>
@@ -604,25 +581,25 @@ return (
  <div className="absolute top-3 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-1">
     <button
       onClick={handleBackStep}
-      aria-label="Back"
+      aria-label={t("onboarding.back")}
       className="flex h-12 w-12 items-center justify-center rounded-full bg-blumea-navy text-white transition-all duration-300 hover:-translate-y-1 hover:bg-blumea-blue"
     >
       <ChevronUp size={26} strokeWidth={2} />
     </button>
 
     <span className="text-xs font-medium text-blumea-slate">
-      Back
+      {t("onboarding.back")}
     </span>
   </div>
 
   {/* Content */}
   <div className="flex w-full max-w-3xl flex-col gap-3 px-2">
     <h1 className="text-center text-3xl font-semibold tracking-tight text-blumea-navy">
-      What kind of content do you create?
+      {t("onboarding.categoriesTitle")}
     </h1>
 
     <p className="mb-2 text-center text-sm text-blumea-slate">
-      Choose all that apply. Blumea will learn the rest from your content.
+      {t("onboarding.categoriesSubtitle")}
     </p>
 
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
@@ -651,11 +628,11 @@ return (
             </div>
 
             <span className="font-semibold text-blumea-navy">
-              {category.label}
+              {t(`onboarding.category.${category.id}` as TextKey)}
             </span>
 
             <span className="mt-2 text-xs leading-5 text-blumea-slate">
-              {category.description}
+              {t(`onboarding.category.${category.id}_desc` as TextKey)}
             </span>
           </button>
         );
@@ -668,14 +645,14 @@ return (
     <button
       onClick={handleCategoriesContinue}
       disabled={selectedCategories.length === 0}
-      aria-label="Continue"
+      aria-label={t("onboarding.continue")}
       className="flex h-12 w-12 items-center justify-center rounded-full bg-blumea-navy text-white transition-all duration-300 hover:translate-y-1 hover:bg-blumea-blue disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:translate-y-0"
     >
       <ChevronDown size={26} strokeWidth={2} />
     </button>
 
     <span className="text-xs font-medium text-blumea-slate">
-      Continue
+      {t("onboarding.continue")}
     </span>
   </div>
 </section>
@@ -691,25 +668,25 @@ return (
     <div className="absolute top-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2">
       <button
         onClick={handleBackStep}
-        aria-label="Back"
+        aria-label={t("onboarding.back")}
         className="flex h-12 w-12 items-center justify-center rounded-full bg-blumea-navy text-white transition-all duration-300 hover:-translate-y-1 hover:bg-blumea-blue"
       >
         <ChevronUp size={26} strokeWidth={2} />
       </button>
 
       <span className="text-xs font-medium text-blumea-slate">
-        Back
+        {t("onboarding.back")}
       </span>
     </div>
 
     {/* Title */}
     <div className="text-center">
       <h1 className="text-3xl font-semibold tracking-tight text-blumea-navy">
-        Where do you create?
+        {t("onboarding.platformsTitle")}
       </h1>
 
       <p className="mt-2 text-sm text-blumea-slate">
-        Choose all platforms you currently use.
+        {t("onboarding.platformsSubtitle")}
       </p>
     </div>
 
@@ -730,7 +707,7 @@ return (
           >
             <Image
               src={platform.image}
-              alt={`${platform.label} logo`}
+              alt={platform.label}
               width={64}
               height={64}
               className="mb-4 h-16 w-16 object-contain"
@@ -749,14 +726,14 @@ return (
        <button
         onClick={handlePlatformsContinue}
         disabled={selectedPlatforms.length === 0}
-       aria-label="Continue"
+       aria-label={t("onboarding.continue")}
        className="flex h-12 w-12 items-center justify-center rounded-full bg-blumea-navy text-white transition-all duration-300 hover:translate-y-1 hover:bg-blumea-blue disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:translate-y-0"
      >
     <ChevronDown size={26} strokeWidth={2} />
      </button>
 
   <span className="text-xs font-medium text-blumea-slate">
-    Continue
+    {t("onboarding.continue")}
   </span>
 </div>
   </div>
@@ -770,14 +747,14 @@ return (
   <div className="absolute top-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2">
     <button
       onClick={handleBackStep}
-      aria-label="Back"
+      aria-label={t("onboarding.back")}
       className="flex h-12 w-12 items-center justify-center rounded-full bg-blumea-navy text-white transition-all duration-300 hover:-translate-y-1 hover:bg-blumea-blue"
     >
       <ChevronUp size={26} strokeWidth={2} />
     </button>
 
     <span className="text-xs font-medium text-blumea-slate">
-      Back
+      {t("onboarding.back")}
     </span>
   </div>
 
@@ -785,11 +762,11 @@ return (
   <div className="flex w-full max-w-4xl flex-col items-center gap-8">
     <div className="text-center">
       <h1 className="text-3xl font-semibold tracking-tight text-blumea-navy">
-        Connect your accounts
+        {t("onboarding.connectTitle")}
       </h1>
 
       <p className="mt-2 text-sm text-blumea-slate">
-        Connect an account so Blumea can read your videos. You can also do this later, in Connections.
+        {t("onboarding.connectSubtitle")}
       </p>
     </div>
 
@@ -807,7 +784,7 @@ return (
         >
           <Image
             src={platform.image}
-            alt={`${platform.label} logo`}
+            alt={platform.label}
             width={64}
             height={64}
             className="h-16 w-16 object-contain"
@@ -829,11 +806,11 @@ return (
   {isConnecting ? (
     <BlumeaFlowerLoader size={24} />
   ) : isConnected ? (
-    "Connected ✓"
+    t("onboarding.connected")
   ) : platform.id !== "youtube" && platform.id !== "tiktok" ? (
-    "Coming later"
+    t("onboarding.comingLater")
   ) : (
-    "Connect"
+    t("onboarding.connect")
   )}
 </button>
         </div>
@@ -845,7 +822,7 @@ return (
     onClick={handleFinishOnboarding}
     className="flex items-center justify-center gap-2 rounded-full bg-blumea-navy px-6 py-3 text-sm font-medium text-white transition-all duration-300 hover:-translate-y-1 hover:bg-blumea-blue"
   >
-    <span>Go to my Dashboard</span>
+    <span>{t("onboarding.goToDashboard")}</span>
 
     <Image
       src="/blumea-logo-v2.png"
