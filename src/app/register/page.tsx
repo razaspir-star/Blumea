@@ -3,9 +3,12 @@ import Image from "next/image";
 import AppLink from "@/components/AppLink";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import LanguageSwitch from "@/components/LanguageSwitch";
+import { useT } from "@/lib/i18n/client";
 import { supabase } from "@/lib/supabase";
 export default function RegisterPage() {
-      const [fullName, setFullName] = useState("");
+  const t = useT();
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -33,9 +36,9 @@ export default function RegisterPage() {
   let message = "";
 
   if (!value.trim()) {
-    message = "Please enter your full name.";
+    message = t("register.errName");
   } else if (value.trim().length < 2) {
-    message = "Please enter a valid name.";
+    message = t("register.errNameInvalid");
   }
 
   setErrors((prev) => ({
@@ -48,9 +51,9 @@ function validateEmail(value: string) {
   let message = "";
 
   if (!value.trim()) {
-    message = "Please enter your email.";
+    message = t("register.errEmail");
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-    message = "Please enter a valid email address.";
+    message = t("register.errEmailInvalid");
   }
 
   setErrors((prev) => ({
@@ -66,9 +69,9 @@ function validatePassword(value: string) {
   const hasNumber = /[0-9]/.test(value);
 
   if (value.length < 8) {
-    message = "Password must be at least 8 characters.";
+    message = t("register.errPasswordShort");
   } else if (!hasLetter || !hasNumber) {
-    message = "Password must include both letters and numbers.";
+    message = t("register.errPasswordWeak");
   }
 
   setErrors((prev) => ({
@@ -81,9 +84,9 @@ function validateConfirmPassword(value: string) {
   let message = "";
 
   if (!value) {
-    message = "Please confirm your password.";
+    message = t("register.errConfirm");
   } else if (value !== password) {
-    message = "Passwords do not match.";
+    message = t("register.errMismatch");
   }
 
   setErrors((prev) => ({
@@ -134,32 +137,32 @@ async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
   };
 
   if (!fullName.trim()) {
-    newErrors.fullName = "Please enter your full name.";
+    newErrors.fullName = t("register.errName");
   }
 
   if (!email.trim()) {
-    newErrors.email = "Please enter your email.";
+    newErrors.email = t("register.errEmail");
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    newErrors.email = "Please enter a valid email address.";
+    newErrors.email = t("register.errEmailInvalid");
   }
 
   const hasLetter = /[A-Za-z]/.test(password);
   const hasNumber = /[0-9]/.test(password);
 
   if (password.length < 8) {
-    newErrors.password = "Password must be at least 8 characters.";
+    newErrors.password = t("register.errPasswordShort");
   } else if (!hasLetter || !hasNumber) {
-    newErrors.password = "Password must include both letters and numbers.";
+    newErrors.password = t("register.errPasswordWeak");
   }
 
   if (!confirmPassword) {
-    newErrors.confirmPassword = "Please confirm your password.";
+    newErrors.confirmPassword = t("register.errConfirm");
   } else if (confirmPassword !== password) {
-    newErrors.confirmPassword = "Passwords do not match.";
+    newErrors.confirmPassword = t("register.errMismatch");
   }
 
   if (!acceptedTerms) {
-    newErrors.terms = "You must accept the Terms and Privacy Policy.";
+    newErrors.terms = t("register.errTerms");
   }
 
   setErrors(newErrors);
@@ -186,9 +189,7 @@ async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 
 if (error) {
   if (error.message.includes("rate limit")) {
-    setSignupError(
-      "Too many verification emails were sent. Please wait a little and try again."
-    );
+    setSignupError(t("register.errRateLimit"));
   } else {
     setSignupError(error.message);
   }
@@ -205,10 +206,12 @@ setSignupSuccess(true);
     
 
 {/* Brand */}
-<div className="absolute left-6 top-6 flex items-center gap-3 sm:left-8">
+<LanguageSwitch className="absolute end-6 top-7 sm:end-8" />
+<div className="absolute start-6 top-6 sm:start-8">
+<div dir="ltr" className="flex items-center gap-3">
   <Image
     src="/blumea-logo-v2.png"
-    alt="Blumea logo"
+    alt="Blumea"
     width={44}
     height={44}
     priority
@@ -217,6 +220,7 @@ setSignupSuccess(true);
   <span className="text-2xl font-semibold tracking-tight text-blumea-navy">
     Blum<span className="text-blumea-blue">ea</span>
   </span>
+</div>
 </div>
 <section className="flex justify-center pb-8 pt-20 sm:pt-16">
       {/* Register Form */}
@@ -230,21 +234,24 @@ setSignupSuccess(true);
     </div>
 
     <h1 className="mt-5 text-3xl font-semibold tracking-tight text-blumea-navy">
-      Check your email
+      {t("register.checkEmail")}
     </h1>
 
     <p className="mt-3 text-sm leading-6 text-blumea-slate">
-      We sent a verification link to
+      {t("register.sentTo")}
     </p>
 
-    <p className="mt-1 font-semibold text-blumea-navy">
+    <p dir="ltr" className="mt-1 font-semibold text-blumea-navy">
       {email}
     </p>
 
     <p className="mt-4 text-sm leading-6 text-blumea-slate" >
-      Verify your email to continue setting up your Blumea account.
+      {t("register.verifyToContinue")}
     </p>
-    <button
+    {resendSuccess && (
+    <p className="mt-3 text-sm text-blumea-success">{t("register.resent")}</p>
+  )}
+  <button
     type="button"
     onClick={handleResendVerification}
         disabled={resendCooldown > 0}
@@ -252,11 +259,11 @@ setSignupSuccess(true);
   >
   
     <span>
-  Didn’t get an Email?
+  {t("register.noEmail")}
   <br />
  {resendCooldown > 0
-  ? `Resend again in ${resendCooldown}s`
-  : "Resend verification email"}
+  ? t("register.resendIn", { seconds: resendCooldown })
+  : t("register.resend")}
 </span>
   </button>
   </div>
@@ -265,40 +272,16 @@ setSignupSuccess(true);
 
           <div className="text-center">
             <h1 className="text-3xl font-semibold tracking-tight text-blumea-navy">
-              Create your account
+              {t("register.title")}
             </h1>
 
             <p className="mt-3 text-sm leading-6 text-blumea-slate">
-              Start understanding what works in your content.
+              {t("register.subtitle")}
             </p>
           </div>
 
-          <div className="mt-6">
-            <button
-              type="button"
-               className="flex w-full items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 font-semibold text-blumea-navy transition hover:bg-blumea-mist"
-  >
-              <span className="text-lg font-bold">G</span>
-              Continue with Google
-             </button>   
-             {resendSuccess && (
-  <p className="mt-2 text-sm text-blumea-success">
-    ✓ Verification email sent
-  </p>
-)}  
-        </div>
 
-        <div className="my-2 flex items-center gap-4">
-  <div className="h-px flex-1 bg-slate-200" />
-
-  <span className="text-xs text-blumea-slate">
-    or
-  </span>
-
-  <div className="h-px flex-1 bg-slate-200" />
-</div>
-
-          <form className="space-y-4 text-left"
+          <form className="mt-6 space-y-4 text-start"
           onSubmit={handleSubmit}
           >
 
@@ -307,13 +290,13 @@ setSignupSuccess(true);
                 htmlFor="name"
                 className="mb-2 block text-sm font-semibold text-blumea-navy"
               >
-                Full Name
+                {t("register.fullName")}
               </label>
 
               <input
                 id="name"
                 type="text"
-                placeholder="Your name"
+                placeholder={t("register.fullNamePlaceholder")}
                 value={fullName}
                 onChange={(e) => {
                  const value = e.target.value;
@@ -338,13 +321,14 @@ setSignupSuccess(true);
                 htmlFor="email"
                 className="mb-2 block text-sm font-semibold text-blumea-navy"
               >
-                Email
+                {t("auth.email")}
               </label>
 
               <input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                dir="ltr"
+                placeholder={t("auth.emailPlaceholder")}
                 value={email}
                 onChange={(e) => {
   const value = e.target.value;
@@ -369,14 +353,15 @@ onBlur={() => validateEmail(email)}
                 htmlFor="password"
                 className="mb-2 block text-sm font-semibold text-blumea-navy"
               >
-                Password
+                {t("auth.password")}
               </label>
 
            <div className="relative">
   <input
     id="password"
     type={showPassword ? "text" : "password"}
-    placeholder="Create a password"
+    dir="ltr"
+    placeholder={t("register.passwordPlaceholder")}
     value={password}
     onChange={(e) => {
       const value = e.target.value;
@@ -387,14 +372,14 @@ onBlur={() => validateEmail(email)}
       }
     }}
     onBlur={() => validatePassword(password)}
-    className="w-full rounded-2xl border border-slate-200 px-4 py-3 pr-12 text-blumea-navy outline-none transition placeholder:text-slate-400 focus:border-blumea-blue focus:ring-4 focus:ring-blumea-blue/10"
+    className="w-full rounded-2xl border border-slate-200 px-4 py-3 pr-12 text-blumea-navy rtl:placeholder-shown:text-right outline-none transition placeholder:text-slate-400 focus:border-blumea-blue focus:ring-4 focus:ring-blumea-blue/10"
   />
 
   <button
     type="button"
     onClick={() => setShowPassword(!showPassword)}
     className="absolute right-4 top-1/2 -translate-y-1/2 text-blumea-slate transition hover:text-blumea-navy"
-    aria-label={showPassword ? "Hide password" : "Show password"}
+    aria-label={showPassword ? t("register.hidePassword") : t("register.showPassword")}
   >
     {showPassword ? (
   <EyeOff size={20} />
@@ -404,7 +389,7 @@ onBlur={() => validateEmail(email)}
   </button>
 </div>
               <p className="mt-1.5 text-xs text-blumea-slate">
-  Use at least 8 characters with both letters and numbers.
+  {t("register.passwordHint")}
 </p>
 
 {errors.password && (
@@ -419,14 +404,15 @@ onBlur={() => validateEmail(email)}
                 htmlFor="confirm-password"
                 className="mb-2 block text-sm font-semibold text-blumea-navy"
               >
-                Confirm Password
+                {t("register.confirmPassword")}
               </label>
 
 <div className="relative">
   <input
     id="confirm-password"
     type={showConfirmPassword ? "text" : "password"}
-    placeholder="Repeat your password"
+    dir="ltr"
+    placeholder={t("register.confirmPlaceholder")}
     value={confirmPassword}
     onChange={(e) => {
       const value = e.target.value;
@@ -445,7 +431,7 @@ onBlur={() => validateEmail(email)}
     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
     className="absolute right-4 top-1/2 -translate-y-1/2 text-blumea-slate transition hover:text-blumea-navy"
     aria-label={
-      showConfirmPassword ? "Hide password" : "Show password"
+      showConfirmPassword ? t("register.hidePassword") : t("register.showPassword")
     }
   >
     {showConfirmPassword ? (
@@ -472,13 +458,13 @@ onBlur={() => validateEmail(email)}
     />
 
     <span>
-      I agree to the{" "}
+      {t("register.agreePrefix")}{" "}
       <a href="/terms" target="_blank" rel="noopener noreferrer" className="font-semibold text-blumea-blue">
-        Terms
+        {t("legal.termsShort")}
       </a>{" "}
-      and{" "}
+      {t("register.agreeAnd")}{" "}
       <a href="/privacy" target="_blank" rel="noopener noreferrer" className="font-semibold text-blumea-blue">
-        Privacy Policy
+        {t("legal.privacy")}
       </a>
     </span>
   </label>
@@ -500,7 +486,7 @@ onBlur={() => validateEmail(email)}
   />
 
   <span>
-    I’d like to receive updates, tips, and news from Blumea.
+    {t("register.marketing")}
   </span>
 </label>
 
@@ -509,7 +495,7 @@ onBlur={() => validateEmail(email)}
               type="submit"
               className="w-full rounded-2xl bg-blumea-blue px-6 py-3.5 font-semibold text-white transition hover:bg-blumea-blue-hover"
             >
-              Create Account
+              {t("register.submit")}
             </button>
             {signupError && (
   <p className="text-center text-sm text-red-500">
@@ -520,12 +506,12 @@ onBlur={() => validateEmail(email)}
           </form>
 
                <p className="mt-4 text-center text-sm text-blumea-slate">
-            Already have an account?{" "}
+            {t("register.haveAccount")}{" "}
             <AppLink
               href="/login"
               className="font-semibold text-blumea-blue hover:underline"
             >
-              Log in
+              {t("register.logIn")}
             </AppLink>
           </p>
 

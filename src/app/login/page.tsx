@@ -1,12 +1,15 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import Image from "next/image";
 import AppLink from "@/components/AppLink";
+import LanguageSwitch from "@/components/LanguageSwitch";
 import { useAppRouter } from "@/lib/use-app-router";
+import { useT } from "@/lib/i18n/client";
 import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
+  const t = useT();
   const router = useAppRouter();
 
   const [email, setEmail] = useState("");
@@ -26,7 +29,7 @@ export default function LoginPage() {
     });
 
     if (error) {
-      setLoginError("Invalid email or password.");
+      setLoginError(t("login.invalid"));
       setIsLoading(false);
       return;
     }
@@ -40,7 +43,7 @@ export default function LoginPage() {
       .single();
 
     if (profileError) {
-      setLoginError("We couldn't load your Blumea profile.");
+      setLoginError(t("login.profileError"));
       setIsLoading(false);
       return;
     }
@@ -55,10 +58,11 @@ export default function LoginPage() {
   return (
     <main className="relative flex min-h-screen items-center justify-center bg-blumea-mist px-6">
       {/* Brand */}
-      <div className="absolute left-6 top-6 flex items-center gap-3 sm:left-8">
+      <div className="absolute start-6 top-6 sm:start-8">
+      <div dir="ltr" className="flex items-center gap-3">
         <Image
           src="/blumea-logo-v2.png"
-          alt="Blumea logo"
+          alt="Blumea"
           width={44}
           height={44}
           priority
@@ -68,32 +72,37 @@ export default function LoginPage() {
           Blum<span className="text-blumea-blue">ea</span>
         </span>
       </div>
+      </div>
+
+      <LanguageSwitch className="absolute end-6 top-7 sm:end-8" />
 
       <form
         onSubmit={handleLogin}
         className="w-full max-w-md rounded-3xl bg-white p-8 shadow-sm"
       >
         <h1 className="text-center text-3xl font-semibold text-blumea-navy">
-          Welcome back
+          {t("login.title")}
         </h1>
 
         <div className="mt-8 space-y-4">
           <input
             type="email"
-            placeholder="Email"
+            placeholder={t("auth.email")}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-blumea-blue"
+            dir="ltr"
+            className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-blumea-blue rtl:placeholder-shown:text-right"
           />
 
           <input
             type="password"
-            placeholder="Password"
+            placeholder={t("auth.password")}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-blumea-blue"
+            dir="ltr"
+            className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:border-blumea-blue rtl:placeholder-shown:text-right"
           />
 
           {loginError && (
@@ -107,24 +116,24 @@ export default function LoginPage() {
             disabled={isLoading}
             className="w-full rounded-2xl bg-blumea-blue px-4 py-3 font-semibold text-white transition hover:bg-blumea-blue-hover disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isLoading ? "Logging in..." : "Log In"}
+            {isLoading ? t("login.submitting") : t("login.submit")}
           </button>
         </div>
 
         <p className="mt-5 text-center text-sm text-blumea-slate">
-          New to Blumea?{" "}
+          {t("login.newHere")}{" "}
           <AppLink href="/register" className="font-semibold text-blumea-blue hover:underline">
-            Create an account
+            {t("login.createAccount")}
           </AppLink>
         </p>
 
         <p className="mt-4 text-center text-xs text-blumea-slate">
           <AppLink href="/privacy" className="hover:text-blumea-blue hover:underline">
-            Privacy Policy
+            {t("legal.privacy")}
           </AppLink>
           {" · "}
           <AppLink href="/terms" className="hover:text-blumea-blue hover:underline">
-            Terms of Service
+            {t("legal.terms")}
           </AppLink>
         </p>
       </form>

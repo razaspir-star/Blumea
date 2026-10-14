@@ -34,6 +34,16 @@ body {
   font-family: var(--font-manrope), Arial, Helvetica, sans-serif;
 }
 
+html[lang="he"] body {
+  font-family: var(--font-heebo), var(--font-manrope), Arial, Helvetica, sans-serif;
+}
+
+/* Things that must keep reading left to right inside Hebrew text: numbers, handles, links, codes */
+.ltr-island {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
 @keyframes blumeaPetalIn {
   0% {
     opacity: 0;
