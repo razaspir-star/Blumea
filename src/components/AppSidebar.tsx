@@ -159,7 +159,10 @@ export function MobileNav() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white px-4 py-3 md:hidden">
-      <Brand />
+      <div className="flex items-center justify-between">
+        <Brand />
+        <LanguageSwitch />
+      </div>
 
       <nav className="mt-3 flex gap-1 overflow-x-auto">
         {navigation.map((item) => {

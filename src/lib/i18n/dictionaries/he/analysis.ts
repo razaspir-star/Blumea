@@ -1,0 +1,111 @@
+import type { Dictionary } from "../en";
+
+const fieldLabel: Dictionary["analysis"]["fieldLabel"] = {
+  categories: "קטגוריה",
+  format: "פורמט",
+  layout: "איך זה מוצג",
+  hook_style: "סגנון",
+  hook_type: "פתיחה",
+  familiar_moment: "רגע מוכר",
+  topic: "תוכן",
+  subtitles_detected: "כתוביות",
+  on_screen_texts: "טקסט על המסך",
+  spoken_hook_text: "הפתיח המדובר",
+  sung_hook_lyrics: "הפתיח המושר",
+  call_to_action: "מבקש מהצופים",
+  visual_hook: "פתיח חזותי",
+  sound_kind: "סאונד",
+  speech_language: "שפה",
+  music_description: "מוזיקה",
+  sound_candidate: "צליל אפשרי",
+  known_format_or_trend: "טרנד",
+  subject_specific: "נושא",
+};
+
+const cta: Dictionary["analysis"]["cta"] = {
+  comment_question: "תגובה (דעה)",
+  comment_invite: "תגובה (הבטחה אישית)",
+  follow: "מעקב",
+  like_or_share: "לייק או שיתוף",
+  tag_friend: "תיוג מישהו",
+  link_or_buy: "כניסה לקישור",
+  other: "בקשה אחרת",
+  generic: "בקשה",
+};
+
+const analysis: Dictionary["analysis"] = {
+  fieldLabel,
+  cta,
+  back: "תכנים",
+  loading: "טוען…",
+  secondsShort: "{count} שנ׳",
+  alsoFits: "{base} (מתאים גם: {also})",
+  maybe: "אולי: {text}",
+  yes: "כן",
+  no: "לא",
+  likely: "כנראה",
+  notSure: "לא בטוח",
+  howViewersWatched: "איך הצופים צפו",
+  needsDays: "ב-{platform} לוקח בדרך כלל 2–3 ימים אחרי הפרסום עד שמדווחים איך אנשים צפו. כדאי לחזור מאוחר יותר.",
+  notReported: "{platform} לא דיווחה על התנהגות הצופים בסרטון הזה.",
+  vsUsual: "לעומת {median} בדרך כלל",
+  vsCohort: "לעומת {median} בסרטוני {label} הרגילים שלך",
+  cohortNoun: "סרטוני {label}",
+  cohortNounAll: "סרטונים",
+  views: "צפיות",
+  likes: "לייקים",
+  comments: "תגובות",
+  shares: "שיתופים",
+  saves: "שמירות",
+  reposts: "שיתופים חוזרים",
+  notAvailableOn: "לא זמין ב-{platform}",
+  viewerBehavior: "התנהגות הצופים",
+  onlyYou: "מתוך YouTube Analytics — רק אתה רואה את זה, זה לא פומבי.",
+  averageWatch: "צפייה ממוצעת",
+  ofVideo: "מתוך סרטון של {count} שניות",
+  biggestDrop: "הירידה הגדולה ביותר",
+  around: "בערך ב-{time}",
+  notEnough: "עדיין אין מספיק נתונים",
+  stayed: "נשארו לצפות (הערכה)",
+  stayedNote: "צופים שצפו מעבר לפריים הראשון ולא המשיכו הלאה. המספר ב-YouTube Studio עצמו יכול להיות שונה בכמה נקודות.",
+  howFound: "איך הצופים מצאו את הסרטון",
+  subsVsNew: "מנויים מול צופים חדשים",
+  subscribers: "מנויים",
+  notSubscribed: "לא מנויים",
+  avgWatchShort: "צפייה ממוצעת {time}",
+  keepAndTest: "מה לשמר ומה לבדוק",
+  smallNumbers: " מספרים קטנים (פחות מ-1,000 צפיות) — כדאי לקחת את זה בעירבון מוגבל.",
+  payoffDisclaimer:
+    "מבוסס על הסרטון הזה בלבד. עדיין לא דפוס — Blumea צריכה עוד מההיסטוריה המנותחת שלך כדי להגיד שזה בדרך כלל עוזר.",
+  payoffBody:
+    "הרגע שבו מגיעה התמורה ({what}) מגיע ב-{at} מתוך סרטון של {duration} שניות. הצופה הממוצע צפה {avg}, אז ייתכן שהרבה צופים עוזבים לפניו.",
+  payoffAction:
+    "שווה לבדוק: להראות אותו כ-{sec} שניות מוקדם יותר. אי אפשר לדעת עדיין אם זה ישנה משהו אצלך, אבל זה שינוי מוחשי שאפשר לבדוק.",
+  commentDisclaimer:
+    "קצב התגובות בהשוואה ל-{count} הסרטונים האחרים שלך; הטקסט כפי שה-AI קרא אותו. סרטון אחד, אז אין הוכחה שהטקסט היה הסיבה.",
+  commentBody:
+    "הסרטון הזה קיבל {comments} תגובות — בערך {per100} לכל 100 צפיות, לעומת {usual} בדרך כלל (בערך פי {multiple}).",
+  commentQuote: "הטקסט שעל המסך: ״{quote}״",
+  commentAction: "שווה לנסות שוב הזמנה ישירה דומה ולראות אם התגובות חוזרות.",
+  strongDisclaimer:
+    "לשמר: הערכה לפי הצפיות המעורבות של YouTube (המספר ב-Studio עצמו יכול להיות שונה בכמה נקודות). בהשוואה ל-{count} {noun} אחרים שלך; הציטוט כפי שה-AI קרא אותו.{small}",
+  strongBody: "הפתיח שלך, ״{quote}״, מגיע עם פתיחה חזקה: כ-{pct} נשארו לצפות, {vs}.",
+  strongAction: "כדאי להמשיך לפתוח עם הבטחה ברורה.",
+  weakDisclaimer:
+    "הערכה לפי הצפיות המעורבות של YouTube (המספר ב-Studio עצמו יכול להיות שונה בכמה נקודות). בהשוואה ל-{count} {noun} אחרים שלך.{small}",
+  weakBody: "יותר צופים מהרגיל עזבו בפתיחה: כ-{pct} נשארו לצפות, {vs}. בשניות הראשונות אין טקסט על המסך.",
+  weakAction:
+    "שווה לבדוק: טקסט קצר על המסך בשנייה הראשונה. אין לנו עדיין נתונים אם זה עוזר לך, אבל זה מספיק ספציפי כדי לנסות.",
+  dropDisclaimer: "מבוסס על עקומת השימור של הסרטון הזה בלבד.",
+  dropBody: "רוב הצופים עוזבים בערך ב-{at} — ירידה של {points} נקודות באותה נקודה בודדת.",
+  dropMoment: "באותו רגע: {what}",
+  dropAction: "ייתכן שזה תורם לכך שפחות צופים נשארים אחרי הנקודה הזו.",
+  experimentDisclaimer: "שינוי מוחשי שאפשר לבדוק — לא טענה שהוא עוזר.",
+  understood: "מה Blumea הבינה",
+  understoodNote: "נקרא ישירות מהסרטון על ידי AI. המלצות דורשות עוד מההיסטוריה שלך לפני ש-Blumea תציג אותן כאן.",
+  noAnalysis: "אין עדיין ניתוח לסרטון הזה.",
+  soundFromTiktok: "סאונד (מ-TikTok)",
+};
+
+const analysisTexts = { analysis };
+export default analysisTexts;

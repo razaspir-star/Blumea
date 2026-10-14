@@ -49,6 +49,9 @@ import {
   type OpeningBaseline,
 } from "@/lib/insight-rules";
 import { loadCommentBaseline, loadOpeningBaseline } from "@/lib/baseline";
+import { useT } from "@/lib/i18n/client";
+import { Num, rich } from "@/lib/i18n/rich";
+import type { TextKey, Translator } from "@/lib/i18n/translate";
 import { ANALYTICS_LAG_DAYS, platformHas, platformName, viewerBehaviorNote } from "@/lib/platform-capabilities";
 import {
   CATEGORY_LABELS,
@@ -81,32 +84,33 @@ const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{
 // weak claim), so they're left out rather than faked.
 // Order matters: Category, Format, how it's shown, Style, Content come first
 // (the owner's card structure, 2026-10-06), then the rest of what was read.
-const REAL_FIELD_LABELS: Record<string, string> = {
-  categories: "Category",
-  format: "Format",
-  layout: "How it's shown",
-  hook_style: "Style",
-  hook_type: "Opening",
-  familiar_moment: "Familiar moment",
-  topic: "Content",
-  subtitles_detected: "Subtitles",
-  on_screen_texts: "On-screen text",
-  spoken_hook_text: "Spoken hook",
-  sung_hook_lyrics: "Sung hook",
-  call_to_action: "Asks viewers to",
-  visual_hook: "Visual hook",
-  sound_kind: "Sound",
-  speech_language: "Language",
-  music_description: "Music",
-  sound_candidate: "Possible sound",
-  known_format_or_trend: "Trend",
-  subject_specific: "Subject",
-};
+const REAL_FIELD_IDS = [
+  "categories",
+  "format",
+  "layout",
+  "hook_style",
+  "hook_type",
+  "familiar_moment",
+  "topic",
+  "subtitles_detected",
+  "on_screen_texts",
+  "spoken_hook_text",
+  "sung_hook_lyrics",
+  "call_to_action",
+  "visual_hook",
+  "sound_kind",
+  "speech_language",
+  "music_description",
+  "sound_candidate",
+  "known_format_or_trend",
+  "subject_specific",
+];
 
 // Shown instead of the "Viewer behavior" section when there is none, and says
 // why: the platform doesn't share it, or it is simply too early (principle 4:
 // silence is fine, but an unexplained gap looks like a bug).
 function ViewerBehaviorUnavailable({ platform, publishedAt }: { platform: string; publishedAt: string | null }) {
+  const t = useT();
   const platformNote = !platformHas(platform, "avgWatch") ? viewerBehaviorNote(platform) : null;
   const [now] = useState(() => Date.now());
   const ageDays = publishedAt ? (now - new Date(publishedAt).getTime()) / 86_400_000 : null;
@@ -115,14 +119,14 @@ function ViewerBehaviorUnavailable({ platform, publishedAt }: { platform: string
   const message =
     platformNote ??
     (tooEarly
-      ? `${platformName(platform)} usually needs 2–3 days after posting before it reports how people watched. Check back later.`
-      : `${platformName(platform)} hasn't reported viewer behavior for this video.`);
+      ? t("analysis.needsDays", { platform: platformName(platform) })
+      : t("analysis.notReported", { platform: platformName(platform) }));
 
   return (
     <section className="mt-8 rounded-2xl border border-dashed border-slate-200 bg-white/60 p-4">
       <div className="flex items-center gap-2 text-blumea-slate">
         <Clock3 size={16} strokeWidth={1.8} className="text-blumea-blue" />
-        <span className="text-sm font-semibold">How viewers watched</span>
+        <span className="text-sm font-semibold">{t("analysis.howViewersWatched")}</span>
       </div>
       <p className="mt-2 text-sm leading-6 text-blumea-slate">{message}</p>
     </section>
@@ -131,14 +135,15 @@ function ViewerBehaviorUnavailable({ platform, publishedAt }: { platform: string
 
 // Wording for the baseline a video is compared with: the whole channel, or --
 // once a format has enough other videos -- that format's own cohort.
-function usualPhrase(baseline: OpeningBaseline | null): string {
+function vsPhrase(baseline: OpeningBaseline | null, median: number, t: Translator): string {
   const label = baseline?.scopeFormatId ? formatLabel(baseline.scopeFormatId) : null;
-  return label ? `your usual ${label.toLowerCase()} videos:` : "your usual";
+  const pct = `${Math.round(median)}%`;
+  return label ? t("analysis.vsCohort", { label: label.toLowerCase(), median: pct }) : t("analysis.vsUsual", { median: pct });
 }
 
-function cohortNoun(baseline: OpeningBaseline | null): string {
+function cohortNoun(baseline: OpeningBaseline | null, t: Translator): string {
   const label = baseline?.scopeFormatId ? formatLabel(baseline.scopeFormatId) : null;
-  return label ? `${label.toLowerCase()} videos` : "analyzed videos";
+  return label ? t("analysis.cohortNoun", { label: label.toLowerCase() }) : t("analysis.cohortNounAll");
 }
 
 type RealAnalyzedField = { value: unknown; kind: "fact" | "inferred"; confidence: Confidence };
@@ -191,7 +196,8 @@ function biggestRetentionDrop(curve: RetentionPoint[] | null, durationSec: numbe
 function formatFieldLines(
   field: string,
   value: unknown,
-  fields: Record<string, RealAnalyzedField> | null
+  fields: Record<string, RealAnalyzedField> | null,
+  t: Translator
 ): string[] | null {
   // The owner's card (2026-10-06): Category / Format (+ "also fits") / How it's
   // shown / Style tags / Content. These read other fields too, so they are
@@ -206,7 +212,7 @@ function formatFieldLines(
     if (!base) return null;
     const alsoId = fields?.format_secondary?.value as string | null | undefined;
     const also = alsoId ? formatLabel(alsoId) : null;
-    return [also ? `${base} (also: ${also})` : base];
+    return [also ? t("analysis.alsoFits", { base, also }) : base];
   }
   if (field === "layout") {
     const label = layoutLabel(value as string | null);
@@ -223,7 +229,7 @@ function formatFieldLines(
     const label = hookTypeLabel(value as string | null);
     if (!label) return null;
     const alsoLabel = hookTypeLabel(fields?.hook_type_runner_up?.value as string | null | undefined);
-    return [alsoLabel ? `${label} (also: ${alsoLabel})` : label];
+    return [alsoLabel ? t("analysis.alsoFits", { base: label, also: alsoLabel }) : label];
   }
   if (field === "familiar_moment") {
     const kind = FAMILIAR_KINDS.find((item) => item.id === value);
@@ -232,16 +238,8 @@ function formatFieldLines(
   if (field === "call_to_action") {
     const ask = value as { type?: string; text?: string } | null;
     if (!ask?.type) return null;
-    const what: Record<string, string> = {
-      comment_question: "Comment (opinion)",
-      comment_invite: "Comment (personal promise)",
-      follow: "Follow",
-      like_or_share: "Like or share",
-      tag_friend: "Tag someone",
-      link_or_buy: "Visit a link",
-      other: "Other ask",
-    };
-    return [ask.text ? `${what[ask.type] ?? "Ask"} — “${ask.text.replace(/\s+/g, " ").trim()}”` : (what[ask.type] ?? "Ask")];
+    const what = (type: string) => t(`analysis.cta.${type in { comment_question: 1, comment_invite: 1, follow: 1, like_or_share: 1, tag_friend: 1, link_or_buy: 1, other: 1 } ? type : "generic"}` as TextKey);
+    return [ask.text ? `${what(ask.type)} — “${ask.text.replace(/\s+/g, " ").trim()}”` : what(ask.type)];
   }
   if (value === null || value === undefined) return null;
   if (Array.isArray(value)) {
@@ -254,10 +252,10 @@ function formatFieldLines(
     }
     return [value.map(String).join(", ")];
   }
-  if (typeof value === "boolean") return [value ? "Yes" : "No"];
+  if (typeof value === "boolean") return [value ? t("analysis.yes") : t("analysis.no")];
   const text = String(value).trim();
   if (!text) return null;
-  return [field === "sound_candidate" ? `Maybe: ${text}` : text];
+  return [field === "sound_candidate" ? t("analysis.maybe", { text }) : text];
 }
 
 // One "worth testing" / rule-engine statement card -- consistent shell for
@@ -293,6 +291,7 @@ function InsightCard({
 }
 
 function RealVideoAnalysis({ id }: { id: string }) {
+  const t = useT();
   const [data, setData] = useState<RealVideoData | null | undefined>(undefined);
 
   useEffect(() => {
@@ -378,7 +377,7 @@ function RealVideoAnalysis({ id }: { id: string }) {
   }, [id]);
 
   if (data === undefined) {
-    return <div className="mx-auto w-full max-w-3xl py-20 text-center text-blumea-slate">Loading…</div>;
+    return <div className="mx-auto w-full max-w-3xl py-20 text-center text-blumea-slate">{t("analysis.loading")}</div>;
   }
 
   if (data === null) {
@@ -386,11 +385,11 @@ function RealVideoAnalysis({ id }: { id: string }) {
   }
 
   const identityRows = data.fields
-    ? Object.keys(REAL_FIELD_LABELS)
+    ? REAL_FIELD_IDS
         .map((field) => ({
           field,
-          label: REAL_FIELD_LABELS[field],
-          lines: formatFieldLines(field, data.fields![field]?.value, data.fields),
+          label: t(`analysis.fieldLabel.${field}` as TextKey),
+          lines: formatFieldLines(field, data.fields![field]?.value, data.fields, t),
           confidence: data.fields![field]?.confidence,
         }))
         .filter((row): row is typeof row & { lines: string[] } => row.lines !== null)
@@ -460,7 +459,7 @@ function RealVideoAnalysis({ id }: { id: string }) {
   // that compares it to the creator's usual.
   const smallNumbersNote =
     data.metrics?.views !== null && data.metrics?.views !== undefined && data.metrics.views < 1000
-      ? " Small numbers (under 1,000 views) — take this loosely."
+      ? t("analysis.smallNumbers")
       : "";
 
   const experimentInsights = [noTextExperiment, noCaptionsExperiment].filter(
@@ -484,8 +483,8 @@ function RealVideoAnalysis({ id }: { id: string }) {
         href="/content"
         className="inline-flex items-center gap-1.5 text-sm font-semibold text-blumea-blue transition-opacity hover:opacity-70"
       >
-        <ArrowLeft size={16} />
-        Content
+        <ArrowLeft size={16} className="rtl:rotate-180" />
+        {t("analysis.back")}
       </AppLink>
 
       <h1 className="mt-4 text-3xl font-semibold tracking-tight text-blumea-navy sm:text-4xl">
@@ -494,9 +493,9 @@ function RealVideoAnalysis({ id }: { id: string }) {
 
       <p className="mt-2 text-sm text-blumea-slate">
         {data.publishedAt
-          ? new Date(data.publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+          ? new Date(data.publishedAt).toLocaleDateString(t.locale === "he" ? "he-IL" : "en-US", { month: "short", day: "numeric", year: "numeric" })
           : "—"}
-        {data.durationSec ? ` · ${data.durationSec} sec` : ""}
+        {data.durationSec ? ` · ${t("analysis.secondsShort", { count: data.durationSec })}` : ""}
       </p>
 
       {data.metrics && (() => {
@@ -504,14 +503,14 @@ function RealVideoAnalysis({ id }: { id: string }) {
         // a metric it doesn't give is marked, never faked or left as a blank.
         const platformLabel = platformName(data.platform);
         const metricCards = [
-          { label: "Views", value: data.metrics.views, icon: Eye, unavailable: false },
-          { label: "Likes", value: data.metrics.likes, icon: Heart, unavailable: false },
-          { label: "Comments", value: data.metrics.comments, icon: MessageCircle, unavailable: false },
-          { label: "Shares", value: platformHas(data.platform, "shares") ? data.metrics.shares : null, icon: Share2, unavailable: !platformHas(data.platform, "shares") },
+          { label: t("analysis.views"), value: data.metrics.views, icon: Eye, unavailable: false },
+          { label: t("analysis.likes"), value: data.metrics.likes, icon: Heart, unavailable: false },
+          { label: t("analysis.comments"), value: data.metrics.comments, icon: MessageCircle, unavailable: false },
+          { label: t("analysis.shares"), value: platformHas(data.platform, "shares") ? data.metrics.shares : null, icon: Share2, unavailable: !platformHas(data.platform, "shares") },
           // No connected platform gives saves today (Instagram will, once connected).
-          { label: "Saves", value: null, icon: Bookmark, unavailable: true },
+          { label: t("analysis.saves"), value: null, icon: Bookmark, unavailable: true },
           // "Reposts" isn't a separate TikTok metric (it's folded into shares there).
-          ...(data.platform === "tiktok" ? [] : [{ label: "Reposts", value: null, icon: Repeat2, unavailable: true }]),
+          ...(data.platform === "tiktok" ? [] : [{ label: t("analysis.reposts"), value: null, icon: Repeat2, unavailable: true }]),
         ];
 
         return (
@@ -528,7 +527,7 @@ function RealVideoAnalysis({ id }: { id: string }) {
                   <span className="text-sm">{metric.label}</span>
                 </div>
                 {metric.unavailable ? (
-                  <p className="mt-3 text-sm text-blumea-slate">Not available on {platformLabel}</p>
+                  <p className="mt-3 text-sm text-blumea-slate">{t("analysis.notAvailableOn", { platform: platformLabel })}</p>
                 ) : (
                   <p className="mt-3 text-2xl font-semibold tracking-tight text-blumea-navy">
                     {metric.value === null ? "—" : formatCount(metric.value)}
@@ -551,11 +550,11 @@ function RealVideoAnalysis({ id }: { id: string }) {
       {(data.avgWatchSec !== null || data.breakdowns) && (
         <section className="mt-8">
           <h2 className="text-xl font-semibold tracking-tight text-blumea-navy">
-            Viewer behavior
+            {t("analysis.viewerBehavior")}
           </h2>
 
           <p className="mt-1 text-sm text-blumea-slate">
-            From YouTube Analytics — only you can see this, not public.
+            {t("analysis.onlyYou")}
           </p>
 
           {data.avgWatchSec !== null && (
@@ -563,7 +562,7 @@ function RealVideoAnalysis({ id }: { id: string }) {
             <div className="rounded-2xl border border-slate-200/70 bg-white p-4 shadow-sm">
               <div className="flex items-center gap-2 text-blumea-slate">
                 <Clock3 size={16} strokeWidth={1.8} className="text-blumea-blue" />
-                <span className="text-sm">Average watch</span>
+                <span className="text-sm">{t("analysis.averageWatch")}</span>
               </div>
 
               <p className="mt-3 text-lg font-semibold leading-6 text-blumea-navy">
@@ -571,7 +570,7 @@ function RealVideoAnalysis({ id }: { id: string }) {
               </p>
 
               {data.durationSec && (
-                <p className="mt-1 text-sm text-blumea-slate">of a {data.durationSec} sec video</p>
+                <p className="mt-1 text-sm text-blumea-slate">{t("analysis.ofVideo", { count: data.durationSec })}</p>
               )}
             </div>
 
@@ -581,15 +580,15 @@ function RealVideoAnalysis({ id }: { id: string }) {
                 <div className="rounded-2xl border border-slate-200/70 bg-white p-4 shadow-sm">
                   <div className="flex items-center gap-2 text-blumea-slate">
                     <TrendingDown size={16} strokeWidth={1.8} className="text-blumea-blue" />
-                    <span className="text-sm">Biggest drop</span>
+                    <span className="text-sm">{t("analysis.biggestDrop")}</span>
                   </div>
 
                   {dropAt !== null ? (
                     <p className="mt-3 text-lg font-semibold leading-6 text-blumea-navy">
-                      Around {formatTime(dropAt)}
+                      {t("analysis.around", { time: formatTime(dropAt) })}
                     </p>
                   ) : (
-                    <p className="mt-3 text-sm text-blumea-slate">Not enough data yet</p>
+                    <p className="mt-3 text-sm text-blumea-slate">{t("analysis.notEnough")}</p>
                   )}
                 </div>
               );
@@ -599,16 +598,15 @@ function RealVideoAnalysis({ id }: { id: string }) {
               <div className="rounded-2xl border border-slate-200/70 bg-white p-4 shadow-sm sm:col-span-2">
                 <div className="flex items-center gap-2 text-blumea-slate">
                   <Eye size={16} strokeWidth={1.8} className="text-blumea-blue" />
-                  <span className="text-sm">Stayed to watch (estimate)</span>
+                  <span className="text-sm">{t("analysis.stayed")}</span>
                 </div>
 
                 <p className="mt-3 text-lg font-semibold leading-6 text-blumea-navy">
-                  ≈ {Math.round(stayedPct)}%
+                  <span className="ltr-island">≈ {Math.round(stayedPct)}%</span>
                 </p>
 
                 <p className="mt-1 text-sm text-blumea-slate">
-                  Viewers who watched past the first frame instead of swiping away. YouTube Studio&apos;s own
-                  figure can differ by a couple of points.
+                  {t("analysis.stayedNote")}
                 </p>
               </div>
             )}
@@ -619,7 +617,7 @@ function RealVideoAnalysis({ id }: { id: string }) {
             <div className="mt-4 rounded-2xl border border-slate-200/70 bg-white p-4 shadow-sm">
               <div className="flex items-center gap-2 text-blumea-slate">
                 <Compass size={16} strokeWidth={1.8} className="text-blumea-blue" />
-                <span className="text-sm">How viewers found this video</span>
+                <span className="text-sm">{t("analysis.howFound")}</span>
               </div>
 
               <div className="mt-3 space-y-2">
@@ -632,7 +630,7 @@ function RealVideoAnalysis({ id }: { id: string }) {
                       <div key={row.source}>
                         <div className="flex items-center justify-between text-sm">
                           <span className="font-medium text-blumea-navy">{row.label}</span>
-                          <span className="text-blumea-slate">{pct}%</span>
+                          <span className="ltr-island text-blumea-slate">{pct}%</span>
                         </div>
                         <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
                           <div
@@ -652,7 +650,7 @@ function RealVideoAnalysis({ id }: { id: string }) {
             <div className="mt-4 rounded-2xl border border-slate-200/70 bg-white p-4 shadow-sm">
               <div className="flex items-center gap-2 text-blumea-slate">
                 <UserCheck size={16} strokeWidth={1.8} className="text-blumea-blue" />
-                <span className="text-sm">Subscribers vs. new viewers</span>
+                <span className="text-sm">{t("analysis.subsVsNew")}</span>
               </div>
 
               <div className="mt-3 grid grid-cols-2 gap-3">
@@ -665,14 +663,14 @@ function RealVideoAnalysis({ id }: { id: string }) {
                     return (
                       <div key={String(wantSubscribed)}>
                         <p className="text-xs font-semibold uppercase tracking-wide text-blumea-slate">
-                          {wantSubscribed ? "Subscribers" : "Not subscribed"}
+                          {wantSubscribed ? t("analysis.subscribers") : t("analysis.notSubscribed")}
                         </p>
                         <p className="mt-1 text-lg font-semibold leading-6 text-blumea-navy">
                           {row ? `${pct}%` : "—"}
                         </p>
                         {row && (
                           <p className="mt-0.5 text-xs text-blumea-slate">
-                            {formatTime(row.avgViewDurationSec)} avg watch
+                            {t("analysis.avgWatchShort", { time: formatTime(row.avgViewDurationSec) })}
                           </p>
                         )}
                       </div>
@@ -688,43 +686,42 @@ function RealVideoAnalysis({ id }: { id: string }) {
       {hasAnyInsight && (
         <section className="mt-8">
           <h2 className="text-xl font-semibold tracking-tight text-blumea-navy">
-            What to keep and what to test
+            {t("analysis.keepAndTest")}
           </h2>
 
           <div className="mt-4 space-y-3">
             {payoffInsight && (
-              <InsightCard
-                disclaimer="Based on this one video. Not a pattern yet — Blumea needs more of your analyzed history before it can say this usually helps."
-              >
+              <InsightCard disclaimer={t("analysis.payoffDisclaimer")}>
                 <p className="text-sm leading-6 text-blumea-navy">
-                  The payoff ({payoffInsight.payoffWhatHappens}) comes at{" "}
-                  <span className="font-semibold">{formatTime(payoffInsight.payoffAtSec)}</span> of a{" "}
-                  {payoffInsight.durationSec} sec video. The average viewer watched{" "}
-                  <span className="font-semibold">{formatTime(payoffInsight.avgWatchSec)}</span>, so many
-                  viewers may leave before it.
+                  {rich(t("analysis.payoffBody", { what: payoffInsight.payoffWhatHappens, duration: payoffInsight.durationSec }), {
+                    at: <Num>{formatTime(payoffInsight.payoffAtSec)}</Num>,
+                    avg: <Num>{formatTime(payoffInsight.avgWatchSec)}</Num>,
+                  })}
                 </p>
 
                 <p className="mt-3 text-sm font-medium leading-6 text-blumea-navy">
-                  Worth testing: showing it about {payoffInsight.suggestedEarlierBySec} seconds earlier. No
-                  way to know yet if that changes anything for you, but it&apos;s a concrete, testable
-                  change.
+                  {t("analysis.payoffAction", { sec: payoffInsight.suggestedEarlierBySec })}
                 </p>
               </InsightCard>
             )}
 
             {commentOutlierInsight && (
-              <InsightCard
-                disclaimer={`Comment rate compared with your other ${data.commentBaseline?.count} videos; the text is as the AI read it. One video, so no proof the text was the reason.`}
-              >
+              <InsightCard disclaimer={t("analysis.commentDisclaimer", { count: data.commentBaseline?.count ?? 0 })}>
                 <p className="text-sm leading-6 text-blumea-navy">
-                  This video drew <span className="font-semibold">{commentOutlierInsight.comments} comments</span> — about{" "}
-                  {commentOutlierInsight.per100Views.toFixed(2)} per 100 views vs your usual{" "}
-                  {commentOutlierInsight.usualPer100Views.toFixed(2)} (about {Math.round(commentOutlierInsight.multiple)}×).
-                  {commentOutlierInsight.quote && <> Its on-screen text: “{commentOutlierInsight.quote}”</>}
+                  {rich(
+                    t("analysis.commentBody", {
+                      per100: commentOutlierInsight.per100Views.toFixed(2),
+                      usual: commentOutlierInsight.usualPer100Views.toFixed(2),
+                      multiple: Math.round(commentOutlierInsight.multiple),
+                      comments: commentOutlierInsight.comments,
+                    }),
+                    {}
+                  )}
+                  {commentOutlierInsight.quote && <> {t("analysis.commentQuote", { quote: commentOutlierInsight.quote })}</>}
                 </p>
 
                 <p className="mt-3 text-sm font-medium leading-6 text-blumea-navy">
-                  Worth trying a similar direct invitation again and seeing if comments repeat.
+                  {t("analysis.commentAction")}
                 </p>
               </InsightCard>
             )}
@@ -732,59 +729,57 @@ function RealVideoAnalysis({ id }: { id: string }) {
             {strongHookInsight && (
               <InsightCard
                 keep
-                disclaimer={`Keep: estimate from YouTube's engaged views (Studio's own figure can differ by a couple of points). Compared with your other ${strongHookInsight.baselineCount} ${cohortNoun(data.baseline)}; the quote is as the AI read it.${smallNumbersNote}`}
+                disclaimer={t("analysis.strongDisclaimer", { count: strongHookInsight.baselineCount, noun: cohortNoun(data.baseline, t), small: smallNumbersNote })}
               >
                 <p className="text-sm leading-6 text-blumea-navy">
-                  Your hook, “{strongHookInsight.quote}”, comes with a strong opening: about{" "}
-                  <span className="font-semibold">{Math.round(strongHookInsight.stayedPct)}%</span> stayed
-                  to watch vs {usualPhrase(data.baseline)}{" "}
-                  <span className="font-semibold">{Math.round(strongHookInsight.baselineMedianPct)}%</span>.
+                  {rich(t("analysis.strongBody", { quote: strongHookInsight.quote }), {
+                    pct: <Num>{Math.round(strongHookInsight.stayedPct)}%</Num>,
+                    vs: vsPhrase(data.baseline, strongHookInsight.baselineMedianPct, t),
+                  })}
                 </p>
 
                 <p className="mt-3 text-sm font-medium leading-6 text-blumea-navy">
-                  Keep opening with a clear promise.
+                  {t("analysis.strongAction")}
                 </p>
               </InsightCard>
             )}
 
             {weakOpeningInsight && (
               <InsightCard
-                disclaimer={`Estimate from YouTube's engaged views (Studio's own figure can differ by a couple of points). Compared with your other ${weakOpeningInsight.baselineCount} ${cohortNoun(data.baseline)}.${smallNumbersNote}`}
+                disclaimer={t("analysis.weakDisclaimer", { count: weakOpeningInsight.baselineCount, noun: cohortNoun(data.baseline, t), small: smallNumbersNote })}
               >
                 <p className="text-sm leading-6 text-blumea-navy">
-                  More viewers than usual left in the opening: about{" "}
-                  <span className="font-semibold">{Math.round(weakOpeningInsight.stayedPct)}%</span> stayed
-                  to watch vs {usualPhrase(data.baseline)}{" "}
-                  <span className="font-semibold">{Math.round(weakOpeningInsight.baselineMedianPct)}%</span>.{" "}
-                  The first seconds have no text on screen.
+                  {rich(t("analysis.weakBody"), {
+                    pct: <Num>{Math.round(weakOpeningInsight.stayedPct)}%</Num>,
+                    vs: vsPhrase(data.baseline, weakOpeningInsight.baselineMedianPct, t),
+                  })}
                 </p>
 
                 <p className="mt-3 text-sm font-medium leading-6 text-blumea-navy">
-                  Worth testing: a short text on screen in the first second. You don&apos;t have data yet on
-                  whether that helps you, but it&apos;s specific enough to try.
+                  {t("analysis.weakAction")}
                 </p>
               </InsightCard>
             )}
 
             {biggestDropInsight && (
-              <InsightCard disclaimer="Based on this one video's retention curve.">
+              <InsightCard disclaimer={t("analysis.dropDisclaimer")}>
                 <p className="text-sm leading-6 text-blumea-navy">
-                  Most viewers leave around{" "}
-                  <span className="font-semibold">{formatTime(biggestDropInsight.atSec)}</span>
-                  {" "}— a {biggestDropInsight.dropPercentagePoints}-point drop at that single point.
+                  {rich(t("analysis.dropBody", { points: biggestDropInsight.dropPercentagePoints }), {
+                    at: <Num>{formatTime(biggestDropInsight.atSec)}</Num>,
+                  })}
                   {biggestDropInsight.nearbyMoment && (
-                    <> At that point: {biggestDropInsight.nearbyMoment.what_happens}</>
+                    <> {t("analysis.dropMoment", { what: biggestDropInsight.nearbyMoment.what_happens })}</>
                   )}
                 </p>
 
                 <p className="mt-3 text-sm font-medium leading-6 text-blumea-navy">
-                  This may contribute to why fewer viewers stay past this point.
+                  {t("analysis.dropAction")}
                 </p>
               </InsightCard>
             )}
 
             {experimentInsights.map((experiment, index) => (
-              <InsightCard key={index} disclaimer="A concrete, testable change — not a claim that it helps.">
+              <InsightCard key={index} disclaimer={t("analysis.experimentDisclaimer")}>
                 <p className="text-sm font-medium leading-6 text-blumea-navy">{experiment.text}</p>
               </InsightCard>
             ))}
@@ -794,20 +789,19 @@ function RealVideoAnalysis({ id }: { id: string }) {
 
       <section className="mt-10">
         <h2 className="text-2xl font-semibold tracking-tight text-blumea-navy">
-          What Blumea understood
+          {t("analysis.understood")}
         </h2>
 
         <p className="mt-1 text-sm text-blumea-slate">
-          Read directly from the video by AI. Recommendations need more of your history before
-          Blumea will show them here.
+          {t("analysis.understoodNote")}
         </p>
 
         {identityRows.length === 0 ? (
-          <p className="mt-5 text-sm text-blumea-slate">No analysis yet for this video.</p>
+          <p className="mt-5 text-sm text-blumea-slate">{t("analysis.noAnalysis")}</p>
         ) : (
           <div className="mt-5 rounded-2xl border border-slate-200/70 bg-white px-5 shadow-sm">
             {identityRows.map((row) => {
-              const hint = row.confidence ? confidenceLabels[row.confidence] : null;
+              const hint = row.confidence === "medium" ? t("analysis.likely") : row.confidence === "low" ? t("analysis.notSure") : null;
 
               return (
                 <div key={row.field} className="border-b border-slate-100 py-4 last:border-b-0">
@@ -847,7 +841,7 @@ function RealVideoAnalysis({ id }: { id: string }) {
 
             <div className="min-w-0 flex-1">
               <p className="text-xs font-semibold uppercase tracking-wide text-blumea-blue">
-                Sound (from TikTok)
+                {t("analysis.soundFromTiktok")}
               </p>
 
               <p className="truncate text-sm font-medium text-blumea-navy">

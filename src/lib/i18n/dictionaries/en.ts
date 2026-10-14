@@ -3,11 +3,13 @@
 import auth from "./en/auth";
 import onboarding from "./en/onboarding";
 import dashboard from "./en/dashboard";
+import analysis from "./en/analysis";
 
 const en = {
   ...auth,
   ...onboarding,
   ...dashboard,
+  ...analysis,
   common: {
     language: "Language",
     english: "English",
