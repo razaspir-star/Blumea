@@ -345,7 +345,7 @@ export default function DashboardPage() {
         <>
           <ChangeBadge change={realTotals.followersChange} unit={t("dashboard.unitFollowers")} />
           <Breakdown
-            parts={realTotals.perPlatformFollowers.map((part) => ({ label: platformLabel(part.platform), value: part.followers }))}
+            parts={realTotals.perPlatformFollowers.map((part) => ({ label: platformLabel(part.platform, t), value: part.followers }))}
           />
         </>
       ) : (
@@ -380,7 +380,7 @@ export default function DashboardPage() {
             <span className="text-xs text-blumea-slate">
               {realTotals.views.allConnectedReport
                 ? t("dashboard.allTimeConnected")
-                : t("dashboard.allTimeOnly", { platforms: realTotals.views.platforms.map(platformLabel).join(" + ") })}
+                : t("dashboard.allTimeOnly", { platforms: realTotals.views.platforms.map((p) => platformLabel(p, t)).join(" + ") })}
             </span>
           </>
         ) : (
@@ -445,7 +445,7 @@ export default function DashboardPage() {
             {t("dashboard.interactionsNote", { count: derived.analyzedCount })}
           </span>
           <Breakdown
-            parts={derived.interactionsByPlatform.map((part) => ({ label: platformLabel(part.platform), value: part.interactions }))}
+            parts={derived.interactionsByPlatform.map((part) => ({ label: platformLabel(part.platform, t), value: part.interactions }))}
           />
         </>
       ) : (
@@ -539,7 +539,7 @@ export default function DashboardPage() {
 
 {hasRealVideos && (
   <div className="mx-auto w-full max-w-7xl">
-    <NextExperiments experiments={nextExperiments(derived, selectedVideos)} />
+    <NextExperiments experiments={nextExperiments(derived, selectedVideos, t)} />
   </div>
 )}
 
@@ -558,7 +558,7 @@ export default function DashboardPage() {
       sees an empty-state note. */}
   <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
     {hasRealVideos
-      ? realInsightCards(derived)
+      ? realInsightCards(derived, t)
           .filter((card) => card.tone !== "fact")
           .map((card) => {
             const style = INSIGHT_TONE[card.tone as "working" | "opportunity" | "watch"];
@@ -647,7 +647,7 @@ export default function DashboardPage() {
                  )}
                  <div className="absolute bottom-3 start-3 flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-blumea-navy shadow-sm">
                    {platformIcon[video.platform]}
-                   <span>{platformLabel(video.platform)}</span>
+                   <span>{platformLabel(video.platform, t)}</span>
                  </div>
                </div>
 

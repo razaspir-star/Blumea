@@ -3,6 +3,9 @@ import auth from "./he/auth";
 import onboarding from "./he/onboarding";
 import dashboard from "./he/dashboard";
 import analysis from "./he/analysis";
+import library from "./he/library";
+import insights from "./he/insights";
+import insightsUi from "./he/insights-ui";
 
 // Hebrew texts, same keys as en.ts. Plain, short, spoken-style Hebrew; platform names (YouTube, TikTok)
 // and the product name stay in English.
@@ -11,6 +14,9 @@ const he: Dictionary = {
   ...onboarding,
   ...dashboard,
   ...analysis,
+  ...library,
+  ...insights,
+  ...insightsUi,
   common: {
     language: "שפה",
     english: "English",

@@ -54,13 +54,13 @@ import { Num, rich } from "@/lib/i18n/rich";
 import type { TextKey, Translator } from "@/lib/i18n/translate";
 import { ANALYTICS_LAG_DAYS, platformHas, platformName, viewerBehaviorNote } from "@/lib/platform-capabilities";
 import {
-  CATEGORY_LABELS,
+  categoryLabel,
   formatLabel,
   friendlyFormatLabel,
   layoutLabel,
   styleTags,
 } from "@/lib/format-library";
-import { FAMILIAR_KINDS, hookTypeLabel } from "@/lib/hook-library";
+import { familiarLabel, hookTypeLabel } from "@/lib/hook-library";
 import TiktokViewerCard, { type SavedTiktokScreens } from "@/components/TiktokViewerCard";
 import {
   biggestDrop,
@@ -111,7 +111,7 @@ const REAL_FIELD_IDS = [
 // silence is fine, but an unexplained gap looks like a bug).
 function ViewerBehaviorUnavailable({ platform, publishedAt }: { platform: string; publishedAt: string | null }) {
   const t = useT();
-  const platformNote = !platformHas(platform, "avgWatch") ? viewerBehaviorNote(platform) : null;
+  const platformNote = !platformHas(platform, "avgWatch") ? viewerBehaviorNote(platform, t) : null;
   const [now] = useState(() => Date.now());
   const ageDays = publishedAt ? (now - new Date(publishedAt).getTime()) / 86_400_000 : null;
   const tooEarly = ageDays !== null && ageDays < ANALYTICS_LAG_DAYS;
@@ -119,8 +119,8 @@ function ViewerBehaviorUnavailable({ platform, publishedAt }: { platform: string
   const message =
     platformNote ??
     (tooEarly
-      ? t("analysis.needsDays", { platform: platformName(platform) })
-      : t("analysis.notReported", { platform: platformName(platform) }));
+      ? t("analysis.needsDays", { platform: platformName(platform, t) })
+      : t("analysis.notReported", { platform: platformName(platform, t) }));
 
   return (
     <section className="mt-8 rounded-2xl border border-dashed border-slate-200 bg-white/60 p-4">
@@ -136,13 +136,13 @@ function ViewerBehaviorUnavailable({ platform, publishedAt }: { platform: string
 // Wording for the baseline a video is compared with: the whole channel, or --
 // once a format has enough other videos -- that format's own cohort.
 function vsPhrase(baseline: OpeningBaseline | null, median: number, t: Translator): string {
-  const label = baseline?.scopeFormatId ? formatLabel(baseline.scopeFormatId) : null;
+  const label = baseline?.scopeFormatId ? formatLabel(baseline.scopeFormatId, t) : null;
   const pct = `${Math.round(median)}%`;
   return label ? t("analysis.vsCohort", { label: label.toLowerCase(), median: pct }) : t("analysis.vsUsual", { median: pct });
 }
 
 function cohortNoun(baseline: OpeningBaseline | null, t: Translator): string {
-  const label = baseline?.scopeFormatId ? formatLabel(baseline.scopeFormatId) : null;
+  const label = baseline?.scopeFormatId ? formatLabel(baseline.scopeFormatId, t) : null;
   return label ? t("analysis.cohortNoun", { label: label.toLowerCase() }) : t("analysis.cohortNounAll");
 }
 
@@ -204,36 +204,39 @@ function formatFieldLines(
   // built here instead of from the single value.
   const categoryIds = (fields?.categories?.value as string[] | undefined) ?? null;
   if (field === "categories") {
-    const labels = (categoryIds ?? []).map((id) => CATEGORY_LABELS[id] ?? id);
+    const labels = (categoryIds ?? []).map((id) => categoryLabel(id, t));
     return labels.length ? [labels.join(" · ")] : null;
   }
   if (field === "format") {
-    const base = friendlyFormatLabel(value as string | null, categoryIds);
+    const base = friendlyFormatLabel(value as string | null, categoryIds, t);
     if (!base) return null;
     const alsoId = fields?.format_secondary?.value as string | null | undefined;
-    const also = alsoId ? formatLabel(alsoId) : null;
+    const also = alsoId ? formatLabel(alsoId, t) : null;
     return [also ? t("analysis.alsoFits", { base, also }) : base];
   }
   if (field === "layout") {
-    const label = layoutLabel(value as string | null);
+    const label = layoutLabel(value as string | null, t);
     return label ? [label] : null;
   }
   if (field === "hook_style") {
-    const tags = styleTags({
-      soundRole: fields?.sound_role?.value as string | null | undefined,
-      hookStyle: value as string | null,
-    });
+    const tags = styleTags(
+      {
+        soundRole: fields?.sound_role?.value as string | null | undefined,
+        hookStyle: value as string | null,
+      },
+      t
+    );
     return tags.length ? [tags.join(" · ")] : null;
   }
   if (field === "hook_type") {
-    const label = hookTypeLabel(value as string | null);
+    const label = hookTypeLabel(value as string | null, t);
     if (!label) return null;
-    const alsoLabel = hookTypeLabel(fields?.hook_type_runner_up?.value as string | null | undefined);
+    const alsoLabel = hookTypeLabel(fields?.hook_type_runner_up?.value as string | null | undefined, t);
     return [alsoLabel ? t("analysis.alsoFits", { base: label, also: alsoLabel }) : label];
   }
   if (field === "familiar_moment") {
-    const kind = FAMILIAR_KINDS.find((item) => item.id === value);
-    return kind && kind.id !== "none" ? [kind.label] : null;
+    const label = value === "none" ? null : familiarLabel(value as string | null, t);
+    return label ? [label] : null;
   }
   if (field === "call_to_action") {
     const ask = value as { type?: string; text?: string } | null;
@@ -501,7 +504,7 @@ function RealVideoAnalysis({ id }: { id: string }) {
       {data.metrics && (() => {
         // What each platform actually gives comes from platform-capabilities.ts;
         // a metric it doesn't give is marked, never faked or left as a blank.
-        const platformLabel = platformName(data.platform);
+        const platformLabel = platformName(data.platform, t);
         const metricCards = [
           { label: t("analysis.views"), value: data.metrics.views, icon: Eye, unavailable: false },
           { label: t("analysis.likes"), value: data.metrics.likes, icon: Heart, unavailable: false },
@@ -629,7 +632,7 @@ function RealVideoAnalysis({ id }: { id: string }) {
                     return (
                       <div key={row.source}>
                         <div className="flex items-center justify-between text-sm">
-                          <span className="font-medium text-blumea-navy">{row.label}</span>
+                          <span className="font-medium text-blumea-navy">{t.has(`library.traffic.${row.source}`) ? t(`library.traffic.${row.source}` as TextKey) : row.label}</span>
                           <span className="ltr-island text-blumea-slate">{pct}%</span>
                         </div>
                         <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
@@ -780,7 +783,7 @@ function RealVideoAnalysis({ id }: { id: string }) {
 
             {experimentInsights.map((experiment, index) => (
               <InsightCard key={index} disclaimer={t("analysis.experimentDisclaimer")}>
-                <p className="text-sm font-medium leading-6 text-blumea-navy">{experiment.text}</p>
+                <p className="text-sm font-medium leading-6 text-blumea-navy">{t(`library.experiment.${experiment.kind}` as TextKey)}</p>
               </InsightCard>
             ))}
           </div>

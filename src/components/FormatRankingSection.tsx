@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { formatCount } from "@/lib/format";
 import { formatLabel } from "@/lib/format-library";
 import { stayedToWatchPct } from "@/lib/insight-rules";
+import { useT } from "@/lib/i18n/client";
 import {
   bestFormats,
   withinFormatLength,
@@ -83,49 +84,48 @@ function useFormatRows() {
 
 const pct = (value: number | null) => (value === null ? "—" : `${Math.round(value)}%`);
 const count = (value: number | null) => (value === null ? "—" : formatCount(Math.round(value)));
-const secs = (value: number | null) => (value === null ? "—" : `${Math.round(value)} s`);
-
 export default function FormatRankingSection() {
+  const t = useT();
   const rows = useFormatRows();
+  const secs = (value: number | null) => (value === null ? "—" : t("formats.seconds", { n: Math.round(value) }));
   if (rows === null || rows.length === 0) return null;
 
   const { ranked, tooFew, total } = summarizeFormats(rows);
   const gap = formatGap(ranked, total);
   const best = bestFormats(rows);
   const withinLength = withinFormatLength(rows);
-  const name = (id: string) => formatLabel(id) ?? id;
-  const metricName = (metric: "views" | "likes") => (metric === "views" ? "views" : "likes");
+  const name = (id: string) => formatLabel(id, t) ?? id;
+  const metricName = (metric: "views" | "likes") => (metric === "views" ? t("formats.metricViews") : t("formats.metricLikes"));
 
   return (
     <section className="mt-8 rounded-3xl border border-slate-200/70 bg-white p-5 shadow-sm sm:p-6">
       <div className="flex items-center gap-2">
         <Layers size={18} strokeWidth={1.8} className="text-blumea-blue" />
-        <p className="text-sm font-semibold text-blumea-navy">Your formats</p>
+        <p className="text-sm font-semibold text-blumea-navy">{t("formats.title")}</p>
       </div>
 
       <p className="mt-1 text-sm text-blumea-slate">
-        How your own YouTube videos compare by format. Typical (median) values, with the number of
-        videos behind each.
+        {t("formats.intro")}
       </p>
 
       {ranked.length > 0 ? (
         <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[34rem] text-left text-sm">
+          <table className="w-full min-w-[34rem] text-start text-sm">
             <thead>
               <tr className="text-xs uppercase tracking-wide text-blumea-slate">
-                <th className="py-2 pr-3 font-semibold">Format</th>
-                <th className="px-3 py-2 font-semibold">Videos</th>
-                <th className="px-3 py-2 font-semibold">Views</th>
-                <th className="px-3 py-2 font-semibold">Likes</th>
-                <th className="px-3 py-2 font-semibold" title="Estimate, see the video page">Stayed to watch ≈</th>
-                <th className="px-3 py-2 font-semibold">Watched of the video</th>
-                <th className="py-2 pl-3 font-semibold">Typical length</th>
+                <th className="py-2 pe-3 font-semibold">{t("formats.colFormat")}</th>
+                <th className="px-3 py-2 font-semibold">{t("formats.colVideos")}</th>
+                <th className="px-3 py-2 font-semibold">{t("formats.colViews")}</th>
+                <th className="px-3 py-2 font-semibold">{t("formats.colLikes")}</th>
+                <th className="px-3 py-2 font-semibold" title={t("formats.colStayedTitle")}>{t("formats.colStayed")}</th>
+                <th className="px-3 py-2 font-semibold">{t("formats.colWatched")}</th>
+                <th className="py-2 ps-3 font-semibold">{t("formats.colLength")}</th>
               </tr>
             </thead>
             <tbody>
               {ranked.map((format) => (
                 <tr key={format.formatId} className="border-t border-slate-100 text-blumea-navy">
-                  <td className="py-3 pr-3 font-medium">{name(format.formatId)}</td>
+                  <td className="py-3 pe-3 font-medium">{name(format.formatId)}</td>
                   <td className="px-3 py-3">
                     {format.count} <span className="text-xs text-blumea-slate">({Math.round((format.count / total) * 100)}%)</span>
                   </td>
@@ -133,7 +133,7 @@ export default function FormatRankingSection() {
                   <td className="px-3 py-3">{count(format.medianLikes)}</td>
                   <td className="px-3 py-3">{pct(format.medianStayedPct)}</td>
                   <td className="px-3 py-3">{pct(format.medianWatchSharePct)}</td>
-                  <td className="py-3 pl-3">{secs(format.medianDurationSec)}</td>
+                  <td className="py-3 ps-3">{secs(format.medianDurationSec)}</td>
                 </tr>
               ))}
             </tbody>
@@ -141,26 +141,29 @@ export default function FormatRankingSection() {
         </div>
       ) : (
         <p className="mt-4 text-sm text-blumea-slate">
-          No format has {RANK_MIN_PER_FORMAT} analyzed videos yet, so there is nothing to compare.
+          {t("formats.none", { min: RANK_MIN_PER_FORMAT })}
         </p>
       )}
 
       {best.length > 0 && (
         <div className="mt-4 space-y-3">
-          <p className="text-sm font-semibold text-blumea-navy">Formats that work for you</p>
+          <p className="text-sm font-semibold text-blumea-navy">{t("formats.bestTitle")}</p>
           {best.map((format) => (
             <div key={format.formatId} className="rounded-2xl border border-blumea-blue/25 bg-white p-4">
               <p className="text-sm leading-6 text-blumea-navy">
-                Your <span className="font-semibold">{name(format.formatId)}</span> videos usually do better than your
-                other videos: a median of {count(format.medianValue)} {metricName(format.metric)} vs{" "}
-                {count(format.restMedianValue)}, and {format.beatingRest} of {format.count} of them beat your other
-                videos&apos; median. <span className="font-medium">Worth keeping in the mix.</span>
-                {format.lengthConfounded &&
-                  " They also differ a lot in length from your other videos, so some of it may be the length rather than the format."}
+                {t("formats.bestBody", {
+                  format: name(format.formatId),
+                  median: count(format.medianValue),
+                  metric: metricName(format.metric),
+                  rest: count(format.restMedianValue),
+                  beating: format.beatingRest,
+                  count: format.count,
+                })}{" "}
+                <span className="font-medium">{t("formats.bestKeep")}</span>
+                {format.lengthConfounded && ` ${t("formats.bestConfounded")}`}
               </p>
               <p className="mt-2 text-xs text-blumea-slate">
-                A pattern in your {format.count + format.restCount} videos; it doesn&apos;t prove the format is the
-                reason.
+                {t("formats.bestNote", { count: format.count + format.restCount })}
               </p>
             </div>
           ))}
@@ -169,42 +172,50 @@ export default function FormatRankingSection() {
 
       {gap.kind === "pattern" && (
         <p className="mt-4 text-sm leading-6 text-blumea-navy">
-          In your videos, <span className="font-semibold">{name(gap.better.formatId)}</span> got more{" "}
-          {metricName(gap.metric)} than <span className="font-semibold">{name(gap.worse.formatId)}</span>
-          : a median of{" "}
-          {count(gap.metric === "views" ? gap.better.medianViews : gap.better.medianLikes)} vs{" "}
-          {count(gap.metric === "views" ? gap.worse.medianViews : gap.worse.medianLikes)} ({gap.better.count} vs{" "}
-          {gap.worse.count} videos). This is a pattern in <em>your</em> videos; it doesn&apos;t prove the
-          format is the reason.
+          {t("formats.gapPattern", {
+            better: name(gap.better.formatId),
+            worse: name(gap.worse.formatId),
+            metric: metricName(gap.metric),
+            a: count(gap.metric === "views" ? gap.better.medianViews : gap.better.medianLikes),
+            b: count(gap.metric === "views" ? gap.worse.medianViews : gap.worse.medianLikes),
+            ac: gap.better.count,
+            bc: gap.worse.count,
+          })}
         </p>
       )}
 
       {gap.kind === "length_confounded" && (
         <p className="mt-4 text-sm leading-6 text-blumea-navy">
-          <span className="font-semibold">{name(gap.better.formatId)}</span> videos got more{" "}
-          {metricName(gap.metric)} than <span className="font-semibold">{name(gap.worse.formatId)}</span>{" "}
-          videos (median{" "}
-          {count(gap.metric === "views" ? gap.better.medianViews : gap.better.medianLikes)} vs{" "}
-          {count(gap.metric === "views" ? gap.worse.medianViews : gap.worse.medianLikes)}), but they are also very
-          different in length (typically {secs(gap.better.medianDurationSec)} vs{" "}
-          {secs(gap.worse.medianDurationSec)}). Blumea can&apos;t tell whether the format or the length is behind
-          the gap, so it won&apos;t say.
+          {t("formats.gapConfounded", {
+            better: name(gap.better.formatId),
+            worse: name(gap.worse.formatId),
+            metric: metricName(gap.metric),
+            a: count(gap.metric === "views" ? gap.better.medianViews : gap.better.medianLikes),
+            b: count(gap.metric === "views" ? gap.worse.medianViews : gap.worse.medianLikes),
+            la: secs(gap.better.medianDurationSec),
+            lb: secs(gap.worse.medianDurationSec),
+          })}
         </p>
       )}
 
       {withinLength.length > 0 && (
         <div className="mt-4 space-y-2">
-          <p className="text-sm font-semibold text-blumea-navy">Length inside a format</p>
+          <p className="text-sm font-semibold text-blumea-navy">{t("formats.withinTitle")}</p>
           {withinLength.map((entry) => (
             <p key={entry.formatId} className="text-sm leading-6 text-blumea-navy">
-              <span className="font-semibold">{name(entry.formatId)}:</span> your {entry.halfSize} shorter videos (up
-              to {entry.shorterUpToSec} s) were watched for a median {Math.round(entry.shorterWatchedSec)} s (
-              {Math.round(entry.shorterSharePct)}% of the video); your {entry.halfSize} longer ones (from{" "}
-              {entry.longerFromSec} s), {Math.round(entry.longerWatchedSec)} s ({Math.round(entry.longerSharePct)}%).{" "}
-              {entry.kind === "stay_longer" && "Viewers stay longer on the longer ones, so length doesn't look like what's limiting them."}
-              {entry.kind === "same_stop_point" &&
-                "Viewers stop at about the same point either way, so the longer ones lose a bigger share — a tighter cut of the same piece may be worth a try."}
-              {entry.kind === "no_difference" && "Length doesn't clearly change how people watch this format."}
+              {t("formats.withinText", {
+                format: name(entry.formatId),
+                half: entry.halfSize,
+                upTo: entry.shorterUpToSec,
+                sw: Math.round(entry.shorterWatchedSec),
+                sp: Math.round(entry.shorterSharePct),
+                from: entry.longerFromSec,
+                lw: Math.round(entry.longerWatchedSec),
+                lp: Math.round(entry.longerSharePct),
+              })}{" "}
+              {entry.kind === "stay_longer" && t("formats.withinStay")}
+              {entry.kind === "same_stop_point" && t("formats.withinSame")}
+              {entry.kind === "no_difference" && t("formats.withinNone")}
             </p>
           ))}
         </div>
@@ -213,35 +224,33 @@ export default function FormatRankingSection() {
       {gap.kind === "not_enough" && (
         <p className="mt-4 text-sm leading-6 text-blumea-slate">
           {ranked.length === 1
-            ? `Your videos share one format, ${name(ranked[0].formatId)} — a consistent style. Blumea compares formats only when you use more than one, and never asks you to change yours.`
-            : `Blumea compares formats once it has ${RANK_MIN_TOTAL} analyzed videos (${total} so far) and at least two formats with ${RANK_MIN_PER_FORMAT} videos each. Nothing here is a problem to fix.`}
+            ? t("formats.notEnoughOne", { format: name(ranked[0].formatId) })
+            : t("formats.notEnoughMany", { total: RANK_MIN_TOTAL, have: total, per: RANK_MIN_PER_FORMAT })}
         </p>
       )}
 
       {gap.kind === "no_gap" && (
         <p className="mt-4 text-sm leading-6 text-blumea-slate">
-          No clear difference between your formats yet — a normal answer, not a missing one.
+          {t("formats.noGap")}
         </p>
       )}
 
       {tooFew.length > 0 && (
         <p className="mt-3 text-xs text-blumea-slate">
-          Too few videos to compare yet:{" "}
-          {tooFew.map((format) => `${name(format.formatId)} (${format.count})`).join(", ")}.
+          {t("formats.tooFew", { list: tooFew.map((format) => `${name(format.formatId)} (${format.count})`).join(", ") })}
         </p>
       )}
 
       <p className="mt-3 text-xs text-blumea-slate">
-        Based on {total} analyzed YouTube videos. Small groups are noisy — take the numbers loosely.
+        {t("formats.basedOn", { total })}
       </p>
 
       {/* Not built: which formats suit a niche needs other creators' data (spec
           L5, "not allowed in V1"); Blumea says so rather than guess. */}
       <div className="mt-4 rounded-2xl border border-dashed border-slate-300 bg-white/60 p-4">
-        <p className="text-sm font-semibold text-blumea-navy">Formats in your niche</p>
+        <p className="text-sm font-semibold text-blumea-navy">{t("formats.nicheTitle")}</p>
         <p className="mt-1 text-sm leading-6 text-blumea-slate">
-          Coming later. To say which formats suit your niche, Blumea needs data from other creators in it, and
-          won&apos;t guess in the meantime.
+          {t("formats.nicheBody")}
         </p>
       </div>
     </section>

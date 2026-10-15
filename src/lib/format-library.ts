@@ -1,6 +1,14 @@
 // The format library (doc/Insight_Engine_Spec.md §3.5): how a video is BUILT,
 // independent of its niche. One source of truth for the AI prompt, the labels
 // shown to creators, and the norms rules use to decide where they apply.
+// Labels shown to creators come from the dictionaries when a translator is passed (Hebrew/English);
+// the English labels below stay for the AI prompt and for scripts that run without a language.
+import type { Translator, TextKey } from "@/lib/i18n/translate";
+
+function localized(t: Translator | undefined, key: string, fallback: string | null): string | null {
+  return t && t.has(key) ? t(key as TextKey) : fallback;
+}
+
 // A format joins this list only when the owner approves it (§3.5, "learning
 // over time, with a gate").
 //
@@ -105,13 +113,18 @@ function findFormat(id: string | null | undefined) {
   return FORMATS.find((format) => format.id === id) ?? LEGACY_FORMATS.find((format) => format.id === id);
 }
 
-export function formatLabel(id: string | null | undefined): string | null {
-  return findFormat(id)?.label ?? null;
+export function formatLabel(id: string | null | undefined, t?: Translator): string | null {
+  if (!id) return null;
+  return localized(t, `library.format.${id}`, findFormat(id)?.label ?? null);
 }
 
-export function layoutLabel(id: string | null | undefined): string | null {
+export function layoutLabel(id: string | null | undefined, t?: Translator): string | null {
   if (!id) return null;
-  return LAYOUTS.find((layout) => layout.id === id)?.label ?? null;
+  return localized(t, `library.layout.${id}`, LAYOUTS.find((layout) => layout.id === id)?.label ?? null);
+}
+
+export function categoryLabel(id: string, t?: Translator): string {
+  return localized(t, `library.category.${id}`, CATEGORY_LABELS[id] ?? id) ?? id;
 }
 
 export const CATEGORY_LABELS: Record<string, string> = {
@@ -138,22 +151,28 @@ const NICHE_FORMAT_NAMES: Record<string, Record<string, string>> = {
   tutorial: { food: "Recipe" },
 };
 
-export function friendlyFormatLabel(formatId: string | null | undefined, categories: string[] | null | undefined): string | null {
-  const base = formatLabel(formatId);
+export function friendlyFormatLabel(
+  formatId: string | null | undefined,
+  categories: string[] | null | undefined,
+  t?: Translator
+): string | null {
+  const base = formatLabel(formatId, t);
   if (!base || !formatId) return base;
   const niche = categories?.find((category) => NICHE_FORMAT_NAMES[formatId]?.[category]);
-  return niche ? NICHE_FORMAT_NAMES[formatId][niche] : base;
+  // Only the "tutorial about food = recipe" renaming exists so far.
+  return niche ? (localized(t, "library.format.recipe", NICHE_FORMAT_NAMES[formatId][niche]) ?? base) : base;
 }
 
 // Small style tags from fields the AI already returns -- not formats.
-export function styleTags(input: { soundRole?: string | null; hookStyle?: string | null }): string[] {
+export function styleTags(input: { soundRole?: string | null; hookStyle?: string | null }, t?: Translator): string[] {
   const tags: string[] = [];
-  if (input.soundRole === "asmr_natural") tags.push("ASMR");
-  if (input.soundRole === "music_background") tags.push("A song as the sound");
-  if (input.soundRole === "trending_sound") tags.push("A trending sound");
-  if (input.soundRole === "sung_by_creator") tags.push("Sung by the creator");
-  if (input.hookStyle === "text_led_message") tags.push("A caption leads");
-  if (input.hookStyle === "cutaway_setup") tags.push("A setup clip, then a cut");
+  const tag = (key: string, fallback: string) => tags.push(localized(t, `library.style.${key}`, fallback) ?? fallback);
+  if (input.soundRole === "asmr_natural") tag("asmr", "ASMR");
+  if (input.soundRole === "music_background") tag("song", "A song as the sound");
+  if (input.soundRole === "trending_sound") tag("trending", "A trending sound");
+  if (input.soundRole === "sung_by_creator") tag("sung", "Sung by the creator");
+  if (input.hookStyle === "text_led_message") tag("caption", "A caption leads");
+  if (input.hookStyle === "cutaway_setup") tag("setup", "A setup clip, then a cut");
   return tags;
 }
 

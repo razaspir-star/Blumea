@@ -4,12 +4,18 @@ import auth from "./en/auth";
 import onboarding from "./en/onboarding";
 import dashboard from "./en/dashboard";
 import analysis from "./en/analysis";
+import library from "./en/library";
+import insights from "./en/insights";
+import insightsUi from "./en/insights-ui";
 
 const en = {
   ...auth,
   ...onboarding,
   ...dashboard,
   ...analysis,
+  ...library,
+  ...insights,
+  ...insightsUi,
   common: {
     language: "Language",
     english: "English",

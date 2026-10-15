@@ -210,7 +210,8 @@ export function strongHookRule(input: {
   return { stayedPct, baselineMedianPct: baseline.medianStayedPct, baselineCount: baseline.count, quote };
 }
 
-export type ExperimentInsight = { text: string };
+// "kind" lets the screen show the sentence in the creator's language; "text" stays the English default.
+export type ExperimentInsight = { kind: "no_text_first3s" | "no_captions_speech"; text: string };
 
 // §5.2 experiment library, row 1: "no overlay text in the first 3 s". The AI
 // only ever returns on_screen_texts for roughly the first 3 seconds
@@ -228,7 +229,7 @@ export function noTextInFirst3sExperiment(
   if (!onScreenTexts) return null;
   const hasHookText = onScreenTexts.some((t) => t.role !== "scene");
   if (hasHookText) return null;
-  return { text: "No text on screen in your first 3 seconds. Worth testing a short one." };
+  return { kind: "no_text_first3s", text: "No text on screen in your first 3 seconds. Worth testing a short one." };
 }
 
 // §5.2 experiment library, row 5: "no subtitles and speech in the first 3 s".
@@ -242,5 +243,5 @@ export function noCaptionsOnSpeechExperiment(input: {
   if (!textIsNormFor(formatId, layoutId)) return null;
   if (subtitlesDetected === null || subtitlesDetected) return null;
   if (!spokenHookText) return null;
-  return { text: "No captions during your opening speech. Worth testing adding them." };
+  return { kind: "no_captions_speech", text: "No captions during your opening speech. Worth testing adding them." };
 }

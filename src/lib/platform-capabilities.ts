@@ -3,6 +3,8 @@
 // number that means something else on another platform). Verified live where
 // marked; Instagram is documented but not connected yet (doc/CLAUDE.md §5).
 
+import type { Translator } from "@/lib/i18n/translate";
+
 export type Capability =
   | "shares"
   | "saves"
@@ -52,11 +54,13 @@ export function platformHas(platform: string | null | undefined, capability: Cap
   return !!platform && !!PLATFORMS[platform]?.has[capability];
 }
 
-export function platformName(platform: string | null | undefined): string {
-  return (platform && PLATFORMS[platform]?.name) || "this platform";
+export function platformName(platform: string | null | undefined, t?: Translator): string {
+  return (platform && PLATFORMS[platform]?.name) || (t ? t("library.platform.thisPlatform") : "this platform");
 }
 
-export function viewerBehaviorNote(platform: string | null | undefined): string | null {
+export function viewerBehaviorNote(platform: string | null | undefined, t?: Translator): string | null {
+  if (t && platform === "tiktok") return t("library.platform.tiktokNote");
+  if (t && platform === "instagram") return t("library.platform.instagramNote");
   return (platform && PLATFORMS[platform]?.viewerBehaviorNote) || null;
 }
 

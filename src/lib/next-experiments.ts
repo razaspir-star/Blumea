@@ -1,12 +1,14 @@
 import { formatCount } from "@/lib/format";
 import { formatLabel } from "@/lib/format-library";
 import { median } from "@/lib/insight-patterns";
-import { SMALL_VIDEO_VIEWS, TIME_WINDOW_LABEL } from "@/lib/cross-video-insights";
+import { SMALL_VIDEO_VIEWS } from "@/lib/cross-video-insights";
+import { windowLabel } from "@/lib/insight-cards";
 import type { DashboardDerived, DashboardVideo } from "@/lib/dashboard-data";
+import type { TextKey, Translator } from "@/lib/i18n/translate";
 
 // "Try in your next video": what to test next, drawn from the creator's own
 // numbers. Code decides what may be suggested (every candidate has a trigger
-// with counts); the wording is fixed here. An experiment is always an invitation
+// with counts); the wording is fixed in the dictionaries (exp.*). An experiment is always an invitation
 // ("worth testing"), never a promise of a result (spec principle 9), and each
 // says what it rests on and what to look at afterwards.
 //
@@ -31,12 +33,17 @@ export type NextExperiment = {
 export const MAX_EXPERIMENTS = 3;
 const MIN_VIDEOS = 8;
 
-const quote = (text: string) => `“${text.replace(/\s+/g, " ").trim()}”`;
+const quote = (text: string, locale: string) => {
+  const clean = text.replace(/\s+/g, " ").trim();
+  return locale === "he" ? `״${clean}״` : `“${clean}”`;
+};
 
-export function nextExperiments(derived: DashboardDerived, videos: DashboardVideo[]): NextExperiment[] {
+export function nextExperiments(derived: DashboardDerived, videos: DashboardVideo[], t: Translator): NextExperiment[] {
   const youtube = videos.filter((video) => video.platform === "youtube");
   if (youtube.length < MIN_VIDEOS) return [];
 
+  const e = (key: string, params?: Record<string, string | number>) => t(`exp.${key}` as TextKey, params);
+  const q = (text: string) => quote(text, t.locale);
   const candidates: NextExperiment[] = [];
 
   // 1. A personal invitation to comment drew far more comments (the owner's own finding).
@@ -44,13 +51,19 @@ export function nextExperiments(derived: DashboardDerived, videos: DashboardVide
   if (ask && derived.cta?.noAsk && ask.multipleOfNoAsk) {
     candidates.push({
       kind: "ask_again",
-      title: "Invite a comment with a personal promise again",
-      why: `${quote(ask.title)} asked for comments and promised something back (${quote(ask.text)}). It got ${ask.per100.toFixed(2)} comments per 100 views, about ${Math.round(ask.multipleOfNoAsk)}× the ${derived.cta.noAsk.medianPer100.toFixed(2)} of your videos that ask nothing. One video, not a pattern.`,
-      how: "Look at comments per 100 views after a few days, and compare with that video and with your usual.",
-      evidence: `1 video, against ${derived.cta.noAsk.count} that ask nothing`,
+      title: e("askAgainTitle"),
+      why: e("askAgainWhy", {
+        title: q(ask.title),
+        text: q(ask.text),
+        per100: ask.per100.toFixed(2),
+        x: Math.round(ask.multipleOfNoAsk),
+        usual: derived.cta.noAsk.medianPer100.toFixed(2),
+      }),
+      how: e("askAgainHow"),
+      evidence: e("askAgainEvidence", { count: derived.cta.noAsk.count }),
       strength: ask.multipleOfNoAsk,
       source: ask.title,
-      extra: `It also drew ${ask.comments} comments.`,
+      extra: e("askAgainExtra", { comments: ask.comments }),
     });
   }
 
@@ -60,16 +73,23 @@ export function nextExperiments(derived: DashboardDerived, videos: DashboardVide
     const usual = median(sized.map((video) => video.views as number));
     const best = [...sized].sort((a, b) => (b.views ?? 0) - (a.views ?? 0))[0];
     if (usual > 0 && (best.views as number) / usual >= 2) {
-      const format = best.analyzed && best.formatId ? formatLabel(best.formatId) : null;
+      const format = best.analyzed && best.formatId ? formatLabel(best.formatId, t) : null;
+      const x = ((best.views as number) / usual).toFixed(1);
       candidates.push({
         kind: "repeat_best",
-        title: `Make another video like ${quote(best.title)}`,
-        why: `It is your most-viewed: ${formatCount(best.views as number)} views, ${((best.views as number) / usual).toFixed(1)}× the usual ${formatCount(usual)} across your ${sized.length} videos with 1K+ views${format ? `. It is a ${format.toLowerCase()} video` : ""}. A second one shows whether it was the idea or a lucky post.`,
-        how: "Compare its views after a few days with the usual, and with that video.",
-        evidence: `${sized.length} videos with 1K+ views`,
+        title: e("repeatTitle", { title: q(best.title) }),
+        why: e("repeatWhy", {
+          views: formatCount(best.views as number),
+          x,
+          usual: formatCount(usual),
+          count: sized.length,
+          format: format ? e("repeatFormat", { format: t.locale === "en" ? format.toLowerCase() : format }) : "",
+        }),
+        how: e("repeatHow"),
+        evidence: e("repeatEvidence", { count: sized.length }),
         strength: (best.views as number) / usual,
         source: best.title,
-        extra: `It is also your most-viewed: ${formatCount(best.views as number)} views, ${((best.views as number) / usual).toFixed(1)}× your usual.`,
+        extra: e("repeatExtra", { views: formatCount(best.views as number), x }),
       });
     }
   }
@@ -79,13 +99,21 @@ export function nextExperiments(derived: DashboardDerived, videos: DashboardVide
   if (topGained && derived.followers?.medianGainedPer1000) {
     candidates.push({
       kind: "win_followers",
-      title: `Try a video in the style of ${quote(topGained.title)}`,
-      why: `It won ${topGained.gained} new followers, ${topGained.per1000.toFixed(1)} per 1,000 views, while a typical video of yours wins about ${derived.followers.medianGainedPer1000.toFixed(1)}.`,
-      how: "Look at new followers per 1,000 views after a few days.",
-      evidence: `${derived.followers.eligible} videos with 1K+ views`,
+      title: e("followersTitle", { title: q(topGained.title) }),
+      why: e("followersWhy", {
+        gained: topGained.gained,
+        per1000: topGained.per1000.toFixed(1),
+        median: derived.followers.medianGainedPer1000.toFixed(1),
+      }),
+      how: e("followersHow"),
+      evidence: e("followersEvidence", { count: derived.followers.eligible }),
       strength: topGained.per1000 / derived.followers.medianGainedPer1000,
       source: topGained.title,
-      extra: `It also won ${topGained.gained} new followers, ${topGained.per1000.toFixed(1)} per 1,000 views, against about ${derived.followers.medianGainedPer1000.toFixed(1)} for a typical video.`,
+      extra: e("followersExtra", {
+        gained: topGained.gained,
+        per1000: topGained.per1000.toFixed(1),
+        median: derived.followers.medianGainedPer1000.toFixed(1),
+      }),
     });
   }
 
@@ -93,12 +121,13 @@ export function nextExperiments(derived: DashboardDerived, videos: DashboardVide
   const drops = derived.drops;
   if (drops && drops.count >= 3 && drops.of >= MIN_VIDEOS && drops.count / drops.of >= 0.2) {
     const second = Math.round(drops.medianAtSec);
+    const time = `0:${String(second).padStart(2, "0")}`;
     candidates.push({
       kind: "early_drop",
-      title: `Change something just before 0:${String(second).padStart(2, "0")}`,
-      why: `In ${drops.count} of your ${drops.of} videos with retention data, the single biggest drop (8+ points at once) comes around 0:${String(second).padStart(2, "0")}. Blumea can't tell what causes it.`,
-      how: "Watch the retention curve of the new video around that second.",
-      evidence: `${drops.count} of ${drops.of} videos`,
+      title: e("dropTitle", { time }),
+      why: e("dropWhy", { count: drops.count, of: drops.of, time }),
+      how: e("dropHow"),
+      evidence: e("dropEvidence", { count: drops.count, of: drops.of }),
       strength: 1 + drops.count / drops.of,
     });
   }
@@ -108,10 +137,10 @@ export function nextExperiments(derived: DashboardDerived, videos: DashboardVide
   if (posting?.kind === "consistent") {
     candidates.push({
       kind: "other_time",
-      title: "Post one video at a different time",
-      why: `${posting.count} of your ${posting.of} videos went out ${TIME_WINDOW_LABEL[posting.window]}. With no variation, Blumea can't say whether another time would work better for you.`,
-      how: "Compare the new video's views after three days with your usual, remembering it is one video.",
-      evidence: `${posting.of} videos, all at about the same time`,
+      title: e("timeTitle"),
+      why: e("timeWhy", { count: posting.count, of: posting.of, window: windowLabel(t, posting.window) }),
+      how: e("timeHow"),
+      evidence: e("timeEvidence", { of: posting.of }),
       strength: 1 + posting.count / posting.of,
     });
   }
@@ -121,13 +150,13 @@ export function nextExperiments(derived: DashboardDerived, videos: DashboardVide
   if (rewatch) {
     candidates.push({
       kind: "rewatch",
-      title: `Find what made ${quote(rewatch.title)} get rewatched`,
-      why: `Its start was watched ${rewatch.startRatio.toFixed(1)} times per view, while your other videos of a similar length get about ${rewatch.usualForLength.toFixed(1)}. Watch it again and note what is different, then try that in your next video.`,
-      how: "Look at rewatches (how often the start is watched per view) of the new video.",
-      evidence: `${derived.rewatch?.eligible ?? 0} videos with 1K+ views`,
+      title: e("rewatchTitle", { title: q(rewatch.title) }),
+      why: e("rewatchWhy", { ratio: rewatch.startRatio.toFixed(1), usual: rewatch.usualForLength.toFixed(1) }),
+      how: e("rewatchHow"),
+      evidence: e("rewatchEvidence", { count: derived.rewatch?.eligible ?? 0 }),
       strength: rewatch.startRatio / rewatch.usualForLength,
       source: rewatch.title,
-      extra: `It was also rewatched more than your other videos of its length (${rewatch.startRatio.toFixed(1)} starts per view).`,
+      extra: e("rewatchExtra", { ratio: rewatch.startRatio.toFixed(1) }),
     });
   }
 

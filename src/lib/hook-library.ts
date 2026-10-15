@@ -13,6 +13,8 @@
 //    ABOUT, while the hook type says how the opening WORKS. A video can be a
 //    preview-then-start AND tied to a holiday.
 
+import type { Translator, TextKey } from "@/lib/i18n/translate";
+
 export type HookTypeDef = { id: string; label: string; description: string };
 
 // Listed in tie-break order: the first one that clearly applies wins.
@@ -76,8 +78,14 @@ export const HOOK_TYPES: HookTypeDef[] = [
 
 export const HOOK_TYPE_IDS = HOOK_TYPES.map((hook) => hook.id);
 
-export function hookTypeLabel(id: string | null | undefined): string | null {
-  return HOOK_TYPES.find((hook) => hook.id === id)?.label ?? null;
+export function hookTypeLabel(id: string | null | undefined, t?: Translator): string | null {
+  const base = HOOK_TYPES.find((hook) => hook.id === id)?.label ?? null;
+  return t && id && t.has(`library.hook.${id}`) ? t(`library.hook.${id}` as TextKey) : base;
+}
+
+export function familiarLabel(id: string | null | undefined, t?: Translator): string | null {
+  const base = FAMILIAR_KINDS.find((kind) => kind.id === id)?.label ?? null;
+  return t && id && t.has(`library.familiar.${id}`) ? t(`library.familiar.${id}` as TextKey) : base;
 }
 
 // The text given to the AI (when this is wired in): one line per hook type, in

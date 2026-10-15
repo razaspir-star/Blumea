@@ -27,6 +27,8 @@ export type Translator = {
   (key: TextKey, params?: Params): string;
   // Pick by number: looks for "<key>_zero" (when count is 0 and it exists), "<key>_one", "<key>_two" (Hebrew), "<key>_other".
   plural: (key: string, count: number, params?: Params) => string;
+  // Is there a text under this (runtime) key? Lets callers fall back to a built-in label.
+  has: (key: string) => boolean;
   locale: Locale;
 };
 
@@ -34,6 +36,7 @@ export function makeTranslator(locale: Locale, dict: Dictionary): Translator {
   const rules = new Intl.PluralRules(locale);
   const t = ((key: TextKey, params?: Params) => fill(lookup(dict, key) ?? key, params)) as Translator;
   t.locale = locale;
+  t.has = (key) => lookup(dict, key) !== undefined;
   t.plural = (key, count, params) => {
     const candidates = [...(count === 0 ? [`${key}_zero`] : []), `${key}_${rules.select(count)}`, `${key}_other`];
     for (const candidate of candidates) {
