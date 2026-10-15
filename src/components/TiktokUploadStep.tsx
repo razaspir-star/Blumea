@@ -7,6 +7,7 @@ import BlumeaFlowerLoader from "@/components/BlumeaFlowerLoader";
 import { supabase } from "@/lib/supabase";
 import { uploadTiktokVideo, type UploadStage } from "@/lib/tiktok-upload-client";
 import TiktokScreensPicker from "@/components/TiktokScreensPicker";
+import { useT } from "@/lib/i18n/client";
 
 type TiktokUploadStepProps = {
   video: { platformVideoId: string; title: string };
@@ -20,6 +21,7 @@ type TiktokUploadStepProps = {
 // exists. The file goes straight to temporary storage and is deleted right after
 // analysis (doc/CLAUDE.md §8).
 export default function TiktokUploadStep({ video, onDone }: TiktokUploadStepProps) {
+  const t = useT();
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   const [screens, setScreens] = useState<File[]>([]);
@@ -96,7 +98,7 @@ export default function TiktokUploadStep({ video, onDone }: TiktokUploadStepProp
   async function startAnalysis() {
     if (!file) return;
     setError(null);
-    const result = await uploadTiktokVideo({ file, screenshots: screens, platformVideoId: video.platformVideoId, onStage: setStage });
+    const result = await uploadTiktokVideo({ file, screenshots: screens, platformVideoId: video.platformVideoId, onStage: setStage, t });
     if (!result.ok) {
       setError(result.error);
       setStage(null);
@@ -109,10 +111,10 @@ export default function TiktokUploadStep({ video, onDone }: TiktokUploadStepProp
   if (!stage && remote && ["opened", "uploading", "analyzing"].includes(remote.stage)) {
     const text =
       remote.stage === "opened"
-        ? { title: "Your phone opened the page", body: "Choose the saved video there, and tap Send to Blumea." }
+        ? { title: t("tiktokUpload.phoneOpenedTitle"), body: t("tiktokUpload.phoneOpenedBody") }
         : remote.stage === "uploading"
-          ? { title: "Uploading from your phone", body: "Keep the page open on your phone. This can take a little, depending on the connection." }
-          : { title: "Blumea is reading your video", body: "About a minute. This window moves on by itself when it is done." };
+          ? { title: t("tiktokUpload.phoneUploadingTitle"), body: t("tiktokUpload.phoneUploadingBody") }
+          : { title: t("tiktokUpload.phoneReadingTitle"), body: t("tiktokUpload.phoneReadingBody") };
     return (
       <div className="mt-5 flex flex-col items-center py-8 text-center">
         <BlumeaFlowerLoader size={56} />
@@ -128,13 +130,11 @@ export default function TiktokUploadStep({ video, onDone }: TiktokUploadStepProp
         <BlumeaFlowerLoader size={56} />
 
         <h3 className="mt-5 text-lg font-semibold text-blumea-navy">
-          {stage === "uploading" ? "Uploading your video" : "Reading your video"}
+          {stage === "uploading" ? t("tiktokUpload.uploadingTitle") : t("tiktokUpload.readingTitle")}
         </h3>
 
         <p className="mt-2 max-w-sm text-sm text-blumea-slate">
-          {stage === "uploading"
-            ? "Keep this window open. The file is only held for the analysis and deleted right after."
-            : "This takes about a minute."}
+          {stage === "uploading" ? t("tiktokUpload.uploadingBody") : t("tiktokUpload.readingBody")}
         </p>
       </div>
     );
@@ -145,15 +145,14 @@ export default function TiktokUploadStep({ video, onDone }: TiktokUploadStepProp
       {qr && (
         <div className="hidden items-center gap-5 rounded-2xl border border-slate-200 bg-white p-4 sm:flex">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={qr} alt="QR code to upload from your phone" width={110} height={110} className="shrink-0" />
+          <img src={qr} alt={t("tiktokUpload.qrAlt")} width={110} height={110} className="shrink-0" />
           <div>
             <p className="flex items-center gap-2 text-sm font-semibold text-blumea-navy">
               <Smartphone size={16} strokeWidth={1.8} className="text-blumea-blue" />
-              Easier from your phone
+              {t("tiktokUpload.easier")}
             </p>
             <p className="mt-1 text-sm leading-6 text-blumea-slate">
-              Scan this with your phone camera. On the page that opens you can open the video in TikTok to save it, then pick it. This
-              window shows what your phone is doing and moves on by itself when it&apos;s done.
+              {t("tiktokUpload.qrBody")}
             </p>
           </div>
         </div>
@@ -170,14 +169,14 @@ export default function TiktokUploadStep({ video, onDone }: TiktokUploadStepProp
       >
         <UploadCloud size={28} strokeWidth={1.6} className="text-blumea-blue" />
 
-        <p className="mt-3 text-sm font-semibold text-blumea-navy">Or drop the saved video here</p>
+        <p className="mt-3 text-sm font-semibold text-blumea-navy">{t("tiktokUpload.drop")}</p>
 
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
           className="mt-4 rounded-full border border-blumea-navy px-4 py-2 text-sm font-semibold text-blumea-navy transition-colors hover:bg-blumea-navy hover:text-white"
         >
-          Choose file
+          {t("tiktokUpload.chooseFile")}
         </button>
 
         <input
@@ -197,14 +196,14 @@ export default function TiktokUploadStep({ video, onDone }: TiktokUploadStepProp
       )}
 
       <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
-        <p className="text-sm font-semibold text-blumea-navy">Optional: how people watched it</p>
+        <p className="text-sm font-semibold text-blumea-navy">{t("tiktokUpload.optional")}</p>
         <div className="mt-2">
           <TiktokScreensPicker files={screens} onChange={setScreens} compact />
         </div>
       </div>
 
       {remote?.stage === "failed" && (
-        <p className="mt-3 text-sm text-red-500">{remote.message ?? "Something went wrong with the upload from your phone."}</p>
+        <p className="mt-3 text-sm text-red-500">{remote.message ?? t("tiktokUpload.phoneFailed")}</p>
       )}
 
       {error && <p className="mt-3 text-sm text-red-500">{error}</p>}
@@ -220,7 +219,7 @@ export default function TiktokUploadStep({ video, onDone }: TiktokUploadStepProp
               : "cursor-not-allowed rounded-full bg-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-400"
           }
         >
-          Analyze video
+          {t("tiktokUpload.analyze")}
         </button>
       </div>
     </div>

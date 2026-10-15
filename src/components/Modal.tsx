@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useT } from "@/lib/i18n/client";
 
 type ModalProps = {
   kicker: string;
@@ -11,6 +12,7 @@ type ModalProps = {
 };
 
 export default function Modal({ kicker, title, description, onClose, children }: ModalProps) {
+  const t = useT();
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
@@ -49,7 +51,7 @@ export default function Modal({ kicker, title, description, onClose, children }:
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close"
+            aria-label={t("modalCommon.close")}
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xl text-blumea-slate transition-colors hover:bg-blumea-mist hover:text-blumea-navy"
           >
             ×

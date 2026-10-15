@@ -7,6 +7,7 @@ import TiktokScreensPicker from "@/components/TiktokScreensPicker";
 import type { TiktokScreenStats } from "@/lib/tiktok-screens";
 import { uploadTiktokScreens } from "@/lib/tiktok-upload-client";
 import { formatCount } from "@/lib/format";
+import { useT } from "@/lib/i18n/client";
 
 export type SavedTiktokScreens = TiktokScreenStats & { readAt: string };
 
@@ -15,6 +16,7 @@ const pctText = (value: number) => `${Number.isInteger(value) ? value : value.to
 
 // Lets the creator share (more) screenshots of this video's TikTok analytics.
 function AddNumbers({ platformVideoId, label }: { platformVideoId: string; label: string }) {
+  const t = useT();
   const [files, setFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +24,7 @@ function AddNumbers({ platformVideoId, label }: { platformVideoId: string; label
   async function send() {
     setBusy(true);
     setError(null);
-    const result = await uploadTiktokScreens({ screenshots: files, platformVideoId });
+    const result = await uploadTiktokScreens({ screenshots: files, platformVideoId, t });
     if (!result.ok) {
       setError(result.error);
       setBusy(false);
@@ -35,7 +37,7 @@ function AddNumbers({ platformVideoId, label }: { platformVideoId: string; label
     return (
       <div className="mt-4 flex items-center gap-3">
         <BlumeaFlowerLoader size={28} />
-        <p className="text-sm text-blumea-slate">Reading your screenshots…</p>
+        <p className="text-sm text-blumea-slate">{t("viewerCard.reading")}</p>
       </div>
     );
   }
@@ -72,14 +74,15 @@ export default function TiktokViewerCard({
   stats: SavedTiktokScreens | null;
   durationSec: number | null;
 }) {
+  const t = useT();
   if (!stats) {
     return (
       <section className="mt-8 rounded-2xl border border-dashed border-slate-200 bg-white/60 p-4">
         <div className="flex items-center gap-2 text-blumea-slate">
           <Clock3 size={16} strokeWidth={1.8} className="text-blumea-blue" />
-          <span className="text-sm font-semibold">How viewers watched</span>
+          <span className="text-sm font-semibold">{t("analysis.howViewersWatched")}</span>
         </div>
-        <AddNumbers platformVideoId={platformVideoId} label="Read my screenshots" />
+        <AddNumbers platformVideoId={platformVideoId} label={t("viewerCard.readMine")} />
       </section>
     );
   }
@@ -88,21 +91,23 @@ export default function TiktokViewerCard({
   const tiles: { label: string; value: string; note?: string }[] = [];
   if (stats.avgWatchSec !== null) {
     tiles.push({
-      label: "Average watch",
-      value: `${stats.avgWatchSec} s`,
-      note: duration ? `of a ${Math.round(duration)} s video${stats.avgPercentWatched !== null ? ` (${pctText(stats.avgPercentWatched)})` : ""}` : undefined,
+      label: t("viewerCard.avg"),
+      value: t("viewerCard.seconds", { n: stats.avgWatchSec }),
+      note: duration
+        ? t("viewerCard.ofVideo", { dur: Math.round(duration), pct: stats.avgPercentWatched !== null ? ` (${pctText(stats.avgPercentWatched)})` : "" })
+        : undefined,
     });
   }
-  if (stats.watchedFullPct !== null) tiles.push({ label: "Watched to the end", value: pctText(stats.watchedFullPct) });
-  if (stats.mostStoppedAtSec !== null) tiles.push({ label: "Most stopped at", value: clock(stats.mostStoppedAtSec) });
-  if (stats.newFollowers !== null) tiles.push({ label: "New followers", value: formatCount(stats.newFollowers) });
-  if (stats.saves !== null) tiles.push({ label: "Saves", value: formatCount(stats.saves) });
+  if (stats.watchedFullPct !== null) tiles.push({ label: t("viewerCard.full"), value: pctText(stats.watchedFullPct) });
+  if (stats.mostStoppedAtSec !== null) tiles.push({ label: t("viewerCard.mostStopped"), value: clock(stats.mostStoppedAtSec) });
+  if (stats.newFollowers !== null) tiles.push({ label: t("viewerCard.newFollowers"), value: formatCount(stats.newFollowers) });
+  if (stats.saves !== null) tiles.push({ label: t("viewerCard.saves"), value: formatCount(stats.saves) });
 
   return (
     <section className="mt-8">
-      <h2 className="text-xl font-semibold tracking-tight text-blumea-navy">How viewers watched</h2>
+      <h2 className="text-xl font-semibold tracking-tight text-blumea-navy">{t("analysis.howViewersWatched")}</h2>
       <p className="mt-1 text-sm text-blumea-slate">
-        From your TikTok screenshots, read on {new Date(stats.readAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}. Only you can see this.
+        {t("viewerCard.fromScreens", { date: new Date(stats.readAt).toLocaleDateString(t.locale === "he" ? "he-IL" : "en-US", { month: "short", day: "numeric" }) })}
       </p>
 
       {tiles.length > 0 && (
@@ -119,7 +124,7 @@ export default function TiktokViewerCard({
 
       {stats.trafficSources.length > 0 && (
         <div className="mt-4 rounded-2xl border border-slate-200/70 bg-white p-4 shadow-sm">
-          <p className="text-sm font-semibold text-blumea-navy">Where viewers came from</p>
+          <p className="text-sm font-semibold text-blumea-navy">{t("viewerCard.where")}</p>
           <div className="mt-3 space-y-2">
             {stats.trafficSources
               .filter((source) => source.pct > 0)
@@ -127,7 +132,7 @@ export default function TiktokViewerCard({
                 <div key={source.name}>
                   <div className="flex justify-between text-sm text-blumea-slate">
                     <span>{source.name}</span>
-                    <span>{pctText(source.pct)}</span>
+                    <span className="ltr-island">{pctText(source.pct)}</span>
                   </div>
                   <div className="mt-1 h-2 overflow-hidden rounded-full bg-slate-100">
                     <div className="h-full rounded-full bg-blumea-blue" style={{ width: `${Math.min(source.pct, 100)}%` }} />
@@ -142,17 +147,17 @@ export default function TiktokViewerCard({
         <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
           {stats.followersPct !== null && stats.nonFollowersPct !== null && (
             <div className="rounded-2xl border border-slate-200/70 bg-white p-4 shadow-sm">
-              <p className="text-sm font-semibold text-blumea-navy">Followers and others</p>
+              <p className="text-sm font-semibold text-blumea-navy">{t("viewerCard.followersOthers")}</p>
               <p className="mt-2 text-sm text-blumea-slate">
-                {pctText(stats.followersPct)} followers · {pctText(stats.nonFollowersPct)} not following you
+                {t("viewerCard.followersLine", { a: pctText(stats.followersPct), b: pctText(stats.nonFollowersPct) })}
               </p>
             </div>
           )}
           {stats.newViewersPct !== null && stats.returningViewersPct !== null && (
             <div className="rounded-2xl border border-slate-200/70 bg-white p-4 shadow-sm">
-              <p className="text-sm font-semibold text-blumea-navy">New and returning viewers</p>
+              <p className="text-sm font-semibold text-blumea-navy">{t("viewerCard.newReturning")}</p>
               <p className="mt-2 text-sm text-blumea-slate">
-                {pctText(stats.newViewersPct)} new · {pctText(stats.returningViewersPct)} returning
+                {t("viewerCard.newLine", { a: pctText(stats.newViewersPct), b: pctText(stats.returningViewersPct) })}
               </p>
             </div>
           )}
@@ -160,8 +165,8 @@ export default function TiktokViewerCard({
       )}
 
       <details className="mt-4">
-        <summary className="cursor-pointer text-sm font-semibold text-blumea-blue">Update with new screenshots</summary>
-        <AddNumbers platformVideoId={platformVideoId} label="Read my screenshots" />
+        <summary className="cursor-pointer text-sm font-semibold text-blumea-blue">{t("viewerCard.update")}</summary>
+        <AddNumbers platformVideoId={platformVideoId} label={t("viewerCard.readMine")} />
       </details>
     </section>
   );

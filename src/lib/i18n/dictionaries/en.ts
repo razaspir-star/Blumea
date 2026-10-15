@@ -7,6 +7,8 @@ import analysis from "./en/analysis";
 import library from "./en/library";
 import insights from "./en/insights";
 import insightsUi from "./en/insights-ui";
+import pages from "./en/pages";
+import tiktok from "./en/tiktok";
 
 const en = {
   ...auth,
@@ -16,6 +18,8 @@ const en = {
   ...library,
   ...insights,
   ...insightsUi,
+  ...pages,
+  ...tiktok,
   common: {
     language: "Language",
     english: "English",

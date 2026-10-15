@@ -6,6 +6,8 @@ import { Check, ExternalLink, UploadCloud } from "lucide-react";
 import BlumeaFlowerLoader from "@/components/BlumeaFlowerLoader";
 import TiktokScreensPicker from "@/components/TiktokScreensPicker";
 import { uploadTiktokVideo, type UploadStage } from "@/lib/tiktok-upload-client";
+import LanguageSwitch from "@/components/LanguageSwitch";
+import { useT } from "@/lib/i18n/client";
 
 // The video id carried by the link (not a secret: it is the creator's own video).
 function videoIdOf(token: string): string | null {
@@ -22,6 +24,7 @@ function videoIdOf(token: string): string | null {
 // permission. Mobile first; see src/lib/handoff-token.ts.
 export default function HandoffPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = use(params);
+  const t = useT();
   const inputRef = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState<string | null>(null);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
@@ -50,7 +53,7 @@ export default function HandoffPage({ params }: { params: Promise<{ token: strin
   async function send() {
     if (!file || !videoId) return;
     setError(null);
-    const result = await uploadTiktokVideo({ file, screenshots: screens, platformVideoId: videoId, handoffToken: token, onStage: setStage });
+    const result = await uploadTiktokVideo({ file, screenshots: screens, platformVideoId: videoId, handoffToken: token, onStage: setStage, t });
     setStage(null);
     if (!result.ok) {
       setError(result.error);
@@ -62,22 +65,25 @@ export default function HandoffPage({ params }: { params: Promise<{ token: strin
 
   return (
     <main className="flex min-h-screen flex-col items-center bg-gradient-to-b from-white to-sky-50 px-6 py-10">
-      <Image src="/blumea-logo-v2.png" alt="Blumea" width={56} height={56} />
+      <div className="flex w-full max-w-md items-center justify-between">
+        <Image src="/blumea-logo-v2.png" alt="Blumea" width={56} height={56} />
+        <LanguageSwitch />
+      </div>
 
       <div className="mt-8 w-full max-w-md rounded-3xl border border-slate-200/70 bg-white p-6 shadow-sm">
         {expired || !videoId ? (
           <>
-            <h1 className="text-xl font-semibold text-blumea-navy">This link has expired</h1>
-            <p className="mt-2 text-sm leading-6 text-blumea-slate">Open Blumea on your computer and scan a new code.</p>
+            <h1 className="text-xl font-semibold text-blumea-navy">{t("handoff.expiredTitle")}</h1>
+            <p className="mt-2 text-sm leading-6 text-blumea-slate">{t("handoff.expiredBody")}</p>
           </>
         ) : done ? (
           <>
             <div className="flex items-center gap-2 text-blumea-success">
               <Check size={22} strokeWidth={2.4} />
-              <h1 className="text-xl font-semibold text-blumea-navy">Done</h1>
+              <h1 className="text-xl font-semibold text-blumea-navy">{t("handoff.doneTitle")}</h1>
             </div>
             <p className="mt-2 text-sm leading-6 text-blumea-slate">
-              Your video was read. Go back to your computer, where Blumea shows what it understood. The files have been deleted.
+              {t("handoff.doneBody")}
             </p>
             {screensNote && <p className="mt-3 text-sm leading-6 text-blumea-slate">{screensNote}</p>}
           </>
@@ -85,18 +91,18 @@ export default function HandoffPage({ params }: { params: Promise<{ token: strin
           <div className="flex flex-col items-center py-6 text-center">
             <BlumeaFlowerLoader size={56} />
             <h1 className="mt-5 text-lg font-semibold text-blumea-navy">
-              {stage === "uploading" ? "Uploading your video" : "Reading your video"}
+              {stage === "uploading" ? t("tiktokUpload.uploadingTitle") : t("tiktokUpload.readingTitle")}
             </h1>
             <p className="mt-2 text-sm text-blumea-slate">
-              {stage === "uploading" ? "Keep this page open." : "This takes about a minute."}
+              {stage === "uploading" ? t("handoff.keepPage") : t("handoff.takes")}
             </p>
           </div>
         ) : (
           <>
-            <h1 className="text-xl font-semibold text-blumea-navy">Upload your TikTok video</h1>
-            <p className="mt-2 text-sm leading-6 text-blumea-slate">{title ? `For: ${title}` : "Loading…"}</p>
+            <h1 className="text-xl font-semibold text-blumea-navy">{t("handoff.heading")}</h1>
+            <p className="mt-2 text-sm leading-6 text-blumea-slate">{title ? t("handoff.forVideo", { title }) : t("handoff.loading")}</p>
 
-            <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-blumea-slate">Step 1 · Get the video</p>
+            <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-blumea-slate">{t("handoff.step1")}</p>
 
             {shareUrl ? (
               <a
@@ -106,15 +112,14 @@ export default function HandoffPage({ params }: { params: Promise<{ token: strin
                 className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl bg-blumea-navy px-4 py-4 text-sm font-semibold text-white"
               >
                 <ExternalLink size={18} strokeWidth={1.8} />
-                Open the video in TikTok
+                {t("handoff.openIn")}
               </a>
             ) : null}
             <p className="mt-2 text-sm leading-6 text-blumea-slate">
-              In TikTok tap Share, then Save video. Then come back to this page. If the video is already saved on your phone, skip
-              to step 2. (The analytics in step 3 are found from your Profile, not from this link.)
+              {t("handoff.step1Body")}
             </p>
 
-            <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-blumea-slate">Step 2 · Choose the video</p>
+            <p className="mt-5 text-xs font-semibold uppercase tracking-wide text-blumea-slate">{t("handoff.step2")}</p>
 
             <button
               type="button"
@@ -122,12 +127,12 @@ export default function HandoffPage({ params }: { params: Promise<{ token: strin
               className="mt-2 flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-slate-200 bg-blumea-mist/50 px-4 py-6 text-sm font-semibold text-blumea-navy"
             >
               <UploadCloud size={20} strokeWidth={1.8} className="text-blumea-blue" />
-              {file ? file.name : "Choose the saved video"}
+              {file ? file.name : t("handoff.chooseSaved")}
             </button>
 
             <input ref={inputRef} type="file" accept="video/*" className="hidden" onChange={(event) => setFile(event.target.files?.[0] ?? null)} />
 
-            <p className="mt-6 text-xs font-semibold uppercase tracking-wide text-blumea-slate">Step 3 · TikTok&apos;s numbers (optional)</p>
+            <p className="mt-6 text-xs font-semibold uppercase tracking-wide text-blumea-slate">{t("handoff.step3")}</p>
             <div className="mt-2">
               <TiktokScreensPicker files={screens} onChange={setScreens} />
             </div>
@@ -144,11 +149,11 @@ export default function HandoffPage({ params }: { params: Promise<{ token: strin
                   : "mt-4 w-full cursor-not-allowed rounded-full bg-slate-200 px-5 py-3 text-sm font-semibold text-slate-400"
               }
             >
-              Send to Blumea
+              {t("handoff.send")}
             </button>
 
             <p className="mt-4 text-xs leading-5 text-blumea-slate">
-              The video is only held while Blumea reads it, and deleted right after.
+              {t("handoff.heldNote")}
             </p>
           </>
         )}

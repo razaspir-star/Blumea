@@ -3,6 +3,8 @@
 import { useRef } from "react";
 import { Check, ImagePlus } from "lucide-react";
 import { MAX_SCREENSHOTS } from "@/lib/tiktok-upload-client";
+import { useT } from "@/lib/i18n/client";
+import { rich } from "@/lib/i18n/rich";
 
 // Optional: the creator shares screenshots of the video's analytics screens in
 // the TikTok app, so Blumea can show how people watched it (TikTok gives apps no
@@ -18,12 +20,15 @@ export default function TiktokScreensPicker({
   onChange: (files: File[]) => void;
   compact?: boolean;
 }) {
+  const t = useT();
   const inputRef = useRef<HTMLInputElement>(null);
+  const bold = (text: string) => <span className="font-semibold text-blumea-navy">{text}</span>;
 
   return (
     <div className={compact ? "" : "sm:grid sm:grid-cols-[minmax(0,1fr)_200px] sm:items-start sm:gap-5"}>
       {/* Muted loop that starts by itself: the three screens, the screenshot moments and the way back to Blumea.
-          Stacked above the steps on a phone, beside the steps and the upload button on a wide screen. */}
+          Stacked above the steps on a phone, beside the steps and the upload button on a wide screen.
+          (The captions inside the video are English for now.) */}
       <video
         className="mx-auto mb-3 w-full max-w-[170px] rounded-xl bg-slate-100 sm:order-2 sm:mb-0 sm:max-w-none"
         src="/guides/tiktok-analytics-guide.mp4?v=4"
@@ -33,32 +38,32 @@ export default function TiktokScreensPicker({
         muted
         playsInline
         preload="auto"
-        aria-label="Short animation: how to take the three screenshots in TikTok"
+        aria-label={t("picker.videoLabel")}
       />
 
       <div className="sm:order-1">
-        <p className="text-sm font-semibold text-blumea-navy">Add your TikTok numbers</p>
-        <ol className="mt-1 list-decimal space-y-1 pl-5 text-sm leading-6 text-blumea-slate">
+        <p className="text-sm font-semibold text-blumea-navy">{t("picker.title")}</p>
+        <ol className="mt-1 list-decimal space-y-1 ps-5 text-sm leading-6 text-blumea-slate">
           <li>
-            In TikTok, open the video <span className="font-semibold text-blumea-navy">from your Profile</span> (not from a link) and tap{" "}
-            <span className="font-semibold text-blumea-navy">More insights</span>.
+            {rich(t("picker.step1"), {
+              profile: bold(t("picker.step1Profile")),
+              more: <span dir="ltr" className="font-semibold text-blumea-navy">{t("picker.step1More")}</span>,
+            })}
           </li>
           <li>
-            Take 3 screenshots in <span className="font-semibold text-blumea-navy">Video analysis</span>:
-            <ul className="mt-0.5 list-disc space-y-0.5 pl-4">
-              <li>Overview, top of the screen</li>
-              <li>Overview, scrolled down to the graph</li>
-              <li>Viewers tab, top of the screen</li>
+            {rich(t("picker.step2"), {
+              video: <span dir="ltr" className="font-semibold text-blumea-navy">{t("picker.step2Video")}</span>,
+            })}
+            <ul className="mt-0.5 list-disc space-y-0.5 ps-4">
+              <li>{t("picker.shot1")}</li>
+              <li>{t("picker.shot2")}</li>
+              <li>{t("picker.shot3")}</li>
             </ul>
           </li>
-          <li>Back here, choose them all together.</li>
+          <li>{t("picker.step3")}</li>
         </ol>
 
-        {!compact && (
-          <p className="mt-2 text-xs leading-5 text-blumea-slate">
-            Two are enough. Blumea reads the numbers and deletes the pictures right after.
-          </p>
-        )}
+        {!compact && <p className="mt-2 text-xs leading-5 text-blumea-slate">{t("picker.note")}</p>}
 
         <button
           type="button"
@@ -68,12 +73,12 @@ export default function TiktokScreensPicker({
           {files.length > 0 ? (
             <>
               <Check size={18} strokeWidth={2.2} className="text-blumea-success" />
-              {files.length} {files.length === 1 ? "screenshot" : "screenshots"} chosen
+              {t.plural("picker.chosen", files.length)}
             </>
           ) : (
             <>
               <ImagePlus size={18} strokeWidth={1.8} className="text-blumea-blue" />
-              Choose the screenshots
+              {t("picker.choose")}
             </>
           )}
         </button>

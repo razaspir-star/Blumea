@@ -10,6 +10,9 @@ import UploadStep from "@/components/UploadStep";
 import TiktokUploadStep from "@/components/TiktokUploadStep";
 import PlatformBadge, { PlatformIcon } from "@/components/PlatformBadge";
 import { useProfile } from "@/components/AppShell";
+import { useT } from "@/lib/i18n/client";
+import { rich } from "@/lib/i18n/rich";
+import type { TextKey } from "@/lib/i18n/translate";
 import { supabase } from "@/lib/supabase";
 import { useMockStore } from "@/lib/mock-store";
 import { formatCount } from "@/lib/format";
@@ -23,12 +26,12 @@ import {
   type VideoPlatformId,
 } from "@/lib/mock-data";
 
-const analyzingSteps = [
-  "Reading video content",
-  "Understanding text & subtitles",
-  "Identifying hooks and key moments",
-  "Analyzing viewer behavior",
-  "Finding useful patterns",
+const analyzingSteps: TextKey[] = [
+  "analyzeModal.step0",
+  "analyzeModal.step1",
+  "analyzeModal.step2",
+  "analyzeModal.step3",
+  "analyzeModal.step4",
 ];
 
 
@@ -60,6 +63,7 @@ type AnalyzeModalProps = {
 };
 
 export default function AnalyzeModal({ onClose, initialVideoId, startReal }: AnalyzeModalProps) {
+  const t = useT();
   const router = useAppRouter();
   const profile = useProfile();
   const { analyzedIds, deepIds, markAnalyzed } = useMockStore(seedAnalyzedIds);
@@ -103,7 +107,7 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal }: Ana
 
       if (!session) {
         if (!cancelled) {
-          setRealListError("Not signed in.");
+          setRealListError(t("analyzeModal.notSignedIn"));
           setRealLoading(false);
         }
         return;
@@ -116,7 +120,7 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal }: Ana
 
       if (cancelled) return;
       if (!response.ok) {
-        setRealListError(body.error ?? "Could not load your videos.");
+        setRealListError(body.error ?? t("analyzeModal.couldNotLoad"));
       } else {
         setRealVideos(body.videos);
       }
@@ -127,7 +131,7 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal }: Ana
     return () => {
       cancelled = true;
     };
-  }, [platform, realVideos]);
+  }, [platform, realVideos, t]);
 
   // Real TikTok video list. TikTok's API never gives us the video file
   // (doc/CLAUDE.md §5), so picking one doesn't analyze -- it opens the
@@ -147,7 +151,7 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal }: Ana
       } = await supabase.auth.getSession();
 
       if (!session) {
-        if (!cancelled) setTiktokListError("Not signed in.");
+        if (!cancelled) setTiktokListError(t("analyzeModal.notSignedIn"));
         return;
       }
 
@@ -158,7 +162,7 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal }: Ana
 
       if (cancelled) return;
       if (!response.ok) {
-        setTiktokListError(body.error ?? "Could not load your TikTok videos.");
+        setTiktokListError(body.error ?? t("analyzeModal.couldNotLoadTiktok"));
       } else {
         setTiktokVideos(body.videos);
       }
@@ -168,7 +172,7 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal }: Ana
     return () => {
       cancelled = true;
     };
-  }, [platform, tiktokVideos]);
+  }, [platform, tiktokVideos, t]);
 
   // Kicks off the real analysis once the animated "analyzing" stage starts for
   // a real video. The step animation below is cosmetic; navigation waits for
@@ -183,7 +187,7 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal }: Ana
       } = await supabase.auth.getSession();
 
       if (!session) {
-        if (!cancelled) setAnalyzeError("Not signed in.");
+        if (!cancelled) setAnalyzeError(t("analyzeModal.notSignedIn"));
         return;
       }
 
@@ -196,7 +200,7 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal }: Ana
 
       if (cancelled) return;
       if (!response.ok) {
-        setAnalyzeError(body.error ?? "Analysis failed.");
+        setAnalyzeError(body.error ?? t("analyzeModal.analysisFailed"));
       } else {
         setRealResult({ id: body.video.id });
       }
@@ -206,7 +210,7 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal }: Ana
     return () => {
       cancelled = true;
     };
-  }, [stage, realSelectedId, realResult, analyzeError]);
+  }, [stage, realSelectedId, realResult, analyzeError, t]);
 
   // Real connections (currently youtube/tiktok) union with the onboarding
   // platform preference -- that preference alone can miss a platform the
@@ -321,19 +325,15 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal }: Ana
 
   return (
     <Modal
-      kicker="ANALYZE"
-      title="Analyze a video"
-      description={
-        stage === "browse"
-          ? "Blumea reads the video, how viewers watched it, and what to try next."
-          : undefined
-      }
+      kicker={t("analyzeModal.kicker")}
+      title={t("analyzeModal.title")}
+      description={stage === "browse" ? t("analyzeModal.description") : undefined}
       onClose={onClose}
     >
       {stage === "analyzing" && realSelectedId && analyzeError && (
         <div className="blumea-expand mt-8">
           <div className="flex flex-col items-center py-6 text-center">
-            <h3 className="text-xl font-semibold text-blumea-navy">Analysis failed</h3>
+            <h3 className="text-xl font-semibold text-blumea-navy">{t("analyzeModal.failed")}</h3>
 
             <p className="mt-2 max-w-sm text-sm text-blumea-slate">{analyzeError}</p>
 
@@ -346,7 +346,7 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal }: Ana
               }}
               className="mt-5 rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-blumea-navy transition-colors hover:border-blumea-blue"
             >
-              ← Back
+              {t("analyzeModal.back")}
             </button>
           </div>
         </div>
@@ -357,13 +357,13 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal }: Ana
           <div className="flex flex-col items-center py-6 text-center">
             <BlumeaFlowerLoader size={64} />
 
-            <h3 className="mt-6 text-xl font-semibold text-blumea-navy">Analyzing your video</h3>
+            <h3 className="mt-6 text-xl font-semibold text-blumea-navy">{t("analyzeModal.analyzingTitle")}</h3>
 
             <p className="mt-2 max-w-sm text-sm text-blumea-slate">
-              Blumea is understanding your content and how viewers responded to it.
+              {t("analyzeModal.analyzingBody")}
             </p>
 
-            <div className="mt-7 w-full max-w-sm space-y-3 text-left">
+            <div className="mt-7 w-full max-w-sm space-y-3 text-start">
               {analyzingSteps.map((label, index) => {
                 const completed = index < step;
                 const active = index === step;
@@ -383,7 +383,7 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal }: Ana
                       <span className="h-2 w-2 rounded-full bg-slate-200" />
                     )}
 
-                    <span className={active ? "font-medium" : ""}>{label}</span>
+                    <span className={active ? "font-medium" : ""}>{t(label)}</span>
                   </div>
                 );
               })}
@@ -494,10 +494,10 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal }: Ana
       {stage === "browse" && !platform && (
         <div className="blumea-expand mt-7">
           <div>
-          <p className="mt-6 text-sm font-semibold text-blumea-navy">Choose a platform</p>
+          <p className="mt-6 text-sm font-semibold text-blumea-navy">{t("analyzeModal.choosePlatform")}</p>
 
             <p className="mt-1 text-sm text-blumea-slate">
-              Where is the video you want to analyze?
+              {t("analyzeModal.wherePlatform")}
             </p>
 
             <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -534,7 +534,7 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal }: Ana
                 }}
                 className="text-sm font-semibold text-blumea-blue transition-opacity hover:opacity-70"
               >
-                ← Back
+                {t("analyzeModal.back")}
               </button>
 
               <PlatformBadge platform={platform} />
@@ -542,11 +542,13 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal }: Ana
 
             <div className="mt-5">
               <h3 className="text-lg font-semibold text-blumea-navy">
-                {platform === "tiktok" && tiktokSelected ? "Save and upload" : "Choose a video"}
+                {platform === "tiktok" && tiktokSelected ? t("analyzeModal.saveUpload") : t("analyzeModal.chooseVideo")}
               </h3>
 
               {capability && !(platform === "tiktok" && tiktokSelected) && (
-                <p className="mt-1 text-sm text-blumea-slate">{capability.analysis}</p>
+                <p className="mt-1 text-sm text-blumea-slate">
+                  {platform === "youtube" ? t("analyzeModal.capYoutube") : platform === "tiktok" ? t("analyzeModal.capTiktok") : capability.analysis}
+                </p>
               )}
             </div>
 
@@ -557,7 +559,7 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal }: Ana
                   onClick={() => setTiktokSelected(null)}
                   className="text-sm font-semibold text-blumea-blue transition-opacity hover:opacity-70"
                 >
-                  ← Choose a different video
+                  {t("analyzeModal.chooseDifferent")}
                 </button>
 
                 <div className="mt-4 flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3">
@@ -578,12 +580,9 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal }: Ana
                 </div>
 
                 <p className="mt-4 text-sm leading-6 text-blumea-slate">
-                  TikTok doesn&apos;t share the video file with us directly.{" "}
-                  <span className="font-medium text-blumea-navy">
-                    Open this on your phone, in the TikTok app
-                  </span>{" "}
-                  — its Save video option (if you&apos;ve enabled it for this video) isn&apos;t
-                  available on desktop.
+                  {rich(t("analyzeModal.tiktokNoShare"), {
+                    phone: <span className="font-medium text-blumea-navy">{t("analyzeModal.tiktokPhone")}</span>,
+                  })}
                 </p>
 
                 <a
@@ -593,13 +592,11 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal }: Ana
                   className="mt-4 inline-flex items-center gap-2 rounded-full bg-blumea-navy px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blumea-blue"
                 >
                   <ExternalLink size={16} />
-                  Open in TikTok to save
+                  {t("analyzeModal.openToSave")}
                 </a>
 
                 <p className="mt-4 text-xs leading-5 text-blumea-slate">
-                  Working from a computer? Get the saved video onto it however&apos;s easiest for
-                  you — AirDrop, your phone&apos;s cloud photo backup, or sending it to yourself —
-                  then upload it below.
+                  {t("analyzeModal.computerNote")}
                 </p>
 
                 <TiktokUploadStep video={tiktokSelected} onDone={(id) => router.push(`/analysis/${id}`)} />
@@ -611,21 +608,21 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal }: Ana
                 )}
 
                 {!tiktokListError && tiktokVideos && tiktokVideos.length === 0 && (
-                  <p className="mt-5 text-sm text-blumea-slate">No videos found on this account.</p>
+                  <p className="mt-5 text-sm text-blumea-slate">{t("analyzeModal.noVideosTiktok")}</p>
                 )}
 
                 {!tiktokListError && tiktokVideos === null && (
-                  <p className="mt-5 text-sm text-blumea-slate">Loading your videos…</p>
+                  <p className="mt-5 text-sm text-blumea-slate">{t("content.loading")}</p>
                 )}
 
                 {tiktokVideos && tiktokVideos.length > 0 && (
-                  <div className="mt-5 grid max-h-[400px] grid-cols-2 gap-3 overflow-y-auto pr-1 sm:grid-cols-3">
+                  <div className="mt-5 grid max-h-[400px] grid-cols-2 gap-3 overflow-y-auto pe-1 sm:grid-cols-3">
                     {tiktokVideos.map((video) => (
                       <button
                         key={video.platformVideoId}
                         type="button"
                         onClick={() => setTiktokSelected(video)}
-                        className="group overflow-hidden rounded-2xl border border-slate-200 bg-white text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-blumea-blue/40 hover:shadow-md"
+                        className="group overflow-hidden rounded-2xl border border-slate-200 bg-white text-start shadow-sm transition-all hover:-translate-y-0.5 hover:border-blumea-blue/40 hover:shadow-md"
                       >
                         <div className="relative aspect-[9/16] overflow-hidden bg-slate-100">
                           <Image
@@ -658,17 +655,17 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal }: Ana
                 )}
 
                 {!realLoading && !realListError && realVideos && realVideos.length === 0 && (
-                  <p className="mt-5 text-sm text-blumea-slate">No videos found on this channel.</p>
+                  <p className="mt-5 text-sm text-blumea-slate">{t("analyzeModal.noVideosYoutube")}</p>
                 )}
 
                 {realVideos && realVideos.length > 0 && (
-                  <div className="mt-5 grid max-h-[400px] grid-cols-2 gap-3 overflow-y-auto pr-1 sm:grid-cols-3">
+                  <div className="mt-5 grid max-h-[400px] grid-cols-2 gap-3 overflow-y-auto pe-1 sm:grid-cols-3">
                     {realVideos.map((video) => (
                       <button
                         key={video.platformVideoId}
                         type="button"
                         onClick={() => selectRealVideoForAnalysis(video.platformVideoId)}
-                        className="group overflow-hidden rounded-2xl border border-slate-200 bg-white text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-blumea-blue/40 hover:shadow-md"
+                        className="group overflow-hidden rounded-2xl border border-slate-200 bg-white text-start shadow-sm transition-all hover:-translate-y-0.5 hover:border-blumea-blue/40 hover:shadow-md"
                       >
                         <div className="relative aspect-[9/16] overflow-hidden bg-slate-100">
                           {/* unoptimized: the maxresdefault.jpg source is already sharp and

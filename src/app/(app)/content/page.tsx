@@ -12,6 +12,7 @@ import { formatCount } from "@/lib/format";
 import { platformLabels } from "@/lib/mock-data";
 import { supabase } from "@/lib/supabase";
 import type { AnalysisUsage } from "@/lib/analysis-limit";
+import { useT } from "@/lib/i18n/client";
 
 type Filter = "all" | "youtube" | "tiktok";
 const filters: Filter[] = ["all", "youtube", "tiktok"];
@@ -22,11 +23,14 @@ function thumbnailOf(video: DashboardVideo): string | null {
   return video.platform === "youtube" ? `https://i.ytimg.com/vi/${video.platformVideoId}/mqdefault.jpg` : null;
 }
 
-function publishedLabel(iso: string | null): string {
-  return iso ? new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
+function publishedLabel(iso: string | null, locale: string): string {
+  return iso
+    ? new Date(iso).toLocaleDateString(locale === "he" ? "he-IL" : "en-US", { month: "short", day: "numeric", year: "numeric" })
+    : "";
 }
 
 export default function ContentPage() {
+  const t = useT();
   const [videos, setVideos] = useState<DashboardVideo[] | null>(null);
   const [filter, setFilter] = useState<Filter>("all");
   const [analyzeOpen, setAnalyzeOpen] = useState(false);
@@ -74,23 +78,26 @@ export default function ContentPage() {
     <div className="mx-auto w-full max-w-7xl">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-blumea-navy sm:text-4xl">Content</h1>
+          <h1 className="text-3xl font-semibold tracking-tight text-blumea-navy sm:text-4xl">{t("content.title")}</h1>
 
           <p className="mt-2 text-blumea-slate">
-            Your videos, with the numbers each platform reports. Analyze one to see what Blumea understood.
+            {t("content.subtitle")}
           </p>
 
           {usage && usage.cap !== null && (
             <p className="mt-1 text-sm text-blumea-slate">
               {usage.used >= usage.cap
-                ? `You've used all ${usage.cap} free analyses this month. They start over on ${new Date(usage.resetsOn).toLocaleDateString("en-US", { month: "long", day: "numeric", timeZone: "UTC" })}.`
-                : `${usage.used} of ${usage.cap} free analyses used this month.`}
+                ? t("content.usageUsedAll", {
+                    cap: usage.cap,
+                    date: new Date(usage.resetsOn).toLocaleDateString(t.locale === "he" ? "he-IL" : "en-US", { month: "long", day: "numeric", timeZone: "UTC" }),
+                  })
+                : t("content.usageSome", { used: usage.used, cap: usage.cap })}
             </p>
           )}
 
           {usage?.plan === "free" && (
             <p className="mt-1 text-sm text-blumea-slate">
-              Blumea shows your 20 most recent videos on each platform. Blumea Pro reads more.
+              {t("content.freeScan")}
             </p>
           )}
         </div>
@@ -102,7 +109,7 @@ export default function ContentPage() {
             disabled={refreshing}
             className="rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-blumea-navy transition-colors hover:border-blumea-blue hover:text-blumea-blue disabled:opacity-60"
           >
-            {refreshing ? "Looking…" : "Refresh my videos"}
+            {refreshing ? t("content.refreshing") : t("content.refresh")}
           </button>
 
           <button
@@ -111,7 +118,7 @@ export default function ContentPage() {
             className="flex items-center gap-2 rounded-full bg-blumea-navy px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-blumea-blue hover:shadow-md"
           >
             <PlaySquare size={17} strokeWidth={1.8} />
-            Analyze a video
+            {t("content.analyze")}
           </button>
         </div>
       </div>
@@ -129,17 +136,17 @@ export default function ContentPage() {
                 : "border border-slate-200 bg-white text-blumea-slate hover:border-blumea-blue hover:text-blumea-navy"
             }`}
           >
-            {item === "all" ? "All platforms" : platformLabels[item]}
+            {item === "all" ? t("content.filterAll") : platformLabels[item]}
           </button>
         ))}
       </div>
 
-      {videos === null && <p className="mt-8 text-sm text-blumea-slate">Loading your videos…</p>}
+      {videos === null && <p className="mt-8 text-sm text-blumea-slate">{t("content.loading")}</p>}
 
       <div className="mt-6 grid grid-cols-1 gap-4 pb-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {visible.map((video) => {
           const thumbnail = thumbnailOf(video);
-          const format = video.analyzed && video.formatId ? formatLabel(video.formatId) : null;
+          const format = video.analyzed && video.formatId ? formatLabel(video.formatId, t) : null;
 
           return (
             <div
@@ -151,7 +158,7 @@ export default function ContentPage() {
                   <Image src={thumbnail} alt={video.title} fill unoptimized sizes="25vw" className="object-cover" />
                 )}
 
-                <div className="absolute left-3 top-3">
+                <div className="absolute start-3 top-3">
                   <PlatformBadge platform={video.platform as "youtube" | "tiktok"} className="bg-white/90 shadow-sm" />
                 </div>
               </div>
@@ -160,9 +167,9 @@ export default function ContentPage() {
                 <p className="truncate text-sm font-semibold text-blumea-navy">{video.title}</p>
 
                 <p className="mt-1 text-xs text-blumea-slate">
-                  {publishedLabel(video.publishedAt)}
-                  {video.views !== null ? ` · ${formatCount(video.views)} views` : ""}
-                  {video.likes !== null ? ` · ${formatCount(video.likes)} likes` : ""}
+                  {publishedLabel(video.publishedAt, t.locale)}
+                  {video.views !== null ? ` · ${t("content.views", { count: formatCount(video.views) })}` : ""}
+                  {video.likes !== null ? ` · ${t("content.likes", { count: formatCount(video.likes) })}` : ""}
                 </p>
 
                 <p className="mt-3">
@@ -172,7 +179,7 @@ export default function ContentPage() {
                     )
                   ) : (
                     <span className="rounded-full border border-dashed border-slate-300 px-2.5 py-1 text-xs text-slate-400">
-                      Numbers only
+                      {t("content.numbersOnly")}
                     </span>
                   )}
                 </p>
@@ -183,7 +190,7 @@ export default function ContentPage() {
                       href={`/analysis/${video.id}`}
                       className="text-sm font-semibold text-blumea-blue transition-opacity hover:opacity-70"
                     >
-                      View analysis →
+                      {t("content.viewAnalysis")}
                     </AppLink>
                   ) : (
                     <button
@@ -191,7 +198,7 @@ export default function ContentPage() {
                       onClick={() => setAnalyzeTarget(video)}
                       className="text-sm font-semibold text-blumea-blue transition-opacity hover:opacity-70"
                     >
-                      Analyze this video →
+                      {t("content.analyzeThis")}
                     </button>
                   )}
                 </div>
@@ -204,17 +211,17 @@ export default function ContentPage() {
       {videos !== null && visible.length === 0 && (
         <div className="mt-8 rounded-2xl border border-dashed border-slate-300 bg-white/60 p-8 text-center">
           <p className="text-sm font-semibold text-blumea-navy">
-            {videos.length === 0 ? "No videos yet." : "No videos on this platform yet."}
+            {videos.length === 0 ? t("content.emptyNone") : t("content.emptyPlatform")}
           </p>
           <p className="mt-1 text-sm text-blumea-slate">
-            Connect an account in Connections, then press &quot;Refresh my videos&quot;, or pick a video to analyze.
+            {t("content.emptyHint")}
           </p>
           <button
             type="button"
             onClick={() => setAnalyzeOpen(true)}
             className="mt-4 rounded-full bg-blumea-navy px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blumea-blue"
           >
-            Analyze a video
+            {t("content.analyze")}
           </button>
         </div>
       )}

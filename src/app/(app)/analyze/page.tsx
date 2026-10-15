@@ -8,10 +8,12 @@ import AnalyzeModal from "@/components/AnalyzeModal";
 import { PlatformIcon } from "@/components/PlatformBadge";
 import { loadDashboardData, type DashboardVideo } from "@/lib/dashboard-data";
 import { platformLabels } from "@/lib/mock-data";
+import { useT } from "@/lib/i18n/client";
 
 // Real data only. Comparing videos is not built yet, so the Compare button is
 // shown as "coming soon" instead of opening the prototype's made-up comparisons.
 export default function AnalyzePage() {
+  const t = useT();
   const [analyzeOpen, setAnalyzeOpen] = useState(false);
   const [videos, setVideos] = useState<DashboardVideo[] | null>(null);
 
@@ -32,9 +34,9 @@ export default function AnalyzePage() {
   return (
     <div className="mx-auto w-full max-w-7xl">
       <div className="text-center">
-        <h1 className="text-3xl font-semibold tracking-tight text-blumea-navy sm:text-4xl">Analyze</h1>
+        <h1 className="text-3xl font-semibold tracking-tight text-blumea-navy sm:text-4xl">{t("analyzePage.title")}</h1>
 
-        <p className="mt-2 text-blumea-slate">Understand what makes your content work.</p>
+        <p className="mt-2 text-blumea-slate">{t("analyzePage.subtitle")}</p>
       </div>
 
       <div className="mt-7 flex w-full justify-center">
@@ -47,10 +49,10 @@ export default function AnalyzePage() {
             >
               <PlaySquare size={16} strokeWidth={1.8} className="text-white" />
 
-              <span className="text-sm font-semibold text-white">Analyze</span>
+              <span className="text-sm font-semibold text-white">{t("analyzePage.analyze")}</span>
             </button>
 
-            <p className="mt-2 text-center text-xs text-blumea-slate">Understand a video</p>
+            <p className="mt-2 text-center text-xs text-blumea-slate">{t("analyzePage.understand")}</p>
           </div>
 
           <div className="flex flex-col items-center">
@@ -61,10 +63,10 @@ export default function AnalyzePage() {
             >
               <GitCompareArrows size={16} strokeWidth={1.8} className="text-blumea-slate" />
 
-              <span className="text-sm font-semibold text-blumea-slate">Compare</span>
+              <span className="text-sm font-semibold text-blumea-slate">{t("analyzePage.compare")}</span>
             </button>
 
-            <p className="mt-2 text-center text-xs text-blumea-slate">Part of Blumea Pro, coming soon</p>
+            <p className="mt-2 text-center text-xs text-blumea-slate">{t("analyzePage.compareSoon")}</p>
           </div>
         </div>
       </div>
@@ -72,18 +74,18 @@ export default function AnalyzePage() {
       <section className="mt-12 pb-6">
         <div className="flex items-end justify-between">
           <div>
-            <h2 className="text-2xl font-semibold text-blumea-navy">Already analyzed</h2>
+            <h2 className="text-2xl font-semibold text-blumea-navy">{t("analyzePage.already")}</h2>
 
-            <p className="mt-1 text-sm text-blumea-slate">Jump back into videos you&apos;ve already analyzed.</p>
+            <p className="mt-1 text-sm text-blumea-slate">{t("analyzePage.jumpBack")}</p>
           </div>
 
           <AppLink href="/content" className="text-sm font-semibold text-blumea-blue hover:opacity-70">
-            View all →
+            {t("dashboard.viewAll")}
           </AppLink>
         </div>
 
         {videos !== null && recent.length === 0 && (
-          <p className="mt-4 text-sm text-blumea-slate">Nothing analyzed yet. Pick a video above to start.</p>
+          <p className="mt-4 text-sm text-blumea-slate">{t("analyzePage.none")}</p>
         )}
 
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -91,7 +93,7 @@ export default function AnalyzePage() {
             <AppLink
               key={video.id}
               href={`/analysis/${video.id}`}
-              className="group overflow-hidden rounded-2xl border border-slate-200/70 bg-white text-left shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-blumea-blue/40 hover:shadow-md"
+              className="group overflow-hidden rounded-2xl border border-slate-200/70 bg-white text-start shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-blumea-blue/40 hover:shadow-md"
             >
               <div className="relative aspect-video overflow-hidden bg-slate-100">
                 {video.platform === "youtube" && (
@@ -105,7 +107,7 @@ export default function AnalyzePage() {
                   />
                 )}
 
-                <div className="absolute bottom-2 left-2 flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-blumea-navy shadow-sm">
+                <div className="absolute bottom-2 start-2 flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-xs font-medium text-blumea-navy shadow-sm">
                   <PlatformIcon platform={video.platform as "youtube" | "tiktok"} size={12} />
 
                   <span>{platformLabels[video.platform as "youtube" | "tiktok"]}</span>
@@ -116,9 +118,9 @@ export default function AnalyzePage() {
                 <p className="truncate text-sm font-semibold text-blumea-navy">{video.title}</p>
 
                 <div className="mt-3 flex items-center justify-between">
-                  <span className="text-xs font-semibold text-blumea-blue">View analysis</span>
+                  <span className="text-xs font-semibold text-blumea-blue">{t("analyzePage.viewAnalysis")}</span>
 
-                  <span className="text-blumea-blue transition-transform duration-300 group-hover:translate-x-1">→</span>
+                  <span className="text-blumea-blue transition-transform duration-300 group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1 rtl:group-hover:translate-x-0">→</span>
                 </div>
               </div>
             </AppLink>
