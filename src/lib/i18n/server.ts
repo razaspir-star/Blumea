@@ -19,6 +19,12 @@ export async function getT() {
   return makeTranslator(locale, dictionaries[locale] ?? dictionaries[DEFAULT_LOCALE]);
 }
 
+// A translator for route handlers (messages in the language of whoever made the request).
+export function translatorFor(request: Request) {
+  const locale = localeFromRequest(request);
+  return makeTranslator(locale, dictionaries[locale]);
+}
+
 // For route handlers, which only have the request's cookie header.
 export function localeFromRequest(request: Request): Locale {
   const match = /(?:^|;\s*)blumea_lang=([^;]+)/.exec(request.headers.get("cookie") ?? "");

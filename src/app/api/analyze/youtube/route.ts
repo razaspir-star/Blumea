@@ -10,6 +10,7 @@ import {
   getOwnChannelId,
 } from "@/lib/youtube-data";
 import { analyzeYoutubeVideo, MODEL, PROMPT_VERSION, THINKING_LEVEL } from "@/lib/gemini-analysis";
+import { translatorFor } from "@/lib/i18n/server";
 
 // Real (non-mock) slice of the insight engine: analyzes a YouTube video --
 // the one named in the request body, or the owner's most recent upload if
@@ -18,6 +19,7 @@ import { analyzeYoutubeVideo, MODEL, PROMPT_VERSION, THINKING_LEVEL } from "@/li
 export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
+  const t = translatorFor(request);
   const token = request.headers.get("authorization")?.replace("Bearer ", "");
   if (!token) {
     return NextResponse.json({ error: "Not signed in" }, { status: 401 });
@@ -34,7 +36,7 @@ export async function POST(request: NextRequest) {
   const usage = await getAnalysisUsage(supabaseAdmin, profileId);
   if (usage.cap !== null && usage.used >= usage.cap) {
     return NextResponse.json(
-      { error: limitMessage(usage), code: "limit", used: usage.used, cap: usage.cap, resetsOn: usage.resetsOn },
+      { error: limitMessage(usage, t), code: "limit", used: usage.used, cap: usage.cap, resetsOn: usage.resetsOn },
       { status: 402 }
     );
   }
@@ -53,10 +55,11 @@ export async function POST(request: NextRequest) {
 
     // Only the creator's own videos: a public video of someone else is refused.
     if (requestedVideoId && videoMeta.channelId && videoMeta.channelId !== (await getOwnChannelId(accessToken))) {
-      return NextResponse.json({ error: "You can only analyze videos from your own channel." }, { status: 403 });
+      return NextResponse.json({ error: t("errors.notOwnChannel") }, { status: 403 });
     }
   } catch (error) {
-    return NextResponse.json({ error: String(error instanceof Error ? error.message : error) }, { status: 400 });
+    console.error("YouTube video lookup failed", error);
+    return NextResponse.json({ error: t("errors.videoFetchFailed") }, { status: 400 });
   }
 
   const { data: connectedAccount } = await supabaseAdmin
@@ -85,7 +88,7 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (videoUpsertError || !video) {
-    return NextResponse.json({ error: "Could not save the video record." }, { status: 500 });
+    return NextResponse.json({ error: t("errors.saveVideo") }, { status: 500 });
   }
 
   const analytics = await getVideoAnalytics(accessToken, videoMeta.platformVideoId, videoMeta.publishedAt).catch(
@@ -130,7 +133,8 @@ export async function POST(request: NextRequest) {
     const watchUrl = `https://www.youtube.com/watch?v=${videoMeta.platformVideoId}`;
     analysis = await analyzeYoutubeVideo(watchUrl);
   } catch (error) {
-    return NextResponse.json({ error: String(error instanceof Error ? error.message : error) }, { status: 502 });
+    console.error("YouTube analysis failed", error);
+    return NextResponse.json({ error: t("errors.analysisFailed") }, { status: 502 });
   }
 
   await supabaseAdmin
@@ -149,7 +153,7 @@ export async function POST(request: NextRequest) {
   });
 
   if (profileInsertError) {
-    return NextResponse.json({ error: "Could not save the analysis." }, { status: 500 });
+    return NextResponse.json({ error: t("errors.saveAnalysis") }, { status: 500 });
   }
 
   return NextResponse.json({

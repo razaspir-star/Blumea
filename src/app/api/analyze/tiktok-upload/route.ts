@@ -4,6 +4,7 @@ import { getAnalysisUsage, limitMessage } from "@/lib/analysis-limit";
 import { UPLOAD_BUCKET, uploadActor } from "@/lib/upload-auth";
 import { setUploadStage } from "@/lib/upload-progress";
 import { saveTiktokScreens } from "@/lib/save-tiktok-screens";
+import { translatorFor } from "@/lib/i18n/server";
 import { getValidTiktokAccessToken, getVideoById, getAccountStats, getSoundInfo } from "@/lib/tiktok-data";
 import { analyzeUploadedVideo, MODEL, PROMPT_VERSION, THINKING_LEVEL } from "@/lib/gemini-analysis";
 
@@ -17,11 +18,12 @@ import { analyzeUploadedVideo, MODEL, PROMPT_VERSION, THINKING_LEVEL } from "@/l
 export const maxDuration = 120;
 
 export async function POST(request: NextRequest) {
+  const t = translatorFor(request);
   const body = await request.json().catch(() => null);
   const platformVideoId = body?.platformVideoId;
   const path = body?.path;
   if (typeof platformVideoId !== "string" || !platformVideoId || typeof path !== "string" || !path) {
-    return NextResponse.json({ error: "Missing the video or its upload." }, { status: 400 });
+    return NextResponse.json({ error: t("errors.missingUpload") }, { status: 400 });
   }
 
   const actor = await uploadActor(request, body?.handoffToken, platformVideoId);
@@ -32,7 +34,7 @@ export async function POST(request: NextRequest) {
 
   // The file must be one this creator uploaded (the path starts with their id).
   if (!path.startsWith(`${profileId}/`) || path.includes("..")) {
-    return NextResponse.json({ error: "That upload doesn't belong to you." }, { status: 403 });
+    return NextResponse.json({ error: t("errors.notYours") }, { status: 403 });
   }
 
   // Whatever happens below, the uploaded file does not stay in our storage.
@@ -48,12 +50,12 @@ export async function POST(request: NextRequest) {
   // Monthly cap on AI analyses for free creators (src/lib/analysis-limit.ts).
   const usage = await getAnalysisUsage(supabaseAdmin, profileId);
   if (usage.cap !== null && usage.used >= usage.cap) {
-    return fail(limitMessage(usage), 402, { code: "limit", used: usage.used, cap: usage.cap, resetsOn: usage.resetsOn });
+    return fail(limitMessage(usage, t), 402, { code: "limit", used: usage.used, cap: usage.cap, resetsOn: usage.resetsOn });
   }
 
   const { data: file, error: downloadError } = await supabaseAdmin.storage.from(UPLOAD_BUCKET).download(path);
   if (downloadError || !file) {
-    return fail("The upload didn't arrive. Please try again.", 400);
+    return fail(t("errors.uploadMissing"), 400);
   }
   await setUploadStage(supabaseAdmin, profileId, platformVideoId, "analyzing");
 
@@ -63,7 +65,8 @@ export async function POST(request: NextRequest) {
     accessToken = await getValidTiktokAccessToken(profileId);
     videoMeta = await getVideoById(accessToken, platformVideoId);
   } catch (error) {
-    return fail(String(error instanceof Error ? error.message : error), 400);
+    console.error("TikTok video lookup failed", error);
+    return fail(t("errors.videoFetchFailed"), 400);
   }
 
   const { data: connectedAccount } = await supabaseAdmin
@@ -92,7 +95,7 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (videoUpsertError || !video) {
-    return fail("Could not save the video record.", 500);
+    return fail(t("errors.saveVideo"), 500);
   }
 
   await supabaseAdmin.from("video_metric_snapshots").insert({
@@ -119,7 +122,8 @@ export async function POST(request: NextRequest) {
   try {
     analysis = await analyzeUploadedVideo(file, file.type || "video/mp4");
   } catch (error) {
-    return fail(String(error instanceof Error ? error.message : error), 502);
+    console.error("Upload analysis failed", error);
+    return fail(t("errors.analysisFailed"), 502);
   }
   await removeUpload();
 
@@ -150,13 +154,13 @@ export async function POST(request: NextRequest) {
   });
 
   if (profileInsertError) {
-    return fail("Could not save the analysis.", 500);
+    return fail(t("errors.saveAnalysis"), 500);
   }
 
   // Optional: screenshots of the video's TikTok analytics shared with it. Best
   // effort: a problem reading them does not undo the analysis; the reply says so.
   const screenPaths: string[] = Array.isArray(body?.screenshotPaths) ? body.screenshotPaths.map(String) : [];
-  const screens = screenPaths.length > 0 ? await saveTiktokScreens(supabaseAdmin, profileId, video.id, screenPaths) : null;
+  const screens = screenPaths.length > 0 ? await saveTiktokScreens(supabaseAdmin, profileId, video.id, screenPaths, t) : null;
 
   await setUploadStage(supabaseAdmin, profileId, platformVideoId, "done");
 

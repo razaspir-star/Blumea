@@ -1,4 +1,4 @@
-﻿import type { Dictionary } from "./en";
+import type { Dictionary } from "./en";
 import auth from "./he/auth";
 import onboarding from "./he/onboarding";
 import dashboard from "./he/dashboard";
@@ -10,6 +10,7 @@ import pages from "./he/pages";
 import tiktok from "./he/tiktok";
 import connections from "./he/connections";
 import home from "./he/home";
+import errors from "./he/errors";
 
 // Hebrew texts, same keys as en.ts. Plain, short, spoken-style Hebrew; platform names (YouTube, TikTok)
 // and the product name stay in English.
@@ -25,12 +26,14 @@ const he: Dictionary = {
   ...tiktok,
   ...connections,
   ...home,
+  ...errors,
   common: {
     language: "שפה",
     english: "English",
     hebrew: "עברית",
     signOut: "התנתקות",
     yourAccount: "החשבון שלך",
+    loading: "טוען את Blumea...",
   },
   nav: {
     dashboard: "לוח בקרה",

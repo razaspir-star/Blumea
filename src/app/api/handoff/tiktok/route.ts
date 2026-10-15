@@ -3,6 +3,7 @@ import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { signHandoff, verifyHandoff } from "@/lib/handoff-token";
 import { setUploadStage } from "@/lib/upload-progress";
 import { getValidTiktokAccessToken, getVideoById } from "@/lib/tiktok-data";
+import { translatorFor } from "@/lib/i18n/server";
 
 // POST (signed in): a link for the creator's phone, to upload one TikTok video.
 // Shown as a QR code on the computer; valid for 15 minutes (src/lib/handoff-token.ts).
@@ -26,8 +27,9 @@ export async function POST(request: NextRequest) {
 
 // GET ?token=...: what the phone page shows (the video's title), nothing else.
 export async function GET(request: NextRequest) {
+  const t = translatorFor(request);
   const handoff = verifyHandoff(request.nextUrl.searchParams.get("token"));
-  if (!handoff) return NextResponse.json({ error: "This link has expired. Open Blumea on your computer and scan a new code." }, { status: 401 });
+  if (!handoff) return NextResponse.json({ error: t("errors.linkExpired") }, { status: 401 });
 
   // The phone opened the page: the computer can say so (only moves "waiting" forward).
   await getSupabaseAdmin()
@@ -42,6 +44,6 @@ export async function GET(request: NextRequest) {
     const video = await getVideoById(accessToken, handoff.platformVideoId);
     return NextResponse.json({ title: video.title, shareUrl: video.shareUrl });
   } catch {
-    return NextResponse.json({ title: "your TikTok video", shareUrl: null });
+    return NextResponse.json({ title: t("errors.yourVideo"), shareUrl: null });
   }
 }

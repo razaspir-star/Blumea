@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { UPLOAD_BUCKET } from "@/lib/upload-limits";
 import { hasUsefulNumbers, readTiktokScreenshots, type TiktokScreenStats } from "@/lib/tiktok-screens";
+import type { Translator } from "@/lib/i18n/translate";
 
 // Reads the creator's shared screenshots of a TikTok video's analytics and saves
 // the numbers as a new snapshot of that video, marked as coming from the
@@ -10,7 +11,8 @@ export async function saveTiktokScreens(
   admin: SupabaseClient,
   profileId: string,
   videoRowId: string,
-  paths: string[]
+  paths: string[],
+  t: Translator
 ): Promise<{ ok: true; stats: TiktokScreenStats } | { ok: false; error: string }> {
   const bucket = admin.storage.from(UPLOAD_BUCKET);
   try {
@@ -20,11 +22,11 @@ export async function saveTiktokScreens(
       const { data } = await bucket.download(path);
       if (data) images.push({ data: Buffer.from(await data.arrayBuffer()), mimeType: data.type || "image/png" });
     }
-    if (images.length === 0) return { ok: false, error: "The screenshots didn't arrive. Please try again." };
+    if (images.length === 0) return { ok: false, error: t("errors.screensMissing") };
 
     const stats = await readTiktokScreenshots(images);
     if (!hasUsefulNumbers(stats)) {
-      return { ok: false, error: "Blumea couldn't find TikTok's video numbers in these pictures. Try the Overview and Viewers screens of the video's analytics." };
+      return { ok: false, error: t("errors.screensNoNumbers") };
     }
 
     // Latest known counts for the same video, so a snapshot made from screenshots
@@ -49,7 +51,7 @@ export async function saveTiktokScreens(
 
     return { ok: true, stats };
   } catch {
-    return { ok: false, error: "Blumea couldn't read the screenshots. Please try again." };
+    return { ok: false, error: t("errors.screensFailed") };
   } finally {
     await bucket.remove(paths).catch(() => null);
   }

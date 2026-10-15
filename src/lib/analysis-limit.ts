@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Translator } from "@/lib/i18n/translate";
 
 // Free creators get a taste, not the whole meal: a monthly cap on AI analyses
 // (each one costs real money, owner decision 2026-10-11). The First Look (3
@@ -55,7 +56,11 @@ export async function getAnalysisUsage(admin: SupabaseClient, profileId: string)
 }
 
 // Words for the creator, in the product's voice: what happened, when it resets.
-export function limitMessage(usage: AnalysisUsage): string {
-  const resets = new Date(usage.resetsOn).toLocaleDateString("en-US", { month: "long", day: "numeric", timeZone: "UTC" });
-  return `You've used your ${usage.cap} free analyses this month. They start over on ${resets}. Your numbers keep updating, and more analyses are coming with Blumea Pro.`;
+export function limitMessage(usage: AnalysisUsage, t: Translator): string {
+  const date = new Date(usage.resetsOn).toLocaleDateString(t.locale === "he" ? "he-IL" : "en-US", {
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+  return t("errors.limit", { cap: usage.cap ?? 0, date });
 }
