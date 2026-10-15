@@ -4,4 +4,14 @@
 
 export const LEGAL_EFFECTIVE_DATE = "October 10, 2026";
 
+// The same date, formatted in the reader's language.
+export function legalEffectiveDate(locale: string): string {
+  return new Date("2026-10-10T12:00:00Z").toLocaleDateString(locale === "he" ? "he-IL" : "en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+}
+
 export const CONTACT_EMAIL: string | null = process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || null;

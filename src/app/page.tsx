@@ -1,52 +1,48 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import AppLink from "@/components/AppLink";
+import LanguageSwitch from "@/components/LanguageSwitch";
 import SiteFooter from "@/components/SiteFooter";
+import { rich } from "@/lib/i18n/rich";
+import { getT } from "@/lib/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Blumea – understand what works in your short videos",
-  description:
-    "Blumea reads your own short videos and how viewers watched them, then shows what is worth keeping and what is worth testing. Honest about what it knows and what it does not.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return { title: t("home.metaTitle"), description: t("home.metaDescription") };
+}
 
-const understands = [
-  {
-    title: "What each video is",
-    body: "Its format, how it opens, the text on screen, what it asks of viewers. Read by AI from the video itself, labelled as AI.",
-  },
-  {
-    title: "How viewers watched",
-    body: "Average watch time, where people leave, where views came from, and how much your own followers carry a video. Straight from YouTube Analytics.",
-  },
-  {
-    title: "Patterns in your own videos",
-    body: "Which formats hold viewers, whether length or format is behind a gap, when you post, which videos get rewatched. Every pattern says how many videos it rests on.",
-  },
-];
+export default async function Home() {
+  const t = await getT();
 
-const steps = [
-  { n: "1", title: "Connect", body: "Sign in to YouTube or TikTok on their own pages. Blumea gets read-only access and can never post for you." },
-  { n: "2", title: "Blumea reads", body: "Your videos are analyzed and your numbers are refreshed about once a day." },
-  { n: "3", title: "You see what to try", body: "Plain-language findings, each marked as a fact, a pattern in your videos, or an idea worth testing." },
-];
+  const understands = [
+    { title: t("home.show1Title"), body: t("home.show1Body") },
+    { title: t("home.show2Title"), body: t("home.show2Body") },
+    { title: t("home.show3Title"), body: t("home.show3Body") },
+  ];
 
-export default function Home() {
+  const steps = [
+    { n: "1", title: t("home.step1Title"), body: t("home.step1Body") },
+    { n: "2", title: t("home.step2Title"), body: t("home.step2Body") },
+    { n: "3", title: t("home.step3Title"), body: t("home.step3Body") },
+  ];
+
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-white to-sky-50">
       <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-6">
-        <div className="flex items-center gap-2">
-          <Image src="/blumea-logo-v2.png" alt="Blumea logo" width={36} height={36} className="h-9 w-9" priority />
+        <div dir="ltr" className="flex items-center gap-2">
+          <Image src="/blumea-logo-v2.png" alt="Blumea" width={36} height={36} className="h-9 w-9" priority />
           <span className="text-xl font-semibold text-blumea-navy">
             Blum<span className="text-blumea-blue">ea</span>
           </span>
         </div>
 
         <nav className="flex items-center gap-4 text-sm font-semibold">
+          <LanguageSwitch />
           <AppLink href="/login" className="text-blumea-slate hover:text-blumea-blue">
-            Log in
+            {t("home.login")}
           </AppLink>
           <AppLink href="/register" className="rounded-full bg-blumea-blue px-5 py-2 text-white transition hover:bg-blumea-blue-hover">
-            Get started
+            {t("home.getStarted")}
           </AppLink>
         </nav>
       </header>
@@ -54,35 +50,32 @@ export default function Home() {
       <main className="flex-1">
         <section className="mx-auto w-full max-w-4xl px-6 pb-14 pt-10 text-center">
           <h1 className="text-4xl font-semibold tracking-tight text-blumea-navy sm:text-5xl">
-            Your content. <span className="text-blumea-blue">Our insight.</span> Your growth.
+            {t("home.heroA")} <span className="text-blumea-blue">{t("home.heroB")}</span> {t("home.heroC")}
           </h1>
 
-          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-blumea-slate sm:text-lg">
-            Blumea reads your own short videos and how viewers watched them, then shows what is worth keeping and what is worth testing.
-            It says how sure it is, and stays quiet when it does not know.
-          </p>
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-blumea-slate sm:text-lg">{t("home.heroBody")}</p>
 
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <AppLink
               href="/register"
               className="w-full rounded-2xl bg-blumea-blue px-8 py-3.5 text-base font-semibold text-white shadow-sm transition hover:bg-blumea-blue-hover sm:w-auto"
             >
-              Get started
+              {t("home.getStarted")}
             </AppLink>
 
             <AppLink
               href="/login"
               className="w-full rounded-2xl border border-blumea-blue bg-white px-8 py-3.5 text-base font-semibold text-blumea-blue transition hover:bg-blumea-mist sm:w-auto"
             >
-              Log in
+              {t("home.login")}
             </AppLink>
           </div>
 
-          <p className="mt-4 text-sm text-blumea-slate">For creators of short videos. Works with YouTube Shorts and TikTok.</p>
+          <p className="mt-4 text-sm text-blumea-slate">{t("home.forCreators")}</p>
         </section>
 
         <section className="mx-auto w-full max-w-5xl px-6 py-10">
-          <h2 className="text-center text-2xl font-semibold text-blumea-navy">What Blumea shows you</h2>
+          <h2 className="text-center text-2xl font-semibold text-blumea-navy">{t("home.showsTitle")}</h2>
 
           <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
             {understands.map((item) => (
@@ -95,7 +88,7 @@ export default function Home() {
         </section>
 
         <section className="mx-auto w-full max-w-5xl px-6 py-10">
-          <h2 className="text-center text-2xl font-semibold text-blumea-navy">How it works</h2>
+          <h2 className="text-center text-2xl font-semibold text-blumea-navy">{t("home.howTitle")}</h2>
 
           <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
             {steps.map((step) => (
@@ -112,23 +105,27 @@ export default function Home() {
 
         <section className="mx-auto w-full max-w-3xl px-6 py-10">
           <div className="rounded-3xl border border-slate-200/70 bg-white p-7 shadow-sm">
-            <h2 className="text-2xl font-semibold text-blumea-navy">Honest by design</h2>
+            <h2 className="text-2xl font-semibold text-blumea-navy">{t("home.honestTitle")}</h2>
 
             <ul className="mt-4 space-y-3 text-sm leading-6 text-blumea-slate">
               <li>
-                <strong className="text-blumea-navy">Fact, pattern or idea.</strong> Every statement says which it is, and how many of your videos it rests
-                on.
+                <strong className="text-blumea-navy">{t("home.honest1")}</strong> {t("home.honest1Body")}
               </li>
               <li>
-                <strong className="text-blumea-navy">Silence beats a weak claim.</strong> With too few videos, Blumea says so instead of guessing.
+                <strong className="text-blumea-navy">{t("home.honest2")}</strong> {t("home.honest2Body")}
               </li>
               <li>
-                <strong className="text-blumea-navy">Ideas, not promises.</strong> A pattern in your videos is not proof of why one did well, and Blumea
-                never promises more views.
+                <strong className="text-blumea-navy">{t("home.honest3")}</strong> {t("home.honest3Body")}
               </li>
               <li>
-                <strong className="text-blumea-navy">Your data stays yours.</strong> Read-only access, no ads, no selling. Disconnect or delete everything
-                any time from Settings. See the <AppLink href="/privacy" className="font-semibold text-blumea-blue underline">Privacy Policy</AppLink>.
+                <strong className="text-blumea-navy">{t("home.honest4")}</strong>{" "}
+                {rich(t("home.honest4Body"), {
+                  privacy: (
+                    <AppLink href="/privacy" className="font-semibold text-blumea-blue underline">
+                      {t("legalShell.privacyTitle")}
+                    </AppLink>
+                  ),
+                })}
               </li>
             </ul>
           </div>

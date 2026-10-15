@@ -9,6 +9,8 @@ import insights from "./en/insights";
 import insightsUi from "./en/insights-ui";
 import pages from "./en/pages";
 import tiktok from "./en/tiktok";
+import connections from "./en/connections";
+import home from "./en/home";
 
 const en = {
   ...auth,
@@ -20,6 +22,8 @@ const en = {
   ...insightsUi,
   ...pages,
   ...tiktok,
+  ...connections,
+  ...home,
   common: {
     language: "Language",
     english: "English",

@@ -1,0 +1,33 @@
+﻿const connections = {
+  title: "Connections",
+  subtitle: "Connect the accounts you want Blumea to read. You can disconnect at any time.",
+  youtubeConnected: "YouTube connected.",
+  tiktokConnected: "TikTok connected.",
+  errMissing: "The connection didn't complete. Please try again.",
+  errExpired: "That connection link expired. Please try again.",
+  errGoogleToken: "Google didn't accept the connection. Please try again.",
+  errTiktokToken: "TikTok didn't accept the connection. Please try again.",
+  errGoogleRefresh: "Google didn't grant lasting access — please try again and accept the prompt.",
+  errTiktokRefresh: "TikTok didn't grant lasting access. Please try again.",
+  errSave: "Something went wrong saving the connection. Please try again.",
+  errDenied: "Connection cancelled.",
+  errGeneric: "Something went wrong.",
+  connected: "Connected",
+  needsReconnect: "Needs reconnecting",
+  notConnected: "Not connected",
+  comingLater: "Coming later",
+  reconnect: "Reconnect",
+  disconnect: "Disconnect",
+  connect: "Connect",
+  connecting: "Connecting…",
+  whatAnalyze: "What Blumea can analyze",
+  viewerBehavior: "Viewer behavior",
+  requires: "Requires",
+  youtubeAnalysis: "Full analysis, automatically.",
+  youtubeBehavior: "Full second-by-second retention.",
+  tiktokAnalysis: "Upload a video you saved from TikTok for a full analysis.",
+  tiktokBehavior: "TikTok does not share watch time with apps, so Blumea can't show how viewers watched.",
+};
+
+const connectionTexts = { connections };
+export default connectionTexts;

@@ -2,17 +2,28 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import LegalPage from "@/components/LegalPage";
 import { CONTACT_EMAIL } from "@/lib/legal";
+import { getT } from "@/lib/i18n/server";
+import TermsHe from "./terms-he";
 
-export const metadata: Metadata = {
-  title: "Terms of Service – Blumea",
-  description: "The rules for using Blumea.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return { title: `${t("legalShell.termsTitle")} – Blumea`, description: t("legalShell.termsMeta") };
+}
 
 // DRAFT, to be reviewed by counsel (liability, governing law and jurisdiction in
 // particular). Written from what the product does today.
-export default function TermsPage() {
+export default async function TermsPage() {
+  const t = await getT();
+  if (t.locale === "he") {
+    return (
+      <LegalPage title={t("legalShell.termsTitle")}>
+        <TermsHe />
+      </LegalPage>
+    );
+  }
+
   return (
-    <LegalPage title="Terms of Service">
+    <LegalPage title={t("legalShell.termsTitle")}>
       <p>
         These terms are an agreement between you and Blumea. By creating an account or using Blumea you agree to them. If you do not
         agree, please do not use Blumea. Our <Link href="/privacy">Privacy Policy</Link> explains how we handle your information.

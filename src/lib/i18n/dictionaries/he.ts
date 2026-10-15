@@ -8,6 +8,8 @@ import insights from "./he/insights";
 import insightsUi from "./he/insights-ui";
 import pages from "./he/pages";
 import tiktok from "./he/tiktok";
+import connections from "./he/connections";
+import home from "./he/home";
 
 // Hebrew texts, same keys as en.ts. Plain, short, spoken-style Hebrew; platform names (YouTube, TikTok)
 // and the product name stay in English.
@@ -21,6 +23,8 @@ const he: Dictionary = {
   ...insightsUi,
   ...pages,
   ...tiktok,
+  ...connections,
+  ...home,
   common: {
     language: "שפה",
     english: "English",

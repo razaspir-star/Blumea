@@ -1,18 +1,29 @@
 import type { Metadata } from "next";
 import LegalPage from "@/components/LegalPage";
 import { CONTACT_EMAIL } from "@/lib/legal";
+import { getT } from "@/lib/i18n/server";
+import PrivacyHe from "./privacy-he";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy – Blumea",
-  description: "What Blumea collects, why, who processes it, how long it is kept, and how to delete it.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getT();
+  return { title: `${t("legalShell.privacyTitle")} – Blumea`, description: t("legalShell.privacyMeta") };
+}
 
 // DRAFT written from what the product actually does (checked against the code and
 // the database on 2026-10-10); to be reviewed by counsel. Every promise here must
 // stay true to the code: change the product and this text together.
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  const t = await getT();
+  if (t.locale === "he") {
+    return (
+      <LegalPage title={t("legalShell.privacyTitle")}>
+        <PrivacyHe />
+      </LegalPage>
+    );
+  }
+
   return (
-    <LegalPage title="Privacy Policy">
+    <LegalPage title={t("legalShell.privacyTitle")}>
       <p>
         Blumea (&ldquo;Blumea&rdquo;, &ldquo;we&rdquo;) helps creators understand their own short videos. This policy explains what
         we collect, why, who processes it, how long we keep it, and how you can delete it. We wrote it to be read, so it is short and
@@ -144,7 +155,7 @@ export default function PrivacyPage() {
 
       <h2>Cookies and tracking</h2>
       <p>
-        Blumea stores what it needs to keep you signed in. We do not use advertising or third-party tracking tools.
+        Blumea stores what it needs to keep you signed in, and your language choice. We do not use advertising or third-party tracking tools.
       </p>
 
       <h2>Children</h2>

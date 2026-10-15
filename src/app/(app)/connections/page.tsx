@@ -7,26 +7,26 @@ import { useProfile } from "@/components/AppShell";
 import { supabase } from "@/lib/supabase";
 import { useMockStore, type ConnectionStatus } from "@/lib/mock-store";
 import { platformCapabilities, platformLabels, seedAnalyzedIds, type PlatformId } from "@/lib/mock-data";
+import { useT } from "@/lib/i18n/client";
+import type { TextKey, Translator } from "@/lib/i18n/translate";
 
-const youtubeErrorMessages: Record<string, string> = {
-  missing_params: "The connection didn't complete. Please try again.",
-  invalid_state: "That connection link expired. Please try again.",
-  token_exchange_failed: "Google didn't accept the connection. Please try again.",
-  no_refresh_token: "Google didn't grant lasting access — please try again and accept the prompt.",
-  secret_storage_failed: "Something went wrong saving the connection. Please try again.",
-  save_failed: "Something went wrong saving the connection. Please try again.",
-  access_denied: "Connection cancelled.",
-};
-
-const tiktokErrorMessages: Record<string, string> = {
-  missing_params: "The connection didn't complete. Please try again.",
-  invalid_state: "That connection link expired. Please try again.",
-  token_exchange_failed: "TikTok didn't accept the connection. Please try again.",
-  no_refresh_token: "TikTok didn't grant lasting access. Please try again.",
-  secret_storage_failed: "Something went wrong saving the connection. Please try again.",
-  save_failed: "Something went wrong saving the connection. Please try again.",
-  access_denied: "Connection cancelled.",
-};
+// The messages a connection can end with, in the person's language.
+function connectionMessages(platform: "youtube" | "tiktok", t: Translator) {
+  const google = platform === "youtube";
+  return {
+    connected: t(google ? "connections.youtubeConnected" : "connections.tiktokConnected"),
+    generic: t("connections.errGeneric"),
+    errors: {
+      missing_params: t("connections.errMissing"),
+      invalid_state: t("connections.errExpired"),
+      token_exchange_failed: t(google ? "connections.errGoogleToken" : "connections.errTiktokToken"),
+      no_refresh_token: t(google ? "connections.errGoogleRefresh" : "connections.errTiktokRefresh"),
+      secret_storage_failed: t("connections.errSave"),
+      save_failed: t("connections.errSave"),
+      access_denied: t("connections.errDenied"),
+    } as Record<string, string>,
+  };
+}
 
 // Real for YouTube and TikTok (the platforms actually reachable today, see
 // doc/CLAUDE.md §10); Instagram stays mock until its app review is approved.
@@ -34,17 +34,16 @@ function usePlatformConnection(
   platform: "youtube" | "tiktok",
   connectedParam: string,
   errorParam: string,
-  connectedMessage: string,
-  errorMessages: Record<string, string>
+  messages: ReturnType<typeof connectionMessages>
 ) {
   const searchParams = useSearchParams();
   const [connected, setConnected] = useState<boolean | null>(null);
   const [handle, setHandle] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const connectedNotice = searchParams.get(connectedParam) ? connectedMessage : null;
+  const connectedNotice = searchParams.get(connectedParam) ? messages.connected : null;
   const errorCode = searchParams.get(errorParam);
-  const errorNotice = errorCode ? errorMessages[errorCode] ?? "Something went wrong." : null;
+  const errorNotice = errorCode ? messages.errors[errorCode] ?? messages.generic : null;
 
   useEffect(() => {
     let cancelled = false;
@@ -118,10 +117,10 @@ const logos: Record<PlatformId, string> = {
   facebook: "/platforms/facebook.png",
 };
 
-const statusText: Record<ConnectionStatus, { label: string; className: string }> = {
-  connected: { label: "Connected", className: "bg-emerald-50 text-emerald-600" },
-  needs_reconnect: { label: "Needs reconnecting", className: "bg-amber-50 text-amber-600" },
-  disconnected: { label: "Not connected", className: "bg-slate-100 text-blumea-slate" },
+const statusText: Record<ConnectionStatus, { label: TextKey; className: string }> = {
+  connected: { label: "connections.connected", className: "bg-emerald-50 text-emerald-600" },
+  needs_reconnect: { label: "connections.needsReconnect", className: "bg-amber-50 text-amber-600" },
+  disconnected: { label: "connections.notConnected", className: "bg-slate-100 text-blumea-slate" },
 };
 
 export default function ConnectionsPage() {
@@ -136,21 +135,20 @@ export default function ConnectionsPage() {
 // Instagram stays mock (local prototype state) until its app review is approved
 // (doc/CLAUDE.md §10).
 function ConnectionsPageInner() {
+  const t = useT();
   const profile = useProfile();
   const { connections, setConnection } = useMockStore(seedAnalyzedIds);
   const youtube = usePlatformConnection(
     "youtube",
     "youtube_connected",
     "youtube_error",
-    "YouTube connected.",
-    youtubeErrorMessages
+    connectionMessages("youtube", t)
   );
   const tiktok = usePlatformConnection(
     "tiktok",
     "tiktok_connected",
     "tiktok_error",
-    "TikTok connected.",
-    tiktokErrorMessages
+    connectionMessages("tiktok", t)
   );
   const real: Partial<Record<PlatformId, ReturnType<typeof usePlatformConnection>>> = {
     youtube,
@@ -168,11 +166,11 @@ function ConnectionsPageInner() {
   return (
     <div className="mx-auto w-full max-w-4xl">
       <h1 className="text-3xl font-semibold tracking-tight text-blumea-navy sm:text-4xl">
-        Connections
+        {t("connections.title")}
       </h1>
 
       <p className="mt-2 text-blumea-slate">
-        Connect the accounts you want Blumea to read. You can disconnect at any time.
+        {t("connections.subtitle")}
       </p>
 
       {(youtube.connectedNotice || tiktok.connectedNotice) && (
@@ -215,13 +213,13 @@ function ConnectionsPageInner() {
 
                   {soon ? (
                     <span className="mt-1 inline-block rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-blumea-slate">
-                      Coming later
+                      {t("connections.comingLater")}
                     </span>
                   ) : (
                     <span
                       className={`mt-1 inline-block rounded-full px-2.5 py-1 text-xs font-medium ${badge.className}`}
                     >
-                      {badge.label}
+                      {t(badge.label)}
                       {real[platform.id]?.handle ? ` · ${real[platform.id]?.handle}` : ""}
                     </span>
                   )}
@@ -238,7 +236,7 @@ function ConnectionsPageInner() {
                         onClick={() => real[platform.id]!.connect()}
                         className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-blumea-navy transition-colors hover:border-blumea-blue hover:text-blumea-blue disabled:opacity-60"
                       >
-                        Reconnect
+                        {t("connections.reconnect")}
                       </button>
                     )}
 
@@ -253,7 +251,7 @@ function ConnectionsPageInner() {
                         }
                         className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-blumea-navy transition-colors hover:border-red-300 hover:text-red-500 disabled:opacity-60"
                       >
-                        Disconnect
+                        {t("connections.disconnect")}
                       </button>
                     )}
 
@@ -263,7 +261,7 @@ function ConnectionsPageInner() {
                         onClick={() => setConnection(platform.id, "connected")}
                         className="rounded-full bg-amber-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-amber-600"
                       >
-                        Reconnect
+                        {t("connections.reconnect")}
                       </button>
                     )}
 
@@ -278,7 +276,7 @@ function ConnectionsPageInner() {
                         }
                         className="rounded-full bg-blumea-navy px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blumea-blue disabled:opacity-60"
                       >
-                        {real[platform.id]?.busy ? "Connecting…" : "Connect"}
+                        {real[platform.id]?.busy ? t("connections.connecting") : t("connections.connect")}
                       </button>
                     )}
                   </div>
@@ -289,24 +287,28 @@ function ConnectionsPageInner() {
                 <dl className="mt-5 grid grid-cols-1 gap-4 border-t border-slate-100 pt-4 text-sm sm:grid-cols-2">
                   <div>
                     <dt className="text-xs font-semibold uppercase tracking-wide text-blumea-slate">
-                      What Blumea can analyze
+                      {t("connections.whatAnalyze")}
                     </dt>
 
-                    <dd className="mt-1 leading-6 text-blumea-navy">{platform.analysis}</dd>
+                    <dd className="mt-1 leading-6 text-blumea-navy">
+                      {platform.id === "youtube" ? t("connections.youtubeAnalysis") : platform.id === "tiktok" ? t("connections.tiktokAnalysis") : platform.analysis}
+                    </dd>
                   </div>
 
                   <div>
                     <dt className="text-xs font-semibold uppercase tracking-wide text-blumea-slate">
-                      Viewer behavior
+                      {t("connections.viewerBehavior")}
                     </dt>
 
-                    <dd className="mt-1 leading-6 text-blumea-navy">{platform.behavior}</dd>
+                    <dd className="mt-1 leading-6 text-blumea-navy">
+                      {platform.id === "youtube" ? t("connections.youtubeBehavior") : platform.id === "tiktok" ? t("connections.tiktokBehavior") : platform.behavior}
+                    </dd>
                   </div>
 
                   {platform.requirement && (
                     <div className="sm:col-span-2">
                       <dt className="text-xs font-semibold uppercase tracking-wide text-blumea-slate">
-                        Requires
+                        {t("connections.requires")}
                       </dt>
 
                       <dd className="mt-1 text-blumea-navy">{platform.requirement}</dd>
