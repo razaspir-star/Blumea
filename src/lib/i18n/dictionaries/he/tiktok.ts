@@ -51,7 +51,7 @@ const viewerCard: Dictionary["viewerCard"] = {
   newFollowers: "עוקבים חדשים",
   saves: "שמירות",
   seconds: "{n} שנ׳",
-  fromScreens: "מצילומי המסך שלך מ-TikTok, נקראו ב-{date}. רק אתה רואה את זה.",
+  fromScreens: "מצילומי המסך שלך מ-TikTok, נקראו ב-{date}. רק לך יש גישה לזה.",
   where: "מאיפה הצופים הגיעו",
   followersOthers: "עוקבים ואחרים",
   followersLine: "{a} עוקבים · {b} לא עוקבים אחריך",
@@ -87,7 +87,7 @@ const uploadErrors: Dictionary["uploadErrors"] = {
   aFile: "קובץ",
   couldNotStart: "לא הצלחנו להתחיל את ההעלאה.",
   uploadFailed: "ההעלאה לא הצליחה. כדאי לנסות שוב.",
-  notSignedIn: "לא מחובר.",
+  notSignedIn: "לא מחובר/ת.",
   analysisFailed: "הניתוח נכשל.",
   screensFailed: "Blumea לא הצליחה לקרוא את צילומי המסך.",
 };

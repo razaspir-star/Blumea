@@ -59,7 +59,7 @@ const settings: Dictionary["settings"] = {
   deleting: "מוחק…",
   deleteEverything: "מחיקת הכול",
   cancel: "ביטול",
-  notSignedIn: "אינך מחובר.",
+  notSignedIn: "לא מחובר/ת.",
   wrong: "משהו השתבש. כדאי לנסות שוב.",
 };
 
