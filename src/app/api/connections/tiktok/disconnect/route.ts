@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { removeThumbnails } from "@/lib/video-thumbnails";
 
 export async function POST(request: NextRequest) {
   const token = request.headers.get("authorization")?.replace("Bearer ", "");
@@ -46,6 +47,7 @@ export async function POST(request: NextRequest) {
   // Disconnecting also removes what was collected through this account: its
   // videos, and with them (cascade) metric snapshots, AI profiles and statements.
   // Account snapshots go with the account row itself (cascade).
+  await removeThumbnails(supabaseAdmin, userData.user.id, "tiktok");
   await supabaseAdmin.from("videos").delete().eq("connected_account_id", account.id);
   await supabaseAdmin.from("connected_accounts").delete().eq("id", account.id);
 

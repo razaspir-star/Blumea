@@ -5,6 +5,7 @@ import { UPLOAD_BUCKET, uploadActor } from "@/lib/upload-auth";
 import { setUploadStage } from "@/lib/upload-progress";
 import { saveTiktokScreens } from "@/lib/save-tiktok-screens";
 import { translatorFor } from "@/lib/i18n/server";
+import { saveThumbnail } from "@/lib/video-thumbnails";
 import { getValidTiktokAccessToken, getVideoById, getAccountStats, getSoundInfo } from "@/lib/tiktok-data";
 import { analyzeUploadedVideo, MODEL, PROMPT_VERSION, THINKING_LEVEL } from "@/lib/gemini-analysis";
 
@@ -97,6 +98,8 @@ export async function POST(request: NextRequest) {
   if (videoUpsertError || !video) {
     return fail(t("errors.saveVideo"), 500);
   }
+
+  await saveThumbnail(supabaseAdmin, profileId, "tiktok", videoMeta.platformVideoId, videoMeta.thumbnail);
 
   await supabaseAdmin.from("video_metric_snapshots").insert({
     video_id: video.id,

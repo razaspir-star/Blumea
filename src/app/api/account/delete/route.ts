@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { removeThumbnails } from "@/lib/video-thumbnails";
 
 // "Delete my account and all my data" (Settings). Revokes every connected
 // platform token, deletes the stored token secrets, then deletes the auth user.
@@ -61,6 +62,9 @@ export async function POST(request: NextRequest) {
     await supabaseAdmin.rpc("delete_oauth_secret", { secret_id: account.refresh_token_secret_id });
     await supabaseAdmin.rpc("delete_oauth_secret", { secret_id: account.access_token_secret_id });
   }
+
+  // The cover pictures kept in our storage go too (the rows go with the user).
+  await removeThumbnails(supabaseAdmin, userId);
 
   const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(userId);
   if (deleteError) {

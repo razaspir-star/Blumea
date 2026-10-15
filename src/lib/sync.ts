@@ -1,4 +1,5 @@
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { saveThumbnail } from "@/lib/video-thumbnails";
 import {
   getChannelStatistics,
   getValidYoutubeAccessToken,
@@ -102,11 +103,11 @@ export async function syncVideos(profileId: string, platform: string, token: str
   const supabase = getSupabaseAdmin();
   const { data: videos } = await supabase
     .from("videos")
-    .select("id, platform_video_id, published_at")
+    .select("id, platform_video_id, published_at, thumbnail_path")
     .eq("profile_id", profileId)
     .eq("platform", platform);
 
-  async function syncOne(video: { id: string; platform_video_id: string; published_at: string | null }) {
+  async function syncOne(video: { id: string; platform_video_id: string; published_at: string | null; thumbnail_path: string | null }) {
     const { data: last } = await supabase
       .from("video_metric_snapshots")
       .select("captured_at, avg_watch_sec")
@@ -149,6 +150,7 @@ export async function syncVideos(profileId: string, platform: string, token: str
         });
       } else if (platform === "tiktok") {
         const meta = await getTiktokVideoById(token, video.platform_video_id);
+        if (!video.thumbnail_path) await saveThumbnail(supabase, profileId, "tiktok", video.platform_video_id, meta.thumbnail);
         await supabase.from("video_metric_snapshots").insert({
           video_id: video.id,
           views: meta.views,

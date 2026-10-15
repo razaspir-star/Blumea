@@ -20,7 +20,7 @@ const filters: Filter[] = ["all", "youtube", "tiktok"];
 // Only real data: the creator's videos as the First Scan found them (numbers from
 // the platform), and which of them Blumea has read with AI.
 function thumbnailOf(video: DashboardVideo): string | null {
-  return video.platform === "youtube" ? `https://i.ytimg.com/vi/${video.platformVideoId}/mqdefault.jpg` : null;
+  return video.platform === "youtube" ? `https://i.ytimg.com/vi/${video.platformVideoId}/mqdefault.jpg` : video.thumbnailUrl;
 }
 
 function publishedLabel(iso: string | null, locale: string): string {

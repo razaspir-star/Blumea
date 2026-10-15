@@ -44,7 +44,8 @@ export default async function PrivacyPage() {
         </li>
         <li>
           <strong>From TikTok, if you connect it:</strong> your display name, follower count, and your list of videos with their public
-          numbers (title, cover image, likes, comments, shares, views as TikTok reports them).
+          numbers (title, cover image, likes, comments, shares, views as TikTok reports them). The cover pictures are copied to our
+          storage so they can be shown later; they are deleted when you disconnect TikTok or delete your account.
         </li>
         <li>
           <strong>Videos you upload yourself:</strong> if you choose to upload a TikTok video for analysis (from your computer, or

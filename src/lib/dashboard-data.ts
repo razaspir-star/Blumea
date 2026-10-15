@@ -56,6 +56,8 @@ export type DashboardVideo = {
   // True when Blumea has read the video with AI (an AI profile exists). A video
   // found by the First Scan has numbers only.
   analyzed: boolean;
+  // A picture for the card: TikTok covers copied to our storage (YouTube builds its own from the id).
+  thumbnailUrl: string | null;
   // From the YouTube Analytics breakdowns (null when not available yet).
   analyticsViews: number | null;
   subscribedViews: number | null;
@@ -106,7 +108,7 @@ export async function loadDashboardData(): Promise<DashboardData> {
 
   const { data: videoRows } = await supabase
     .from("videos")
-    .select("id, platform, platform_video_id, title, duration_sec, published_at");
+    .select("id, platform, platform_video_id, title, duration_sec, published_at, thumbnail_path");
   if (!videoRows || videoRows.length === 0) return { accounts, videos: [] };
   const ids = videoRows.map((video) => video.id);
 
@@ -144,6 +146,7 @@ export async function loadDashboardData(): Promise<DashboardData> {
       publishedAt: video.published_at ?? null,
       formatId: typeof fields?.format?.value === "string" ? (fields.format.value as string) : null,
       analyzed: fields !== undefined,
+      thumbnailUrl: video.thumbnail_path ? supabase.storage.from("video-thumbs").getPublicUrl(video.thumbnail_path).data.publicUrl : null,
       ctaRead: fields !== undefined && "call_to_action" in fields,
       cta: ctaOf(fields?.call_to_action?.value),
       ...followerFields(snapshot.breakdowns as Record<string, unknown> | null),

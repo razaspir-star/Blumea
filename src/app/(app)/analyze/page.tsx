@@ -96,9 +96,9 @@ export default function AnalyzePage() {
               className="group overflow-hidden rounded-2xl border border-slate-200/70 bg-white text-start shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-blumea-blue/40 hover:shadow-md"
             >
               <div className="relative aspect-video overflow-hidden bg-slate-100">
-                {video.platform === "youtube" && (
+                {(video.platform === "youtube" || video.thumbnailUrl) && (
                   <Image
-                    src={`https://i.ytimg.com/vi/${video.platformVideoId}/mqdefault.jpg`}
+                    src={video.platform === "youtube" ? `https://i.ytimg.com/vi/${video.platformVideoId}/mqdefault.jpg` : (video.thumbnailUrl as string)}
                     alt={video.title}
                     fill
                     unoptimized

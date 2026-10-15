@@ -3,6 +3,7 @@ import { listVideosWithStats as listYoutubeVideos, getValidYoutubeAccessToken } 
 import { listVideosWithStats as listTiktokVideos, getValidTiktokAccessToken } from "@/lib/tiktok-data";
 import { syncVideos, type SyncResult } from "@/lib/sync";
 import { scanLimitFor } from "@/lib/analysis-limit";
+import { saveThumbnails } from "@/lib/video-thumbnails";
 
 // First Scan (doc/CLAUDE.md §6): after a creator connects an account, bring in
 // their most recent videos with their numbers -- no AI, so no cost -- so the
@@ -33,6 +34,7 @@ export async function scanProfile(profileId: string): Promise<{ scan: ScanResult
   for (const account of accounts ?? []) {
     try {
       let rows: { platform_video_id: string; title: string; published_at: string; duration_sec: number }[] = [];
+      let covers: { platformVideoId: string; url: string }[] = [];
       let token: string;
 
       if (account.platform === "youtube") {
@@ -45,7 +47,9 @@ export async function scanProfile(profileId: string): Promise<{ scan: ScanResult
         }));
       } else if (account.platform === "tiktok") {
         token = await getValidTiktokAccessToken(profileId);
-        rows = (await listTiktokVideos(token, Math.min(limit, 20))).map((video) => ({
+        const listed = await listTiktokVideos(token, Math.min(limit, 20));
+        covers = listed.map((video) => ({ platformVideoId: video.platformVideoId, url: video.thumbnail }));
+        rows = listed.map((video) => ({
           platform_video_id: video.platformVideoId,
           title: video.title,
           published_at: video.createTime,
@@ -57,10 +61,11 @@ export async function scanProfile(profileId: string): Promise<{ scan: ScanResult
 
       const { data: existing } = await supabase
         .from("videos")
-        .select("platform_video_id")
+        .select("platform_video_id, thumbnail_path")
         .eq("profile_id", profileId)
         .eq("platform", account.platform);
       const known = new Set((existing ?? []).map((row) => row.platform_video_id as string));
+      const hasCover = new Set((existing ?? []).filter((row) => row.thumbnail_path).map((row) => row.platform_video_id as string));
       const fresh = rows.filter((row) => !known.has(row.platform_video_id));
 
       if (fresh.length > 0) {
@@ -74,6 +79,9 @@ export async function scanProfile(profileId: string): Promise<{ scan: ScanResult
           }))
         );
       }
+
+      // TikTok covers are copied to our storage (the link TikTok gives expires within hours).
+      await saveThumbnails(supabase, profileId, account.platform, covers.filter((cover) => !hasCover.has(cover.platformVideoId)));
 
       scan.push({ platform: account.platform, listed: rows.length, added: fresh.length });
 

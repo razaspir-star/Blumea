@@ -178,12 +178,14 @@ function Breakdown({ parts }: { parts: { label: string; value: number }[] }) {
 // stored, so those cards get a plain placeholder.
 function Thumb({ video }: { video: DashboardVideo }) {
   const [broken, setBroken] = useState(false);
-  if (video.platform !== "youtube" || broken) {
+  const src =
+    video.platform === "youtube" ? `https://i.ytimg.com/vi/${video.platformVideoId}/maxresdefault.jpg` : video.thumbnailUrl;
+  if (!src || broken) {
     return <div className="absolute inset-0 bg-gradient-to-br from-blumea-mist to-slate-100" />;
   }
   return (
     <Image
-      src={`https://i.ytimg.com/vi/${video.platformVideoId}/maxresdefault.jpg`}
+      src={src}
       alt=""
       fill
       sizes="200px"
