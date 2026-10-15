@@ -27,7 +27,7 @@
     "Blumea calls out a pattern in your key moments only when at least {min} of your videos show it. Staying quiet is a normal answer.",
   dropsTitle: "There's often a sharp drop early on.",
   dropsBody:
-    "In {count} of your {of} videos with retention data, the single biggest drop (8+ points at once) comes around {time}.",
+    "In {count} of your {of} videos with retention data, the sharpest drop in viewers (8% or more of them leaving at once) comes around {time}.",
   dropsEvidence: "Seen in {count} videos",
   noWatchTitle: "Nothing to watch out for yet.",
   noWatchBody: "No sharp drop shows up in at least {min} of your videos. Blumea stays quiet rather than invent a concern.",
@@ -70,7 +70,7 @@
     "“{title}” ({dur} sec) stands out: {ratio} per view, while your other videos of similar length get about {usual}. Worth watching it again to see what is different — Blumea can't tell from the numbers whether it is the ending, the song or something else.",
   postSameTitle: "You post at the same time.",
   postSameBody:
-    "{count} of your {of} videos went out {window}{hours}. With no variation there is nothing to compare, so Blumea can't say whether another time would work better for you. Worth testing a different time once.",
+    "{count} of your {of} videos went out {window}{hours}. Blumea can't say whether another time would work better for you. Worth testing a different time once.",
   postSameAround: " (around {h}:00)",
   postSameBetween: ", between {a}:00 and {b}:59",
   postSameEvidence: "Based on {count} videos",
@@ -102,12 +102,12 @@ const exp = {
     "It also won {gained} new followers, {per1000} per 1,000 views, against about {median} for a typical video.",
   dropTitle: "Change something just before {time}",
   dropWhy:
-    "In {count} of your {of} videos with retention data, the single biggest drop (8+ points at once) comes around {time}. Blumea can't tell what causes it.",
+    "In {count} of your {of} videos with retention data, the sharpest drop in viewers (8% or more of them leaving at once) comes around {time}. Blumea can't tell what causes it.",
   dropHow: "Watch the retention curve of the new video around that second.",
   dropEvidence: "{count} of {of} videos",
   timeTitle: "Post one video at a different time",
   timeWhy:
-    "{count} of your {of} videos went out {window}. With no variation, Blumea can't say whether another time would work better for you.",
+    "{count} of your {of} videos went out {window}. Blumea can't say whether another time would work better for you.",
   timeHow: "Compare the new video's views after three days with your usual, remembering it is one video.",
   timeEvidence: "{of} videos, all at about the same time",
   rewatchTitle: "Find what made {title} get rewatched",

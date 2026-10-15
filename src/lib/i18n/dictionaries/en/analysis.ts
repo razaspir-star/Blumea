@@ -97,7 +97,7 @@ const analysis = {
   weakAction:
     "Worth testing: a short text on screen in the first second. You don't have data yet on whether that helps you, but it's specific enough to try.",
   dropDisclaimer: "Based on this one video's retention curve.",
-  dropBody: "Most viewers leave around {at} — a {points}-point drop at that single point.",
+  dropBody: "The sharpest drop comes around {at}: {points}% of viewers left at that point.",
   dropMoment: "At that point: {what}",
   dropAction: "This may contribute to why fewer viewers stay past this point.",
   experimentDisclaimer: "A concrete, testable change — not a claim that it helps.",

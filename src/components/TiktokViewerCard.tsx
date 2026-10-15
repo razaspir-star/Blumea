@@ -8,6 +8,7 @@ import type { TiktokScreenStats } from "@/lib/tiktok-screens";
 import { uploadTiktokScreens } from "@/lib/tiktok-upload-client";
 import { formatCount } from "@/lib/format";
 import { useT } from "@/lib/i18n/client";
+import type { TextKey } from "@/lib/i18n/translate";
 
 export type SavedTiktokScreens = TiktokScreenStats & { readAt: string };
 
@@ -103,6 +104,12 @@ export default function TiktokViewerCard({
   if (stats.newFollowers !== null) tiles.push({ label: t("viewerCard.newFollowers"), value: formatCount(stats.newFollowers) });
   if (stats.saves !== null) tiles.push({ label: t("viewerCard.saves"), value: formatCount(stats.saves) });
 
+  // Which of the three screens gave nothing: the creator is asked for just those.
+  const missing: TextKey[] = [];
+  if (stats.avgWatchSec === null && stats.watchedFullPct === null) missing.push("picker.shot1");
+  if (stats.trafficSources.length === 0 && stats.mostStoppedAtSec === null) missing.push("picker.shot2");
+  if (stats.followersPct === null && stats.newViewersPct === null) missing.push("picker.shot3");
+
   return (
     <section className="mt-8">
       <h2 className="text-xl font-semibold tracking-tight text-blumea-navy">{t("analysis.howViewersWatched")}</h2>
@@ -164,7 +171,19 @@ export default function TiktokViewerCard({
         </div>
       )}
 
-      <details className="mt-4">
+      {missing.length > 0 && (
+        <div className="mt-4 rounded-2xl border border-blumea-blue/25 bg-white p-4">
+          <p className="text-sm font-semibold text-blumea-navy">{t("viewerCard.missingTitle")}</p>
+          <p className="mt-1 text-sm leading-6 text-blumea-slate">{t("viewerCard.missingBody")}</p>
+          <ul className="mt-1 list-disc ps-5 text-sm leading-6 text-blumea-slate">
+            {missing.map((key) => (
+              <li key={key}>{t(key)}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <details className="mt-4" open={missing.length > 0}>
         <summary className="cursor-pointer text-sm font-semibold text-blumea-blue">{t("viewerCard.update")}</summary>
         <AddNumbers platformVideoId={platformVideoId} label={t("viewerCard.readMine")} />
       </details>

@@ -58,6 +58,8 @@ const viewerCard: Dictionary["viewerCard"] = {
   newReturning: "צופים חדשים וחוזרים",
   newLine: "{a} חדשים · {b} חוזרים",
   update: "עדכון עם צילומי מסך חדשים",
+  missingTitle: "רוצים תמונה מלאה?",
+  missingBody: "מהמסכים האלה עדיין לא נקראו מספרים. כדאי לצלם כל אחד מהם ולהוסיף כאן למטה:",
 };
 
 const handoff: Dictionary["handoff"] = {

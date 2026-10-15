@@ -284,7 +284,7 @@ function ConnectionsPageInner() {
               </div>
 
               {!soon && (
-                <dl className="mt-5 grid grid-cols-1 gap-4 border-t border-slate-100 pt-4 text-sm sm:grid-cols-2">
+                <dl className="mt-5 grid grid-cols-1 gap-4 border-t border-slate-100 pt-4 text-sm">
                   <div>
                     <dt className="text-xs font-semibold uppercase tracking-wide text-blumea-slate">
                       {t("connections.whatAnalyze")}
@@ -292,16 +292,6 @@ function ConnectionsPageInner() {
 
                     <dd className="mt-1 leading-6 text-blumea-navy">
                       {platform.id === "youtube" ? t("connections.youtubeAnalysis") : platform.id === "tiktok" ? t("connections.tiktokAnalysis") : platform.analysis}
-                    </dd>
-                  </div>
-
-                  <div>
-                    <dt className="text-xs font-semibold uppercase tracking-wide text-blumea-slate">
-                      {t("connections.viewerBehavior")}
-                    </dt>
-
-                    <dd className="mt-1 leading-6 text-blumea-navy">
-                      {platform.id === "youtube" ? t("connections.youtubeBehavior") : platform.id === "tiktok" ? t("connections.tiktokBehavior") : platform.behavior}
                     </dd>
                   </div>
 

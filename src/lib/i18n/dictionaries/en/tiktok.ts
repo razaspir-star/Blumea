@@ -55,6 +55,8 @@ const viewerCard = {
   newReturning: "New and returning viewers",
   newLine: "{a} new · {b} returning",
   update: "Update with new screenshots",
+  missingTitle: "Want the full picture?",
+  missingBody: "Blumea didn't find numbers from these screens yet. Take a screenshot of each and add it below:",
 };
 
 const handoff = {
