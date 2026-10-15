@@ -60,7 +60,7 @@ const analysis: Dictionary["analysis"] = {
   reposts: "שיתופים חוזרים",
   notAvailableOn: "לא זמין ב-{platform}",
   viewerBehavior: "התנהגות הצופים",
-  onlyYou: "מתוך YouTube Analytics — רק לך יש גישה לזה, זה לא פומבי.",
+  onlyYou: "מתוך YouTube Analytics.",
   averageWatch: "צפייה ממוצעת",
   ofVideo: "מתוך סרטון של {count} שניות",
   biggestDrop: "הירידה הגדולה ביותר",

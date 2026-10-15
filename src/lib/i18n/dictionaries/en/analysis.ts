@@ -58,7 +58,7 @@ const analysis = {
   reposts: "Reposts",
   notAvailableOn: "Not available on {platform}",
   viewerBehavior: "Viewer behavior",
-  onlyYou: "From YouTube Analytics — only you can see this, not public.",
+  onlyYou: "From YouTube Analytics.",
   averageWatch: "Average watch",
   ofVideo: "of a {count} sec video",
   biggestDrop: "Biggest drop",

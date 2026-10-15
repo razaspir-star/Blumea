@@ -51,7 +51,7 @@ const viewerCard: Dictionary["viewerCard"] = {
   newFollowers: "עוקבים חדשים",
   saves: "שמירות",
   seconds: "{n} שנ׳",
-  fromScreens: "מצילומי המסך שלך מ-TikTok, נקראו ב-{date}. רק לך יש גישה לזה.",
+  fromScreens: "מצילומי המסך שלך מ-TikTok, נקראו ב-{date}.",
   where: "מאיפה הצופים הגיעו",
   followersOthers: "עוקבים ואחרים",
   followersLine: "{a} עוקבים · {b} לא עוקבים אחריך",

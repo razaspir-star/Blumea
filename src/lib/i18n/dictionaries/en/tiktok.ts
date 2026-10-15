@@ -48,7 +48,7 @@ const viewerCard = {
   newFollowers: "New followers",
   saves: "Saves",
   seconds: "{n} s",
-  fromScreens: "From your TikTok screenshots, read on {date}. Only you can see this.",
+  fromScreens: "From your TikTok screenshots, read on {date}.",
   where: "Where viewers came from",
   followersOthers: "Followers and others",
   followersLine: "{a} followers · {b} not following you",
