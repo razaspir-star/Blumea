@@ -148,6 +148,26 @@ const library: Dictionary["library"] = {
     instagramNote:
       "Instagram משתפת זמן צפייה ממוצע אבל לא עקומה שנייה אחרי שנייה, ולכן אי אפשר להעריך את ״הירידה הגדולה ביותר״ בסרטון הזה.",
   },
+  sound: {
+    original_speech: "דיבור מקורי",
+    speech_over_music: "דיבור מעל מוזיקה",
+    music: "מוזיקה",
+    sound_effects_only: "אפקטים קוליים בלבד",
+    silent: "שקט",
+  },
+  lang: {
+    Hebrew: "עברית",
+    English: "אנגלית",
+    Arabic: "ערבית",
+    Russian: "רוסית",
+    Spanish: "ספרדית",
+    French: "צרפתית",
+    German: "גרמנית",
+    Italian: "איטלקית",
+    Portuguese: "פורטוגזית",
+    Amharic: "אמהרית",
+    Yiddish: "יידיש",
+  },
   experiment: {
     no_text_first3s: "אין טקסט על המסך ב-3 השניות הראשונות. שווה לנסות טקסט קצר.",
     no_captions_speech: "אין כתוביות בזמן הדיבור בפתיחה. שווה לנסות להוסיף.",

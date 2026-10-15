@@ -22,7 +22,9 @@ export const SOUND_KINDS = ["original_speech", "speech_over_music", "music", "so
 
 export const CTA_TYPES = ["comment_question", "comment_invite", "follow", "like_or_share", "tag_friend", "link_or_buy", "other"];
 
-export function buildAnalysisPrompt({ hooks = true }: { hooks?: boolean } = {}): string {
+// `language` only changes which language the free-text descriptions are written in; the English
+// prompt (the one the golden sets measured) is exactly the same as before.
+export function buildAnalysisPrompt({ hooks = true, language = "en" }: { hooks?: boolean; language?: "en" | "he" } = {}): string {
   return `You are analyzing a short-form social video to build a "Content Identity" profile for it. \
 Watch the video and return ONLY one JSON object (no markdown fences, no commentary) with exactly these keys:
 
@@ -94,7 +96,8 @@ Rules:
 - Quote text EXACTLY as written, in its original language and spelling. Do not correct, translate, add or drop letters.
 - Do NOT describe any person's age, gender, ethnicity, body or appearance. Say "a person" or "the creator" and describe only what they do.
 - Use null (or an empty list) for anything that is absent.
-- Describe only what you can actually see or hear.`;
+- Describe only what you can actually see or hear.${language === "he" ? `
+- Language: write these free-text descriptions in Hebrew: topic, visual_hook, music_description, subject_specific, and each key moment's what_happens. Everything else stays exactly as specified above (ids in English, quoted text in its original language, speech_language as its English name).` : ""}`;
 }
 
 export function parseJson(text: string): Record<string, unknown> | null {

@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
 
   let analysis: Awaited<ReturnType<typeof analyzeUploadedVideo>>;
   try {
-    analysis = await analyzeUploadedVideo(file, file.type || "video/mp4");
+    analysis = await analyzeUploadedVideo(file, file.type || "video/mp4", t.locale);
   } catch (error) {
     console.error("Upload analysis failed", error);
     return fail(t("errors.analysisFailed"), 502);

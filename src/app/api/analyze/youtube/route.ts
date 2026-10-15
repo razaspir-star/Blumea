@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
   let analysis: Awaited<ReturnType<typeof analyzeYoutubeVideo>>;
   try {
     const watchUrl = `https://www.youtube.com/watch?v=${videoMeta.platformVideoId}`;
-    analysis = await analyzeYoutubeVideo(watchUrl);
+    analysis = await analyzeYoutubeVideo(watchUrl, t.locale);
   } catch (error) {
     console.error("YouTube analysis failed", error);
     return NextResponse.json({ error: t("errors.analysisFailed") }, { status: 502 });

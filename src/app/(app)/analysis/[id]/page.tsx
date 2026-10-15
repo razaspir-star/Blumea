@@ -256,6 +256,8 @@ function formatFieldLines(
     return [value.map(String).join(", ")];
   }
   if (typeof value === "boolean") return [value ? t("analysis.yes") : t("analysis.no")];
+  if (field === "sound_kind" && typeof value === "string" && t.has(`library.sound.${value}`)) return [t(`library.sound.${value}` as TextKey)];
+  if (field === "speech_language" && typeof value === "string" && t.has(`library.lang.${value}`)) return [t(`library.lang.${value}` as TextKey)];
   const text = String(value).trim();
   if (!text) return null;
   return [field === "sound_candidate" ? t("analysis.maybe", { text }) : text];

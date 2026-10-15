@@ -146,6 +146,26 @@ const library = {
     instagramNote:
       "Instagram shares average watch time but not a second-by-second curve, so \"the biggest drop\" can't be assessed for this video.",
   },
+  sound: {
+    original_speech: "Original speech",
+    speech_over_music: "Speech over music",
+    music: "Music",
+    sound_effects_only: "Sound effects only",
+    silent: "Silent",
+  },
+  lang: {
+    Hebrew: "Hebrew",
+    English: "English",
+    Arabic: "Arabic",
+    Russian: "Russian",
+    Spanish: "Spanish",
+    French: "French",
+    German: "German",
+    Italian: "Italian",
+    Portuguese: "Portuguese",
+    Amharic: "Amharic",
+    Yiddish: "Yiddish",
+  },
   experiment: {
     no_text_first3s: "No text on screen in your first 3 seconds. Worth testing a short one.",
     no_captions_speech: "No captions during your opening speech. Worth testing adding them.",

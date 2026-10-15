@@ -24,7 +24,9 @@ export const MODEL = "gemini-3.8-flash";
 export const PROMPT_VERSION = "v8";
 export const THINKING_LEVEL = "low";
 
-const PROMPT = buildAnalysisPrompt();
+// One prompt per language of the free-text descriptions (English is the measured one).
+const PROMPTS = { en: buildAnalysisPrompt(), he: buildAnalysisPrompt({ language: "he" }) };
+export type AnalysisLanguage = keyof typeof PROMPTS;
 
 // kind: fact or inferred (fixed here, never set by the model). cap: highest
 // confidence the field may ever show (high/medium/low), regardless of kind.
@@ -84,11 +86,14 @@ function getClient(): GoogleGenAI {
   return cachedClient;
 }
 
-async function runAnalysis(videoPart: { type: "video"; uri: string; mime_type?: string }): Promise<AnalysisResult> {
+async function runAnalysis(
+  videoPart: { type: "video"; uri: string; mime_type?: string },
+  language: AnalysisLanguage
+): Promise<AnalysisResult> {
   const ai = getClient();
   const interaction = await ai.interactions.create({
     model: MODEL,
-    input: [{ type: "text", text: PROMPT }, videoPart],
+    input: [{ type: "text", text: PROMPTS[language] }, videoPart],
     generation_config: { thinking_level: THINKING_LEVEL },
   });
 
@@ -109,8 +114,8 @@ async function runAnalysis(videoPart: { type: "video"; uri: string; mime_type?: 
   return { fields, model: MODEL, promptVersion: PROMPT_VERSION, thinkingLevel: THINKING_LEVEL };
 }
 
-export async function analyzeYoutubeVideo(youtubeUrl: string): Promise<AnalysisResult> {
-  return runAnalysis({ type: "video", uri: youtubeUrl });
+export async function analyzeYoutubeVideo(youtubeUrl: string, language: AnalysisLanguage = "en"): Promise<AnalysisResult> {
+  return runAnalysis({ type: "video", uri: youtubeUrl }, language);
 }
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -119,7 +124,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 // uploaded to Gemini's Files API, analyzed, then deleted right after -- full
 // videos are never kept (doc/CLAUDE.md §8). Mirrors the large-file branch of
 // the validated scratchpad script (run-v4.mjs's buildInput).
-export async function analyzeUploadedVideo(file: Blob, mimeType: string): Promise<AnalysisResult> {
+export async function analyzeUploadedVideo(file: Blob, mimeType: string, language: AnalysisLanguage = "en"): Promise<AnalysisResult> {
   const ai = getClient();
   const uploaded = await ai.files.upload({ file, config: { mimeType } });
   let current = uploaded;
@@ -134,7 +139,7 @@ export async function analyzeUploadedVideo(file: Blob, mimeType: string): Promis
       throw new Error("Gemini could not process the uploaded file.");
     }
 
-    return await runAnalysis({ type: "video", uri: current.uri, mime_type: mimeType });
+    return await runAnalysis({ type: "video", uri: current.uri, mime_type: mimeType }, language);
   } finally {
     await ai.files.delete({ name: uploaded.name! }).catch(() => null);
   }
