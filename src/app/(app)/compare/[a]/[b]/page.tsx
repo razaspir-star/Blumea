@@ -1,277 +1,240 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useEffect, useState } from "react";
 import Image from "next/image";
 import AppLink from "@/components/AppLink";
+import ComparePicker from "@/components/ComparePicker";
+import PlatformBadge from "@/components/PlatformBadge";
+import VideoText from "@/components/VideoText";
+import { useProfile } from "@/components/AppShell";
 import { notFound } from "next/navigation";
-import { ArrowLeft, GitCompareArrows } from "lucide-react";
-import CompareModal from "@/components/CompareModal";
-import { PlatformIcon } from "@/components/PlatformBadge";
-import { formatCount, formatPercent } from "@/lib/format";
-import { engagementRate, getSubject, type Subject } from "@/lib/mock-data";
+import { Lock } from "lucide-react";
+import { loadCompareVideo, type CompareVideo } from "@/lib/compare-data";
+import { buildComparison, type MetricFormat, type MetricRow } from "@/lib/compare-insights";
+import { formatCount, formatTime } from "@/lib/format";
+import { useT } from "@/lib/i18n/client";
+import type { Translator } from "@/lib/i18n/translate";
 
-function SubjectCard({ subject, tag }: { subject: Subject; tag: string }) {
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function show(value: number | string | null, format: MetricFormat, t: Translator): string {
+  if (value === null) return t("compare.notAvailable");
+  if (typeof value === "string") {
+    if (format === "date") return new Date(value).toLocaleDateString(t.locale === "he" ? "he-IL" : "en-US", { month: "short", day: "numeric", year: "numeric" });
+    return value;
+  }
+  switch (format) {
+    case "count":
+      return formatCount(value);
+    case "percent":
+      return `${Math.round(value)}%`;
+    case "seconds":
+      return t("compare.seconds", { n: Math.round(value) });
+    case "clock":
+      return formatTime(value);
+    default:
+      return value.toFixed(2).replace(/\.?0+$/, "");
+  }
+}
+
+// Which side wins on a row: only when both numbers exist and are clearly apart.
+function leader(row: MetricRow): "a" | "b" | null {
+  if (row.better !== "higher" || typeof row.a !== "number" || typeof row.b !== "number") return null;
+  const hi = Math.max(row.a, row.b);
+  const lo = Math.min(row.a, row.b);
+  if (hi <= 0 || (lo > 0 && hi / lo < 1.1)) return null;
+  return row.a > row.b ? "a" : "b";
+}
+
+function VideoCard({ video, label }: { video: CompareVideo; label: string }) {
+  const t = useT();
   return (
-    <div className="flex items-center gap-4 rounded-2xl border border-slate-200/70 bg-white p-4 shadow-sm">
-      {subject.thumbnail ? (
-        <div className="relative h-20 w-14 shrink-0 overflow-hidden rounded-xl bg-slate-100">
-          <Image src={subject.thumbnail} alt="" fill sizes="56px" className="object-cover" />
+    <div className="flex items-center gap-3 rounded-2xl border border-slate-200/70 bg-white p-3 shadow-sm">
+      <div className="relative h-20 w-14 shrink-0 overflow-hidden rounded-xl bg-gradient-to-br from-blumea-mist to-slate-100">
+        {video.thumbnailUrl && <Image src={video.thumbnailUrl} alt="" fill unoptimized sizes="56px" className="object-cover" />}
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className="text-xs font-semibold uppercase tracking-wide text-blumea-blue">{label}</p>
+        <p className="mt-0.5 truncate text-sm font-semibold text-blumea-navy">{video.title}</p>
+        <div className="mt-1 flex items-center gap-2">
+          <PlatformBadge platform={video.platform as "youtube" | "tiktok"} />
         </div>
-      ) : (
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-blumea-mist text-blumea-blue">
-          <GitCompareArrows size={22} strokeWidth={1.8} />
-        </div>
-      )}
-
-      <div className="min-w-0">
-        <p className="text-xs font-semibold uppercase tracking-wide text-blumea-blue">{tag}</p>
-
-        <p className="mt-1 truncate text-base font-semibold text-blumea-navy">{subject.label}</p>
-
-        <p className="mt-0.5 flex items-center gap-1.5 text-xs text-blumea-slate">
-          {subject.platform && <PlatformIcon platform={subject.platform} size={11} />}
-          {subject.sublabel}
-        </p>
+        <AppLink href={`/analysis/${video.id}`} className="mt-1 inline-block text-xs font-semibold text-blumea-blue hover:opacity-70">
+          {t("compare.openAnalysis")}
+        </AppLink>
       </div>
     </div>
   );
 }
 
-function ratioText(a: number, b: number): string {
-  return `${(a / b).toFixed(1).replace(/\.0$/, "")}×`;
-}
-
 export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
-  // Prototype page: made-up data, only for development until Compare is built.
-  if (process.env.NODE_ENV !== "development") notFound();
+  const { a: idA, b: idB } = use(params);
+  const t = useT();
+  const profile = useProfile();
+  const unlocked = profile.plan === "pro" || profile.plan === "owner";
+  const [videos, setVideos] = useState<{ a: CompareVideo | null; b: CompareVideo | null } | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const valid = UUID.test(idA) && UUID.test(idB);
 
-  const { a, b } = use(params);
-  const [compareOpen, setCompareOpen] = useState(false);
+  useEffect(() => {
+    if (!valid) return;
+    let cancelled = false;
+    Promise.all([loadCompareVideo(idA), loadCompareVideo(idB)]).then(([a, b]) => {
+      if (!cancelled) setVideos({ a, b });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [idA, idB, valid]);
 
-  const first = getSubject(a);
-  const second = getSubject(b);
+  if (!valid) notFound();
 
-  if (!first || !second) {
-    notFound();
-  }
+  const header = (
+    <>
+      <AppLink href="/content" className="inline-flex items-center gap-1.5 text-sm font-semibold text-blumea-blue transition-opacity hover:opacity-70">
+        {t("compare.back")}
+      </AppLink>
+      <h1 className="mt-4 text-3xl font-semibold tracking-tight text-blumea-navy sm:text-4xl">{t("compare.title")}</h1>
+      <p className="mt-2 text-blumea-slate">{t("compare.subtitle")}</p>
+    </>
+  );
 
-  const rows = [
-    { label: "Views", a: formatCount(first.metrics.views), b: formatCount(second.metrics.views) },
-    { label: "Likes", a: formatCount(first.metrics.likes), b: formatCount(second.metrics.likes) },
-    {
-      label: "Comments",
-      a: formatCount(first.metrics.comments),
-      b: formatCount(second.metrics.comments),
-    },
-    { label: "Shares", a: formatCount(first.metrics.shares), b: formatCount(second.metrics.shares) },
-    { label: "Saves", a: formatCount(first.metrics.saves), b: formatCount(second.metrics.saves) },
-    {
-      label: "Engagement rate",
-      a: formatPercent(engagementRate(first.metrics)),
-      b: formatPercent(engagementRate(second.metrics)),
-    },
-    ...(first.avgWatchPct !== undefined && second.avgWatchPct !== undefined
-      ? [
-          {
-            label: "Average share watched",
-            a: formatPercent(first.avgWatchPct, 0),
-            b: formatPercent(second.avgWatchPct, 0),
-          },
-        ]
-      : []),
-  ];
-
-  // Fields both videos have, so the differences are like-for-like.
-  const shared =
-    first.identity && second.identity
-      ? ["Format", "Textual hook", "Visual hook", "Sound"]
-          .map((label) => ({
-            label,
-            a: first.identity?.find((field) => field.label === label),
-            b: second.identity?.find((field) => field.label === label),
-          }))
-          .filter((row) => row.a && row.b)
-      : [];
-
-  const bothVideos = first.kind === "video" && second.kind === "video";
-
-  // What we see: facts only.
-  const facts = [
-    `${first.label} has ${ratioText(first.metrics.views, second.metrics.views)} the views of ${second.label}.`,
-  ];
-
-  if (first.durationSec && second.durationSec) {
-    facts.push(`${first.label} is ${first.durationSec} sec long; ${second.label} is ${second.durationSec} sec.`);
-  }
-
-  // What it may mean: cautious inference, only when the data supports a comparison.
-  const inferences: string[] = [];
-
-  if (
-    first.durationSec &&
-    second.durationSec &&
-    first.avgWatchPct !== undefined &&
-    second.avgWatchPct !== undefined
-  ) {
-    const [shorter, longer] =
-      first.durationSec <= second.durationSec ? [first, second] : [second, first];
-
-    if (
-      (longer.durationSec as number) / (shorter.durationSec as number) >= 1.25 &&
-      (shorter.avgWatchPct as number) > (longer.avgWatchPct as number)
-    ) {
-      inferences.push(
-        `The shorter video kept a larger share of its length watched (${formatPercent(
-          shorter.avgWatchPct as number,
-          0
-        )} vs ${formatPercent(longer.avgWatchPct as number, 0)}), suggesting length may play a part.`
-      );
-    }
-  }
-
-  if (bothVideos && shared.some((row) => row.a?.value !== row.b?.value)) {
-    inferences.push(
-      "The videos differ in how they open, which may contribute to the difference. Two videos can't prove the cause."
+  if (videos === null) {
+    return (
+      <div className="mx-auto w-full max-w-4xl">
+        {header}
+        <p className="mt-8 text-sm text-blumea-slate">{t("compare.loading")}</p>
+      </div>
     );
   }
 
-  if (inferences.length === 0) {
-    inferences.push(
-      bothVideos
-        ? "Nothing in these two videos clearly explains the difference, so Blumea won't guess."
-        : "A baseline shows how a video performed, not why. Compare it with a similar video to find out why."
+  const { a, b } = videos;
+  if (!a || !b) {
+    return (
+      <div className="mx-auto w-full max-w-4xl">
+        {header}
+        <p className="mt-8 text-sm text-blumea-slate">{t("compare.notFound")}</p>
+      </div>
     );
   }
+
+  const mixed = a.platform !== b.platform;
+  const comparison = mixed ? null : buildComparison(a, b, t);
+
+  const body = (
+    <>
+      <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <VideoCard video={a} label={t("compare.videoA")} />
+        <VideoCard video={b} label={t("compare.videoB")} />
+      </div>
+
+      <button
+        type="button"
+        onClick={() => setPickerOpen(true)}
+        className="mt-3 text-sm font-semibold text-blumea-blue transition-opacity hover:opacity-70"
+      >
+        {t("compare.chooseOther")}
+      </button>
+
+      {mixed || !comparison ? (
+        <p className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-white/60 p-4 text-sm leading-6 text-blumea-slate">{t("compare.mixed")}</p>
+      ) : (
+        <>
+          <section className="mt-8">
+            <h2 className="text-xl font-semibold tracking-tight text-blumea-navy">{t("compare.numbers")}</h2>
+            <div className="mt-3 overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm">
+              <div className="grid grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,1fr)] gap-x-3 border-b border-slate-100 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-blumea-slate">
+                <span />
+                <span>{t("compare.videoA")}</span>
+                <span>{t("compare.videoB")}</span>
+              </div>
+              {comparison.metrics.map((row) => {
+                const win = leader(row);
+                const cell = (side: "a" | "b") => (
+                  <span className={win === side ? "font-semibold text-blumea-blue" : "text-blumea-navy"}>
+                    <span className="ltr-island">{show(row[side], row.format, t)}</span>
+                  </span>
+                );
+                return (
+                  <div
+                    key={row.key}
+                    className="grid grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,1fr)] gap-x-3 border-b border-slate-100 px-4 py-3 text-sm last:border-b-0"
+                  >
+                    <span className="text-blumea-slate">{t(row.key)}</span>
+                    {cell("a")}
+                    {cell("b")}
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          {comparison.identity.length > 0 && (
+            <section className="mt-8">
+              <h2 className="text-xl font-semibold tracking-tight text-blumea-navy">{t("compare.built")}</h2>
+              <div className="mt-3 overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm">
+                {comparison.identity.map((row) => (
+                  <div
+                    key={row.key}
+                    className="grid grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,1fr)] gap-x-3 border-b border-slate-100 px-4 py-3 text-sm last:border-b-0"
+                  >
+                    <span className="text-blumea-slate">{t(row.key)}</span>
+                    <span className="text-blumea-navy">{row.a ?? t("compare.notAnalyzed")}</span>
+                    <span className="text-blumea-navy">
+                      {row.b ?? t("compare.notAnalyzed")}
+                      {row.a !== null && row.b !== null && !row.same && (
+                        <span className="ms-2 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">{t("compare.different")}</span>
+                      )}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          <section className="mt-8 pb-6">
+            <h2 className="text-xl font-semibold tracking-tight text-blumea-navy">{t("compare.stands")}</h2>
+            <div className="mt-3 space-y-3">
+              {comparison.statements.map((statement, index) => (
+                <p key={index} className="rounded-2xl border border-blumea-blue/25 bg-white p-4 text-sm leading-6 text-blumea-navy shadow-sm">
+                  <VideoText text={statement} />
+                </p>
+              ))}
+            </div>
+            {comparison.notes.map((note) => (
+              <p key={note} className="mt-3 text-xs leading-5 text-blumea-slate">
+                {note}
+              </p>
+            ))}
+          </section>
+        </>
+      )}
+    </>
+  );
 
   return (
-    <div className="mx-auto w-full max-w-5xl">
-      <AppLink
-        href="/analyze"
-        className="inline-flex items-center gap-1.5 text-sm font-semibold text-blumea-blue transition-opacity hover:opacity-70"
-      >
-        <ArrowLeft size={16} />
-        Analyze & Compare
-      </AppLink>
+    <div className="mx-auto w-full max-w-4xl">
+      {header}
 
-      <div className="mt-4 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-blumea-navy sm:text-4xl">
-            Comparison
-          </h1>
-
-          <p className="mt-2 text-blumea-slate">What the numbers show, and what may explain them.</p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setCompareOpen(true)}
-          className="text-sm font-semibold text-blumea-blue transition-opacity hover:opacity-70"
-        >
-          Choose something else →
-        </button>
-      </div>
-
-      <div className="mt-6 grid grid-cols-1 gap-3 md:grid-cols-2">
-        <SubjectCard subject={first} tag="A" />
-
-        <SubjectCard subject={second} tag="B" />
-      </div>
-
-      {/* Raw numbers stay color-neutral: facts, no good or bad. */}
-      <section className="mt-8 overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm">
-        <div className="grid grid-cols-[1.2fr_1fr_1fr] gap-2 border-b border-slate-100 bg-blumea-mist/60 px-5 py-3 text-xs font-semibold uppercase tracking-wide text-blumea-slate">
-          <span>Numbers</span>
-
-          <span>A</span>
-
-          <span>B</span>
-        </div>
-
-        {rows.map((row) => (
-          <div
-            key={row.label}
-            className="grid grid-cols-[1.2fr_1fr_1fr] gap-2 border-b border-slate-100 px-5 py-3.5 text-sm last:border-b-0"
-          >
-            <span className="text-blumea-slate">{row.label}</span>
-
-            <span className="font-semibold text-blumea-navy">{row.a}</span>
-
-            <span className="font-semibold text-blumea-navy">{row.b}</span>
+      {unlocked ? (
+        body
+      ) : (
+        <div className="relative">
+          {/* Locked preview: the comparison of the creator's own two videos, blurred, under a note about Blumea Pro. */}
+          <div aria-hidden className="pointer-events-none select-none blur-[6px]">
+            {body}
           </div>
-        ))}
-      </section>
-
-      {shared.length > 0 && (
-        <section className="mt-8">
-          <h2 className="text-xl font-semibold tracking-tight text-blumea-navy">
-            How they&apos;re built
-          </h2>
-
-          <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
-            {shared.map((row) => (
-              <div
-                key={row.label}
-                className="rounded-2xl border border-slate-200/70 bg-white p-4 shadow-sm"
-              >
-                <p className="text-xs font-semibold uppercase tracking-wide text-blumea-blue">
-                  {row.label}
-                </p>
-
-                <p className="mt-2 text-sm text-blumea-navy">
-                  <span className="font-semibold text-blumea-slate">A · </span>
-                  {row.a?.value}
-                </p>
-
-                <p className="mt-1 text-sm text-blumea-navy">
-                  <span className="font-semibold text-blumea-slate">B · </span>
-                  {row.b?.value}
-                </p>
-              </div>
-            ))}
+          <div className="absolute inset-x-0 top-24 mx-auto max-w-sm rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-xl">
+            <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-blumea-mist text-blumea-blue">
+              <Lock size={18} strokeWidth={1.8} />
+            </div>
+            <h2 className="mt-3 text-lg font-semibold text-blumea-navy">{t("compare.lockedTitle")}</h2>
+            <p className="mt-2 text-sm leading-6 text-blumea-slate">{t("compare.lockedBody")}</p>
           </div>
-        </section>
+        </div>
       )}
 
-      {/* Fact, inference and recommendation stay in separate blocks. */}
-      <section className="mt-8 grid grid-cols-1 gap-4 pb-6 lg:grid-cols-3">
-        <div className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wide text-blumea-slate">
-            What we see
-          </p>
-
-          <ul className="mt-3 space-y-2 text-sm leading-6 text-blumea-navy">
-            {facts.map((fact) => (
-              <li key={fact}>{fact}</li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="rounded-2xl border border-slate-200/70 bg-white p-5 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-wide text-blumea-blue">
-            What it may mean
-          </p>
-
-          <ul className="mt-3 space-y-2 text-sm leading-6 text-blumea-navy">
-            {inferences.map((inference) => (
-              <li key={inference}>{inference}</li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="rounded-2xl bg-blumea-mist p-5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-blumea-success">
-            What to try
-          </p>
-
-          <p className="mt-3 text-sm leading-6 text-blumea-navy">
-            {bothVideos
-              ? "Pick one difference above and change only that in your next video, so you can tell what made the difference."
-              : "Open a video you like from this comparison and compare it with a similar one from your own content."}
-          </p>
-        </div>
-      </section>
-
-      {compareOpen && <CompareModal onClose={() => setCompareOpen(false)} />}
+      {pickerOpen && <ComparePicker onClose={() => setPickerOpen(false)} />}
     </div>
   );
 }

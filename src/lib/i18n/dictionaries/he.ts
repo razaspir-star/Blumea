@@ -11,6 +11,7 @@ import tiktok from "./he/tiktok";
 import connections from "./he/connections";
 import home from "./he/home";
 import errors from "./he/errors";
+import compare from "./he/compare";
 
 // Hebrew texts, same keys as en.ts. Plain, short, spoken-style Hebrew; platform names (YouTube, TikTok)
 // and the product name stay in English.
@@ -27,6 +28,7 @@ const he: Dictionary = {
   ...connections,
   ...home,
   ...errors,
+  ...compare,
   common: {
     language: "שפה",
     english: "English",

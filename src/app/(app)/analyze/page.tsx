@@ -5,6 +5,7 @@ import Image from "next/image";
 import AppLink from "@/components/AppLink";
 import { GitCompareArrows, PlaySquare } from "lucide-react";
 import AnalyzeModal from "@/components/AnalyzeModal";
+import ComparePicker from "@/components/ComparePicker";
 import { PlatformIcon } from "@/components/PlatformBadge";
 import { loadDashboardData, type DashboardVideo } from "@/lib/dashboard-data";
 import { platformLabels } from "@/lib/mock-data";
@@ -15,6 +16,7 @@ import { useT } from "@/lib/i18n/client";
 export default function AnalyzePage() {
   const t = useT();
   const [analyzeOpen, setAnalyzeOpen] = useState(false);
+  const [compareOpen, setCompareOpen] = useState(false);
   const [videos, setVideos] = useState<DashboardVideo[] | null>(null);
 
   useEffect(() => {
@@ -58,15 +60,15 @@ export default function AnalyzePage() {
           <div className="flex flex-col items-center">
             <button
               type="button"
-              disabled
-              className="flex min-h-[46px] w-full cursor-not-allowed items-center justify-center gap-2 rounded-full border-2 border-dashed border-slate-300 bg-white px-4 py-2 opacity-70"
+              onClick={() => setCompareOpen(true)}
+              className="flex min-h-[46px] w-full items-center justify-center gap-2 rounded-full border-2 border-blumea-navy bg-white px-4 py-2 transition-all duration-300 hover:-translate-y-0.5 hover:border-blumea-blue hover:shadow-md"
             >
-              <GitCompareArrows size={16} strokeWidth={1.8} className="text-blumea-slate" />
+              <GitCompareArrows size={16} strokeWidth={1.8} className="text-blumea-navy" />
 
-              <span className="text-sm font-semibold text-blumea-slate">{t("analyzePage.compare")}</span>
+              <span className="text-sm font-semibold text-blumea-navy">{t("analyzePage.compare")}</span>
             </button>
 
-            <p className="mt-2 text-center text-xs text-blumea-slate">{t("analyzePage.compareSoon")}</p>
+            <p className="mt-2 text-center text-xs text-blumea-slate">{t("analyzePage.compareHint")}</p>
           </div>
         </div>
       </div>
@@ -129,6 +131,8 @@ export default function AnalyzePage() {
       </section>
 
       {analyzeOpen && <AnalyzeModal onClose={() => setAnalyzeOpen(false)} />}
+
+      {compareOpen && <ComparePicker onClose={() => setCompareOpen(false)} />}
     </div>
   );
 }

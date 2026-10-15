@@ -11,6 +11,7 @@ import {
   Clock3,
   Compass,
   Eye,
+  GitCompareArrows,
   Heart,
   Info,
   Lightbulb,
@@ -28,6 +29,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import EvidencePlayer from "@/components/EvidencePlayer";
+import ComparePicker from "@/components/ComparePicker";
 import CompareModal from "@/components/CompareModal";
 import UploadModal from "@/components/UploadModal";
 import PlatformBadge, { ModeBadge } from "@/components/PlatformBadge";
@@ -297,6 +299,7 @@ function InsightCard({
 
 function RealVideoAnalysis({ id }: { id: string }) {
   const t = useT();
+  const [compareOpen, setCompareOpen] = useState(false);
   const [data, setData] = useState<RealVideoData | null | undefined>(undefined);
 
   useEffect(() => {
@@ -502,6 +505,15 @@ function RealVideoAnalysis({ id }: { id: string }) {
           : "—"}
         {data.durationSec ? ` · ${t("analysis.secondsShort", { count: data.durationSec })}` : ""}
       </p>
+
+      <button
+        type="button"
+        onClick={() => setCompareOpen(true)}
+        className="mt-3 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-blumea-navy transition-colors hover:border-blumea-blue hover:text-blumea-blue"
+      >
+        <GitCompareArrows size={16} strokeWidth={1.8} />
+        {t("compare.openCompare")}
+      </button>
 
       {data.metrics && (() => {
         // What each platform actually gives comes from platform-capabilities.ts;
@@ -858,6 +870,8 @@ function RealVideoAnalysis({ id }: { id: string }) {
           </a>
         )}
       </section>
+
+      {compareOpen && <ComparePicker initialA={id} onClose={() => setCompareOpen(false)} />}
     </div>
   );
 }

@@ -12,6 +12,7 @@ import tiktok from "./en/tiktok";
 import connections from "./en/connections";
 import home from "./en/home";
 import errors from "./en/errors";
+import compare from "./en/compare";
 
 const en = {
   ...auth,
@@ -26,6 +27,7 @@ const en = {
   ...connections,
   ...home,
   ...errors,
+  ...compare,
   common: {
     language: "Language",
     english: "English",

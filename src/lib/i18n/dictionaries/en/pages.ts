@@ -26,6 +26,7 @@ const analyzePage = {
   understand: "Understand a video",
   compare: "Compare",
   compareSoon: "Part of Blumea Pro, coming soon",
+  compareHint: "Two of your videos side by side",
   already: "Already analyzed",
   jumpBack: "Jump back into videos you've already analyzed.",
   none: "Nothing analyzed yet. Pick a video above to start.",

@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import AppLink from "@/components/AppLink";
-import { PlaySquare } from "lucide-react";
+import { GitCompareArrows, PlaySquare } from "lucide-react";
 import AnalyzeModal from "@/components/AnalyzeModal";
+import ComparePicker from "@/components/ComparePicker";
 import PlatformBadge from "@/components/PlatformBadge";
 import { loadDashboardData, type DashboardVideo } from "@/lib/dashboard-data";
 import { formatLabel } from "@/lib/format-library";
@@ -34,6 +35,7 @@ export default function ContentPage() {
   const [videos, setVideos] = useState<DashboardVideo[] | null>(null);
   const [filter, setFilter] = useState<Filter>("all");
   const [analyzeOpen, setAnalyzeOpen] = useState(false);
+  const [compareOpen, setCompareOpen] = useState(false);
   const [analyzeTarget, setAnalyzeTarget] = useState<DashboardVideo | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [usage, setUsage] = useState<AnalysisUsage | null>(null);
@@ -110,6 +112,15 @@ export default function ContentPage() {
             className="rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-blumea-navy transition-colors hover:border-blumea-blue hover:text-blumea-blue disabled:opacity-60"
           >
             {refreshing ? t("content.refreshing") : t("content.refresh")}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setCompareOpen(true)}
+            className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-blumea-navy transition-colors hover:border-blumea-blue hover:text-blumea-blue"
+          >
+            <GitCompareArrows size={17} strokeWidth={1.8} />
+            {t("compare.compareButton")}
           </button>
 
           <button
@@ -227,6 +238,8 @@ export default function ContentPage() {
       )}
 
       {analyzeOpen && <AnalyzeModal onClose={() => setAnalyzeOpen(false)} />}
+
+      {compareOpen && <ComparePicker onClose={() => setCompareOpen(false)} />}
 
       {analyzeTarget && (
         <AnalyzeModal

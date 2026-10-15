@@ -28,6 +28,7 @@ const analyzePage: Dictionary["analyzePage"] = {
   understand: "להבין סרטון",
   compare: "השוואה",
   compareSoon: "חלק מ-Blumea Pro, בקרוב",
+  compareHint: "שני סרטונים שלך זה לצד זה",
   already: "כבר נותחו",
   jumpBack: "לחזור לסרטונים שכבר נותחו.",
   none: "עדיין לא נותח כלום. אפשר לבחור סרטון למעלה כדי להתחיל.",
