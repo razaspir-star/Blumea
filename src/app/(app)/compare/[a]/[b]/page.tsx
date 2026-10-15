@@ -10,7 +10,10 @@ import { useProfile } from "@/components/AppShell";
 import { notFound } from "next/navigation";
 import { Lock } from "lucide-react";
 import { loadCompareVideo, type CompareVideo } from "@/lib/compare-data";
+import { supabase } from "@/lib/supabase";
+import VideoRef from "@/components/VideoText";
 import { buildComparison, type MetricFormat, type MetricRow } from "@/lib/compare-insights";
+import { videoRef } from "@/lib/video-ref";
 import { formatCount, formatTime } from "@/lib/format";
 import { useT } from "@/lib/i18n/client";
 import type { Translator } from "@/lib/i18n/translate";
@@ -74,18 +77,55 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
   const unlocked = profile.plan === "pro" || profile.plan === "owner";
   const [videos, setVideos] = useState<{ a: CompareVideo | null; b: CompareVideo | null } | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
+  // What Blumea is reading right now so the comparison can say how a video is built, and why a read failed.
+  const [reading, setReading] = useState<string | null>(null);
+  const [readError, setReadError] = useState<string | null>(null);
   const valid = UUID.test(idA) && UUID.test(idB);
 
   useEffect(() => {
     if (!valid) return;
     let cancelled = false;
-    Promise.all([loadCompareVideo(idA), loadCompareVideo(idB)]).then(([a, b]) => {
-      if (!cancelled) setVideos({ a, b });
-    });
+
+    async function run() {
+      const [a, b] = await Promise.all([loadCompareVideo(idA), loadCompareVideo(idB)]);
+      if (cancelled) return;
+      setVideos({ a, b });
+
+      // A YouTube video that was only scanned (numbers, no AI reading) is read now, so the
+      // "how they are built" part is complete. Not for a locked preview: that must not
+      // spend the creator's analyses. TikTok videos need an upload, so they get a hint.
+      if (!unlocked || !a || !b || a.platform !== b.platform) return;
+      const toRead = [a, b].filter((video) => video.platform === "youtube" && video.fields === null);
+      if (toRead.length === 0) return;
+
+      const { data: session } = await supabase.auth.getSession();
+      const headers = { Authorization: `Bearer ${session.session?.access_token ?? ""}`, "Content-Type": "application/json" };
+      for (const video of toRead) {
+        setReading(video.title);
+        const response = await fetch("/api/analyze/youtube", {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ videoId: video.platformVideoId }),
+        }).catch(() => null);
+        if (cancelled) return;
+        if (!response || !response.ok) {
+          const body = response ? await response.json().catch(() => null) : null;
+          setReadError(t("compare.readFailed", { title: video.title, reason: body?.error ?? "" }));
+          setReading(null);
+          return;
+        }
+      }
+      const [a2, b2] = await Promise.all([loadCompareVideo(idA), loadCompareVideo(idB)]);
+      if (cancelled) return;
+      setVideos({ a: a2, b: b2 });
+      setReading(null);
+    }
+
+    run();
     return () => {
       cancelled = true;
     };
-  }, [idA, idB, valid]);
+  }, [idA, idB, valid, unlocked, t]);
 
   if (!valid) notFound();
 
@@ -135,6 +175,22 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
       >
         {t("compare.chooseOther")}
       </button>
+
+      {reading && (
+        <p className="mt-4 rounded-2xl border border-blumea-blue/30 bg-blumea-mist px-4 py-3 text-sm leading-6 text-blumea-navy">
+          {t("compare.readingNow", { title: `${t.locale === "he" ? "״" : "“"}${reading}${t.locale === "he" ? "״" : "”"}` })}
+        </p>
+      )}
+      {readError && <p className="mt-4 rounded-2xl bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-700">{readError}</p>}
+      {unlocked &&
+        !mixed &&
+        [a, b]
+          .filter((video) => video.platform === "tiktok" && video.fields === null)
+          .map((video) => (
+            <p key={video.id} className="mt-4 rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-3 text-sm leading-6 text-blumea-slate">
+              <VideoRef text={t("compare.tiktokHint", { title: videoRef(video.id, video.title) })} />
+            </p>
+          ))}
 
       {mixed || !comparison ? (
         <p className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-white/60 p-4 text-sm leading-6 text-blumea-slate">{t("compare.mixed")}</p>

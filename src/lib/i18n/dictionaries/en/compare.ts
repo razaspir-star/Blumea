@@ -47,7 +47,7 @@
   stayedGap: "More viewers stayed past the opening of {big}: about {a}% vs {b}% for {small}.",
   commentsGap: "{big} drew more comments per 100 views: {a} vs {b} for {small}.",
   followersGap: "Followers carried more of {big}: {a}% of its views, against {b}% for {small}.",
-  noGap: "No clear gap between these two on the numbers above.",
+  noGap: "There's no big enough gap between these two videos.",
   differ: "They differ in: {list}. Blumea can't tell which of these made the difference.",
   disclaimer: "One pair of videos: something to look at, not proof of why one did better.",
   small: "One of them has under 1,000 views, so its numbers are noisy. Take this loosely.",
@@ -60,6 +60,9 @@
   change: "Change",
   go: "Compare",
   needTwo: "You need at least two videos with numbers to compare.",
+  readingNow: "Blumea is reading {title} so the comparison can show how it is built. This uses one of your analyses.",
+  readFailed: "Blumea couldn't read {title}: {reason}",
+  tiktokHint: "{title} is a TikTok video. TikTok videos are read after you upload them (Content, then Analyze this video); then the comparison shows how it is built.",
   openCompare: "Compare with another video",
   compareButton: "Compare",
 };
