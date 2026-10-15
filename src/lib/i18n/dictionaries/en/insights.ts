@@ -13,7 +13,7 @@
     "In your {shortCount} videos up to {cutoff} sec, viewers watched a median {shortPct}% of the video. In your {longCount} longer ones, {longPct}%. A pattern in your videos — it doesn't prove length is the reason.",
   consistentTitle: "Your videos are consistent.",
   consistentBody:
-    "A typical video of yours runs about {dur} sec and viewers watch about {pct}% of it. Shorter and longer ones don't differ clearly yet — a normal answer, not a missing one. Best at holding viewers: “{title}” ({bestPct}%).",
+    "A typical video of yours runs about {dur} sec and viewers watch about {pct}% of it. Shorter and longer ones don't differ clearly yet. Best at holding viewers: “{title}” ({bestPct}%).",
   notEnoughTitle: "Not enough videos yet.",
   notEnoughBody:
     "Blumea compares your videos with each other once {min} are analyzed — any mix of lengths is fine, and a consistent style is not a problem.",
@@ -24,7 +24,7 @@
   payoffEvidence: "Seen in {fires} analyzed videos",
   noFlagTitle: "Nothing to flag here yet.",
   noFlagBody:
-    "Blumea calls out a pattern in your key moments only when at least {min} of your videos show it. Staying quiet is a normal answer.",
+    "Blumea calls out a pattern in your key moments only when at least {min} of your videos show it.",
   dropsTitle: "There's often a sharp drop early on.",
   dropsBody:
     "In {count} of your {of} videos with retention data, the sharpest drop in viewers (8% or more of them leaving at once) comes around {time}.",

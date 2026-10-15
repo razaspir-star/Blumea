@@ -20,6 +20,7 @@ import { pickFirstLook } from "@/lib/first-look";
 import { nextExperiments } from "@/lib/next-experiments";
 import type { TextKey } from "@/lib/i18n/translate";
 import NextExperiments from "@/components/NextExperiments";
+import VideoText from "@/components/VideoText";
 import { useT } from "@/lib/i18n/client";
 import type { Translator } from "@/lib/i18n/translate";
 import {
@@ -571,9 +572,13 @@ export default function DashboardPage() {
                   <p className={`text-sm font-medium ${style.text}`}>{t(style.label)}</p>
                 </div>
 
-                <h3 className="text-lg font-semibold text-blumea-navy">{card.title}</h3>
+                <h3 className="text-lg font-semibold text-blumea-navy">
+                  <VideoText text={card.title} />
+                </h3>
 
-                <p className="mt-2 text-sm leading-6 text-blumea-slate">{card.body}</p>
+                <p className="mt-2 text-sm leading-6 text-blumea-slate">
+                  <VideoText text={card.body} />
+                </p>
 
                 <div className="mt-auto pt-4">
                   {card.tone === "opportunity" ? (

@@ -2,6 +2,7 @@
 
 import type { NextExperiment } from "@/lib/next-experiments";
 import { useT } from "@/lib/i18n/client";
+import VideoText from "@/components/VideoText";
 
 // "Try in your next video": up to three experiments drawn from the creator's own
 // numbers. Each says what it rests on and what to look at afterwards.
@@ -26,8 +27,12 @@ export default function NextExperiments({ experiments }: { experiments: NextExpe
           {experiments.map((experiment) => (
             <article key={experiment.kind} className="flex flex-col rounded-3xl border border-slate-200/70 bg-white p-5 shadow-sm">
               <p className="text-xs font-semibold uppercase tracking-wide text-blumea-blue">{t("experimentsBox.worthTesting")}</p>
-              <h3 className="mt-2 text-lg font-semibold text-blumea-navy">{experiment.title}</h3>
-              <p className="mt-2 text-sm leading-6 text-blumea-slate">{experiment.why}</p>
+              <h3 className="mt-2 text-lg font-semibold text-blumea-navy">
+                <VideoText text={experiment.title} />
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-blumea-slate">
+                <VideoText text={experiment.why} />
+              </p>
               <p className="mt-3 text-sm leading-6 text-blumea-slate">
                 <span className="font-semibold text-blumea-navy">{t("experimentsBox.howKnow")}</span>
                 {experiment.how}

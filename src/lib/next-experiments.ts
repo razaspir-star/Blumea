@@ -5,6 +5,7 @@ import { SMALL_VIDEO_VIEWS } from "@/lib/cross-video-insights";
 import { windowLabel } from "@/lib/insight-cards";
 import type { DashboardDerived, DashboardVideo } from "@/lib/dashboard-data";
 import type { TextKey, Translator } from "@/lib/i18n/translate";
+import { videoRef } from "@/lib/video-ref";
 
 // "Try in your next video": what to test next, drawn from the creator's own
 // numbers. Code decides what may be suggested (every candidate has a trigger
@@ -37,6 +38,8 @@ const quote = (text: string, locale: string) => {
   const clean = text.replace(/\s+/g, " ").trim();
   return locale === "he" ? `״${clean}״` : `“${clean}”`;
 };
+// A video named in a sentence: quoted, and a link to its analysis on screen.
+const named = (id: string, title: string, locale: string) => quote(videoRef(id, title), locale);
 
 export function nextExperiments(derived: DashboardDerived, videos: DashboardVideo[], t: Translator): NextExperiment[] {
   const youtube = videos.filter((video) => video.platform === "youtube");
@@ -53,7 +56,7 @@ export function nextExperiments(derived: DashboardDerived, videos: DashboardVide
       kind: "ask_again",
       title: e("askAgainTitle"),
       why: e("askAgainWhy", {
-        title: q(ask.title),
+        title: named(ask.id, ask.title, t.locale),
         text: q(ask.text),
         per100: ask.per100.toFixed(2),
         x: Math.round(ask.multipleOfNoAsk),
@@ -77,7 +80,7 @@ export function nextExperiments(derived: DashboardDerived, videos: DashboardVide
       const x = ((best.views as number) / usual).toFixed(1);
       candidates.push({
         kind: "repeat_best",
-        title: e("repeatTitle", { title: q(best.title) }),
+        title: e("repeatTitle", { title: named(best.id, best.title, t.locale) }),
         why: e("repeatWhy", {
           views: formatCount(best.views as number),
           x,
@@ -99,7 +102,7 @@ export function nextExperiments(derived: DashboardDerived, videos: DashboardVide
   if (topGained && derived.followers?.medianGainedPer1000) {
     candidates.push({
       kind: "win_followers",
-      title: e("followersTitle", { title: q(topGained.title) }),
+      title: e("followersTitle", { title: named(topGained.id, topGained.title, t.locale) }),
       why: e("followersWhy", {
         gained: topGained.gained,
         per1000: topGained.per1000.toFixed(1),
@@ -150,7 +153,7 @@ export function nextExperiments(derived: DashboardDerived, videos: DashboardVide
   if (rewatch) {
     candidates.push({
       kind: "rewatch",
-      title: e("rewatchTitle", { title: q(rewatch.title) }),
+      title: e("rewatchTitle", { title: named(rewatch.id, rewatch.title, t.locale) }),
       why: e("rewatchWhy", { ratio: rewatch.startRatio.toFixed(1), usual: rewatch.usualForLength.toFixed(1) }),
       how: e("rewatchHow"),
       evidence: e("rewatchEvidence", { count: derived.rewatch?.eligible ?? 0 }),

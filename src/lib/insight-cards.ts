@@ -4,6 +4,7 @@ import { PATTERN_MIN_TOTAL } from "@/lib/insight-patterns";
 import { formatLabel } from "@/lib/format-library";
 import { SMALL_VIDEO_VIEWS } from "@/lib/cross-video-insights";
 import type { TextKey, Translator } from "@/lib/i18n/translate";
+import { videoRef } from "@/lib/video-ref";
 
 // The cross-video insight cards for a creator who has analyzed videos. The
 // Dashboard shows the first three (working / opportunity / watch); the Insights
@@ -86,7 +87,7 @@ export function realInsightCards(derived: DashboardDerived, t: Translator): Insi
       body: c("consistentBody", {
         dur: Math.round(derived.typical.medianDurationSec),
         pct: Math.round(derived.typical.medianWatchSharePct),
-        title: derived.typical.best.title,
+        title: videoRef(derived.typical.best.id, derived.typical.best.title),
         bestPct: Math.round(derived.typical.best.sharePct),
       }),
       evidence: c("evidenceYoutube", { count: derived.typical.count }),
@@ -147,7 +148,7 @@ export function realInsightCards(derived: DashboardDerived, t: Translator): Insi
     if (top) {
       parts.push(
         c("followersTop", {
-          title: top.title,
+          title: videoRef(top.id, top.title),
           pct: pct(top.sharePct),
           extra:
             top.viewsFromFollowersPer100Followers !== null
@@ -172,7 +173,7 @@ export function realInsightCards(derived: DashboardDerived, t: Translator): Insi
       parts.push(
         c("followersGained", {
           median: f.medianGainedPer1000.toFixed(1),
-          title: g.title,
+          title: videoRef(g.id, g.title),
           gained: g.gained,
           per1000: g.per1000.toFixed(1),
         })
@@ -210,7 +211,7 @@ export function realInsightCards(derived: DashboardDerived, t: Translator): Insi
     for (const s of ct.standouts) {
       parts.push(
         c("askStandout", {
-          title: s.title,
+          title: videoRef(s.id, s.title),
           ask: askPhrase(s.type, true),
           text: s.text.replace(/\s+/g, " ").trim(),
           rate: rate(s.per100),
@@ -250,7 +251,7 @@ export function realInsightCards(derived: DashboardDerived, t: Translator): Insi
     if (r.standout) {
       parts.push(
         c("rewatchStandout", {
-          title: r.standout.title,
+          title: videoRef(r.standout.id, r.standout.title),
           dur: Math.round(r.standout.durationSec),
           ratio: r.standout.startRatio.toFixed(1),
           usual: r.standout.usualForLength.toFixed(1),

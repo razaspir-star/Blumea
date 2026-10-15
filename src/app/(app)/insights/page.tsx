@@ -5,6 +5,7 @@ import AppLink from "@/components/AppLink";
 import FormatRankingSection from "@/components/FormatRankingSection";
 import { deriveDashboard, loadDashboardData, type DashboardData } from "@/lib/dashboard-data";
 import { realInsightCards } from "@/lib/insight-cards";
+import VideoText from "@/components/VideoText";
 import { useT } from "@/lib/i18n/client";
 import type { TextKey } from "@/lib/i18n/translate";
 import Image from "next/image";
@@ -76,8 +77,12 @@ export default function InsightsPage() {
                   <Image src={tone.icon} alt="" width={18} height={18} className="h-[18px] w-[18px] object-contain" />
                   <p className={`text-sm font-medium ${tone.text}`}>{t(tone.label)}</p>
                 </div>
-                <h2 className="mt-3 text-xl font-semibold text-blumea-navy">{card.title}</h2>
-                <p className="mt-2 text-sm leading-6 text-blumea-slate">{card.body}</p>
+                <h2 className="mt-3 text-xl font-semibold text-blumea-navy">
+                  <VideoText text={card.title} />
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-blumea-slate">
+                  <VideoText text={card.body} />
+                </p>
                 {card.evidence && <p className="mt-4 text-xs text-blumea-slate">{card.evidence}</p>}
               </article>
             );

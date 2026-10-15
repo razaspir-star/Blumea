@@ -35,7 +35,7 @@
     "Your videos share one format, {format} — a consistent style. Blumea compares formats only when you use more than one, and never asks you to change yours.",
   notEnoughMany:
     "Blumea compares formats once it has {total} analyzed videos ({have} so far) and at least two formats with {per} videos each. Nothing here is a problem to fix.",
-  noGap: "No clear difference between your formats yet — a normal answer, not a missing one.",
+  noGap: "No clear difference between your formats yet.",
   tooFew: "Too few videos to compare yet: {list}.",
   basedOn: "Based on {total} analyzed YouTube videos. Small groups are noisy — take the numbers loosely.",
   nicheTitle: "Formats in your niche",
@@ -61,7 +61,7 @@ const experimentsBox = {
   subtitle: "Ideas to test, drawn from your own videos. Nothing here is a promise.",
   emptyTitle: "Nothing to suggest yet.",
   emptyBody:
-    "Blumea suggests an experiment only when your own videos show something specific to test. With more videos read, suggestions will appear here. Staying quiet is a normal answer.",
+    "Blumea suggests an experiment only when your own videos show something specific to test. With more videos read, suggestions will appear here.",
   worthTesting: "Worth testing",
   howKnow: "How you'll know: ",
 };

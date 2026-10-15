@@ -5,6 +5,7 @@ import { median } from "@/lib/insight-patterns";
 // numbers (spec §4: under 1,000 views a video's numbers are noisy).
 
 export type FollowerVideo = {
+  id: string;
   title: string;
   views: number | null; // views as counted by YouTube Analytics for this video
   subscribedViews: number | null;
@@ -21,10 +22,10 @@ export type FollowerInsight = {
   // Share of views that come from people who already follow (typical video).
   medianFollowerSharePct: number;
   // Videos where followers made up the most of the audience.
-  topFollowerShare: { title: string; sharePct: number; viewsFromFollowersPer100Followers: number | null }[];
+  topFollowerShare: { id: string; title: string; sharePct: number; viewsFromFollowersPer100Followers: number | null }[];
   // New followers per 1,000 views.
   medianGainedPer1000: number | null;
-  topGained: { title: string; gained: number; per1000: number }[];
+  topGained: { id: string; title: string; gained: number; per1000: number }[];
   // Spec §7-style pattern: videos with a higher follower share got more views.
   reachPattern: { higherCount: number; lowerCount: number; higherMedianViews: number; lowerMedianViews: number; lengthSimilar: boolean } | null;
 };
@@ -51,7 +52,7 @@ export function followerInsight(videos: FollowerVideo[], followerBase: number | 
           .filter((v) => (v.gained as number) >= 3 && per1000(v) >= 3 * medianGained)
           .sort((a, b) => per1000(b) - per1000(a))
           .slice(0, 2)
-          .map((v) => ({ title: v.title, gained: v.gained as number, per1000: per1000(v) }))
+          .map((v) => ({ id: v.id, title: v.title, gained: v.gained as number, per1000: per1000(v) }))
       : [];
 
   // Higher vs lower follower share, split at the median (needs >= 4 per side).
@@ -78,6 +79,7 @@ export function followerInsight(videos: FollowerVideo[], followerBase: number | 
     followerBase,
     medianFollowerSharePct: median(eligible.map(share)),
     topFollowerShare: byShare.slice(0, 2).map((v) => ({
+      id: v.id,
       title: v.title,
       sharePct: share(v),
       viewsFromFollowersPer100Followers: followerBase && followerBase > 0 ? ((v.subscribedViews as number) / followerBase) * 100 : null,
@@ -91,6 +93,7 @@ export function followerInsight(videos: FollowerVideo[], followerBase: number | 
 // ---- what a video asks viewers to do (call to action) ----
 
 export type CtaVideo = {
+  id: string;
   title: string;
   views: number | null;
   comments: number | null;
@@ -101,7 +104,7 @@ export type CtaVideo = {
 };
 
 export type CtaGroup = { type: string; count: number; medianPer100: number };
-export type CtaSingle = { type: string; title: string; text: string; per100: number; comments: number; multipleOfNoAsk: number | null };
+export type CtaSingle = { type: string; id: string; title: string; text: string; per100: number; comments: number; multipleOfNoAsk: number | null };
 
 export type CtaInsight = {
   eligible: number;
@@ -141,7 +144,7 @@ export function ctaInsight(videos: CtaVideo[]): CtaInsight | null {
     } else if (noAsk && noAsk.medianPer100 > 0) {
       for (const v of members) {
         if ((v.comments as number) >= CTA_STANDOUT_MIN_COMMENTS && per100(v) >= CTA_STANDOUT_MULTIPLE * noAsk.medianPer100) {
-          standouts.push({ type, title: v.title, text: (v.cta as { text: string }).text, per100: per100(v), comments: v.comments as number, multipleOfNoAsk: per100(v) / noAsk.medianPer100 });
+          standouts.push({ type, id: v.id, title: v.title, text: (v.cta as { text: string }).text, per100: per100(v), comments: v.comments as number, multipleOfNoAsk: per100(v) / noAsk.medianPer100 });
         }
       }
     }
@@ -154,6 +157,7 @@ export function ctaInsight(videos: CtaVideo[]): CtaInsight | null {
 // ---- rewatches ----
 
 export type RewatchVideo = {
+  id: string;
   title: string;
   views: number | null;
   durationSec: number | null;
@@ -170,7 +174,7 @@ export type RewatchInsight = {
   // Shorter vs longer half (split at the creator's own median length).
   lengthSplit: { shorterMedian: number; longerMedian: number; shorterCount: number; longerCount: number } | null;
   // A video rewatched far more than others of a similar length.
-  standout: { title: string; startRatio: number; durationSec: number; usualForLength: number; sameLengthCount: number } | null;
+  standout: { id: string; title: string; startRatio: number; durationSec: number; usualForLength: number; sameLengthCount: number } | null;
 };
 
 const REWATCH_STANDOUT_MULTIPLE = 3;
@@ -207,7 +211,7 @@ export function rewatchInsight(videos: RewatchVideo[]): RewatchInsight | null {
       const e = extra(v);
       if (e < REWATCH_STANDOUT_MIN_EXTRA || e < REWATCH_STANDOUT_MULTIPLE * Math.max(usual, 0.05)) continue;
       if (!standout || start(v) > standout.startRatio) {
-        standout = { title: v.title, startRatio: start(v), durationSec: v.durationSec as number, usualForLength: 1 + usual, sameLengthCount: others.length };
+        standout = { id: v.id, title: v.title, startRatio: start(v), durationSec: v.durationSec as number, usualForLength: 1 + usual, sameLengthCount: others.length };
       }
     }
   }

@@ -243,8 +243,8 @@ export type DashboardDerived = {
     count: number;
     medianDurationSec: number;
     medianWatchSharePct: number;
-    best: { title: string; sharePct: number };
-    worst: { title: string; sharePct: number };
+    best: { id: string; title: string; sharePct: number };
+    worst: { id: string; title: string; sharePct: number };
   } | null;
   payoff: { fires: number; of: number } | null;
   drops: { count: number; of: number; medianAtSec: number } | null;
@@ -253,15 +253,15 @@ export type DashboardDerived = {
 function typicalVideo(videos: DashboardVideo[]): DashboardDerived["typical"] {
   const withWatch = videos
     .filter((v) => v.platform === "youtube" && v.durationSec && v.avgWatchSec !== null)
-    .map((v) => ({ title: v.title, durationSec: v.durationSec as number, sharePct: ((v.avgWatchSec as number) / (v.durationSec as number)) * 100 }));
+    .map((v) => ({ id: v.id, title: v.title, durationSec: v.durationSec as number, sharePct: ((v.avgWatchSec as number) / (v.durationSec as number)) * 100 }));
   if (withWatch.length === 0) return null;
   const bySharePct = [...withWatch].sort((a, b) => b.sharePct - a.sharePct);
   return {
     count: withWatch.length,
     medianDurationSec: median(withWatch.map((v) => v.durationSec)),
     medianWatchSharePct: median(withWatch.map((v) => v.sharePct)),
-    best: { title: bySharePct[0].title, sharePct: bySharePct[0].sharePct },
-    worst: { title: bySharePct[bySharePct.length - 1].title, sharePct: bySharePct[bySharePct.length - 1].sharePct },
+    best: { id: bySharePct[0].id, title: bySharePct[0].title, sharePct: bySharePct[0].sharePct },
+    worst: { id: bySharePct[bySharePct.length - 1].id, title: bySharePct[bySharePct.length - 1].title, sharePct: bySharePct[bySharePct.length - 1].sharePct },
   };
 }
 
@@ -312,6 +312,7 @@ export function deriveDashboard(videos: DashboardVideo[], accounts: DashboardAcc
     lengthPattern: lengthVsWatchSharePattern(lengthPoints),
     followers: followerInsight(
       youtubeVideos.map((v) => ({
+        id: v.id,
         title: v.title,
         views: v.analyticsViews,
         subscribedViews: v.subscribedViews,
@@ -324,6 +325,7 @@ export function deriveDashboard(videos: DashboardVideo[], accounts: DashboardAcc
     posting: postingTimeInsight(youtubeVideos.map((v) => ({ publishedAt: v.publishedAt, views: v.views }))),
     cta: ctaInsight(
       youtubeVideos.map((v) => ({
+        id: v.id,
         title: v.title,
         views: v.analyticsViews ?? v.views,
         comments: v.comments,
@@ -333,6 +335,7 @@ export function deriveDashboard(videos: DashboardVideo[], accounts: DashboardAcc
     ),
     rewatch: rewatchInsight(
       youtubeVideos.map((v) => ({
+        id: v.id,
         title: v.title,
         views: v.analyticsViews ?? v.views,
         durationSec: v.durationSec,
