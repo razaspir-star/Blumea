@@ -101,41 +101,13 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
       if (cancelled) return;
       setVideos({ a, b });
 
-      // A YouTube video that was only scanned (numbers, no AI reading) is read now, so the
-      // "how they are built" part is complete. Not for a locked preview: that must not
-      // spend the creator's analyses. TikTok videos need an upload, so they get a hint.
-      if (!unlocked || !a || !b) return;
-      const toRead = [a, b].filter((video) => video.platform === "youtube" && video.fields === null);
-      if (toRead.length === 0) return;
-
-      const { data: session } = await supabase.auth.getSession();
-      const headers = { Authorization: `Bearer ${session.session?.access_token ?? ""}`, "Content-Type": "application/json" };
-      for (const video of toRead) {
-        setReading(video.title);
-        const response = await fetch("/api/analyze/youtube", {
-          method: "POST",
-          headers,
-          body: JSON.stringify({ videoId: video.platformVideoId }),
-        }).catch(() => null);
-        if (cancelled) return;
-        if (!response || !response.ok) {
-          const body = response ? await response.json().catch(() => null) : null;
-          setReadError(t("compare.readFailed", { title: video.title, reason: body?.error ?? "" }));
-          setReading(null);
-          return;
-        }
-      }
-      const [a2, b2] = await Promise.all([loadCompareVideo(idA), loadCompareVideo(idB)]);
-      if (cancelled) return;
-      setVideos({ a: a2, b: b2 });
-      setReading(null);
     }
 
     run();
     return () => {
       cancelled = true;
     };
-  }, [idA, idB, valid, unlocked, t, version]);
+  }, [idA, idB, valid, version]);
 
   if (!valid) notFound();
 
@@ -169,11 +141,11 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
   }
 
   const mixed = a.platform !== b.platform;
-  const comparison = buildComparison(a, b, t, mixed);
   const tiktokPair = a.platform === "tiktok" || b.platform === "tiktok";
   const bothRead = a.fields !== null && b.fields !== null;
-  // YouTube videos are read automatically (in-depth right away); with a TikTok video the creator presses "Compare in depth".
-  const showBuilt = !tiktokPair || deepRun;
+  // The in-depth part appears only when the creator presses "Compare in depth" (it reads videos and counts).
+  const showBuilt = deepRun;
+  const comparison = buildComparison(a, b, t, mixed, showBuilt);
   const deepResult = showBuilt && bothRead ? buildDeep(a, b, t, mixed) : null;
   const noGapText = t("compare.noGap");
   const statements = deepResult
@@ -181,13 +153,42 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
     : comparison.statements;
   // In the in-depth view each number and each opening row is shown once, in its own part.
   const viewerKeys = new Set<string>(deepResult?.viewers.map((row) => row.key) ?? []);
+  // "Sharpest drop" (YouTube) is the same fact as "viewers stopped most at" in the viewers table.
+  if (viewerKeys.has("compare.metricStopped")) viewerKeys.add("compare.metricDrop");
   const openingKeys = new Set<string>(deepResult?.opening.map((row) => row.key) ?? []);
   const metrics = comparison.metrics.filter((row) => !viewerKeys.has(row.key));
   const identity = comparison.identity.filter((row) => !openingKeys.has(row.key));
   const tiktokVideos = [a, b].filter((video) => video.platform === "tiktok");
   const allTiktokRead = tiktokVideos.every((video) => video.fields !== null);
 
-  function runDeep() {
+  // A YouTube video that was only scanned (numbers, no AI reading) is read when the creator presses
+  // the button; TikTok videos need an upload first, so the button waits for them.
+  const youtubeUnread = [a, b].filter((video) => video.platform === "youtube" && video.fields === null);
+  const needsAction = [a, b].filter((video) => video.platform === "tiktok" || video.fields === null);
+
+  async function runDeep() {
+    if (youtubeUnread.length > 0) {
+      setReadError(null);
+      const { data: session } = await supabase.auth.getSession();
+      const headers = { Authorization: `Bearer ${session.session?.access_token ?? ""}`, "Content-Type": "application/json" };
+      for (const video of youtubeUnread) {
+        setReading(video.title);
+        const response = await fetch("/api/analyze/youtube", {
+          method: "POST",
+          headers,
+          body: JSON.stringify({ videoId: video.platformVideoId }),
+        }).catch(() => null);
+        if (!response || !response.ok) {
+          const body = response ? await response.json().catch(() => null) : null;
+          setReadError(t("compare.readFailed", { title: video.title, reason: body?.error ?? "" }));
+          setReading(null);
+          return;
+        }
+      }
+      const [a2, b2] = await Promise.all([loadCompareVideo(idA), loadCompareVideo(idB)]);
+      setVideos({ a: a2, b: b2 });
+      setReading(null);
+    }
     setDeepRun(true);
     setTimeout(() => document.getElementById("deep-results")?.scrollIntoView({ behavior: "smooth", block: "start" }), 120);
   }
@@ -213,15 +214,18 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
         </p>
       )}
       {readError && <p className="mt-4 rounded-2xl bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-700">{readError}</p>}
-      {unlocked && tiktokPair && !deepRun && (
+      {unlocked && !deepRun && (
         <div className="blumea-step mt-4 rounded-2xl border border-blumea-blue/25 bg-white p-4 shadow-sm">
           <p className="text-sm font-semibold text-blumea-navy">{t("compare.deepTitle")}</p>
-          <p className="mt-1 text-sm leading-6 text-blumea-slate">{t("compare.deepBody")}</p>
+          <p className="mt-1 text-sm leading-6 text-blumea-slate">{tiktokPair ? t("compare.deepBody") : t("compare.deepBodyYoutube")}</p>
 
           <div className="mt-3 space-y-2">
-            {tiktokVideos.map((video) => (
+            {needsAction.map((video) => (
               <div key={video.id} className="rounded-xl border border-slate-200/70 bg-slate-50/60 px-3 py-2.5">
                 <p className="truncate text-sm font-semibold text-blumea-navy">{video.title}</p>
+                {video.platform === "youtube" ? (
+                  <p className="mt-1.5 text-xs leading-5 text-blumea-slate">{t("compare.stepYoutubeRead")}</p>
+                ) : (
                 <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
                   {video.fields !== null ? (
                     <>
@@ -255,16 +259,17 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
                     {t("compare.addNumbers")}
                   </button>
                 </div>
+                )}
               </div>
             ))}
           </div>
 
           <button
             type="button"
-            disabled={!allTiktokRead}
+            disabled={!allTiktokRead || reading !== null}
             onClick={runDeep}
             className={
-              allTiktokRead
+              allTiktokRead && reading === null
                 ? "mt-4 rounded-full bg-blumea-navy px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blumea-blue"
                 : "mt-4 cursor-not-allowed rounded-full bg-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-400"
             }

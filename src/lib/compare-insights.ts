@@ -59,7 +59,7 @@ const avgWatch = (v: CompareVideo) => v.avgWatchSec ?? v.tiktokScreens?.avgWatch
 const stayed = (v: CompareVideo) => stayedToWatchPct(v.breakdowns?.engagement);
 const rewatch = (v: CompareVideo) => v.retentionCurve?.[0]?.watchRatio ?? null;
 
-export function buildComparison(a: CompareVideo, b: CompareVideo, t: Translator, mixed = false): Comparison {
+export function buildComparison(a: CompareVideo, b: CompareVideo, t: Translator, mixed = false, built = true): Comparison {
   const m = (key: TextKey, va: number | string | null, vb: number | string | null, format: MetricFormat, better: "higher" | "none" = "higher"): MetricRow | null =>
     va === null && vb === null ? null : { key, a: va, b: vb, format, better };
 
@@ -195,7 +195,8 @@ export function buildComparison(a: CompareVideo, b: CompareVideo, t: Translator,
   if (statements.length === 0 && !mixed) {
     statements.push(t("compare.noGap"));
   } else {
-    const differing = identity.filter((row) => row.a !== null && row.b !== null && !row.same).map((row) => t(row.key));
+    // What the videos differ in comes from the AI reading, which belongs to the in-depth part.
+    const differing = !built ? [] : identity.filter((row) => row.a !== null && row.b !== null && !row.same).map((row) => t(row.key));
     if (differing.length > 0) statements.push(t("compare.differ", { list: differing.join(", ") }));
   }
 

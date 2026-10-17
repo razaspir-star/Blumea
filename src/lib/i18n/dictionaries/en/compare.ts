@@ -106,6 +106,8 @@
   hookSpoken: "Said",
   hookSung: "Sung",
   hookNote: "The words are read by AI from the sound and the picture, so a word can be wrong, especially in singing.",
+  deepBodyYoutube: "Blumea reads how the two videos open and are built, and compares them. A video that has not been read yet is read when you press the button, and each read uses one of your analyses.",
+  stepYoutubeRead: "Read when you press the button (uses one of your analyses).",
   noGap: "There's no big enough gap between these two videos.",
   differ: "They differ in: {list}. To learn which one matters, change just one thing at a time in your next video.",
   disclaimer: "Based on these two videos.",
