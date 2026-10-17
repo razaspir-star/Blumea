@@ -46,7 +46,8 @@ export type IdeaResult = {
   platform: string;
   unread: { id: string; title: string; views: number }[];
   ideas: { idea: string; evidence: IdeaEvidence[]; keep: string; change: string; howToKnow: string; limit: string }[];
-  creative: { note: string; hooks: { hook: string; type: string; typeLabel: string; fits: string }[]; video: string } | null;
+  // New suggestions that are not drawn from the data: a hook and what to do in the video.
+  creative: { ideas: { hook: string; type: string; typeLabel: string; todo: string; fits: string }[] } | null;
 };
 
 async function loadRows(admin: SupabaseClient, profileId: string, platform: string): Promise<{ rows: Row[]; followers: number | null }> {
@@ -182,12 +183,12 @@ The creator's habit: a song as the sound plus one line of text is a complete vid
 Return ONLY one JSON object:
 {
  "ideas": [ { "idea": string, "evidence": ["E1", ...], "keep": string, "change": string, "how_to_know": string, "limit": string } ],
- "creative": { "note": string, "hooks": [ { "hook": string, "type": string, "fits": string } ], "video": string }
+ "creative": { "ideas": [ { "hook": string, "type": string, "todo": string, "fits": string } ] }
 }
 
 Rules:
 - "ideas": 2 or 3 ideas for a NEW VIDEO (what to film and what to write on it), each following from the evidence above. An idea is never a comparison or an analysis. Each lists the evidence ids it rests on (at least one video line, only ids that exist). Change ONE thing at a time. Never say why a video did better, only what it has that others lack. Everything is "worth trying". If a point rests on a small difference or fewer than 4 videos, say so in "limit" or leave the idea out. Do not move a hook, song or setting between different formats.
-- "creative": a SEPARATE part that is not based on data. "hooks": exactly 3 new hook lines (the words that open the video, short, in the creator's own voice and style as shown in the hook words above) for the creator's main format, each with its "type" (one of: ${HOOK_TYPE_IDS.join(", ")}) and the type must differ from the creator's most common hook type${usualHook ? ` (${usualHook})` : ""}; "fits": one short line on why it fits this creator. "video": one short idea for a whole video in the creator's world. "note": one sentence saying plainly that this part is a creative suggestion, not drawn from the data, and that nobody knows if it will work.
+- "creative": a SEPARATE part with exactly 3 new ideas that are NOT drawn from the evidence (new things worth trying). Each has: "hook": the words that open the video (short, in the creator's own voice and style as shown in the hook words above); "type": its hook type (one of: ${HOOK_TYPE_IDS.join(", ")}), which must differ from the creator's most common hook type${usualHook ? ` (${usualHook})` : ""}; "todo": one or two concrete sentences on what to do in the video with this hook, in the creator's own world and main format (what to film or sing, where, with which sound), for example "sing an original song of yours in your room with this hook"; "fits": one short line on why it fits this creator.
 - Do not invent numbers or facts about the creator that are not in the evidence. In the sentences never write an evidence id (E1, E5...): name the video by its title. Use the format and hook names exactly as they appear in the evidence. A creative hook must not state a fact or a number about the creator, the audience or other people as if it were true.
 - Write everything in ${language} except the evidence ids and the type ids. Plain, short sentences. No statistics words.`;
 
@@ -230,13 +231,13 @@ Rules:
       limit: item.limit,
     }));
 
-  const c = (raw.creative ?? null) as { note?: unknown; hooks?: unknown; video?: unknown } | null;
-  const hooks = (Array.isArray(c?.hooks) ? (c?.hooks as Record<string, unknown>[]) : [])
-    .map((h) => ({ hook: text(h.hook, 200), type: text(h.type, 40), fits: text(h.fits, 200) }))
-    .filter((h) => h.hook && HOOK_TYPE_IDS.includes(h.type) && h.type !== usualHook)
+  const c = (raw.creative ?? null) as { ideas?: unknown } | null;
+  const creativeIdeas = (Array.isArray(c?.ideas) ? (c?.ideas as Record<string, unknown>[]) : [])
+    .map((h) => ({ hook: text(h.hook, 200), type: text(h.type, 40), todo: text(h.todo, 400), fits: text(h.fits, 200) }))
+    .filter((h) => h.hook && h.todo && HOOK_TYPE_IDS.includes(h.type) && h.type !== usualHook)
     .slice(0, 3)
     .map((h) => ({ ...h, typeLabel: hookTypeLabel(h.type, t) ?? h.type }));
-  const creative = c && (hooks.length > 0 || text(c.video)) ? { note: text(c.note, 300), hooks, video: text(c.video, 400) } : null;
+  const creative = creativeIdeas.length > 0 ? { ideas: creativeIdeas } : null;
 
   return {
     platform,

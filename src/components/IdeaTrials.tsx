@@ -48,7 +48,7 @@ export default function IdeaTrials({ videos }: { videos: DashboardVideo[] }) {
   const all = fresh ?? videos;
 
   const load = useCallback(async () => {
-    const { data } = await supabase.from("idea_trials").select(COLUMNS).neq("status", "dropped").order("created_at", { ascending: false });
+    const { data } = await supabase.from("idea_trials").select(COLUMNS).in("status", ["trying", "posted"]).order("created_at", { ascending: false });
     setTrials((data ?? []) as Trial[]);
   }, []);
 
@@ -67,7 +67,7 @@ export default function IdeaTrials({ videos }: { videos: DashboardVideo[] }) {
   useEffect(() => {
     let cancelled = false;
     async function first() {
-      const { data } = await supabase.from("idea_trials").select(COLUMNS).neq("status", "dropped").order("created_at", { ascending: false });
+      const { data } = await supabase.from("idea_trials").select(COLUMNS).in("status", ["trying", "posted"]).order("created_at", { ascending: false });
       if (!cancelled) setTrials((data ?? []) as Trial[]);
     }
     first();

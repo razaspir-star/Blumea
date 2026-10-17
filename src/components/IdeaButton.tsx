@@ -29,7 +29,7 @@ export default function IdeaButton({ platforms }: { platforms: string[] }) {
   const [answer, setAnswer] = useState<Answer | null>(null);
   const [failure, setFailure] = useState<Failure | null>(null);
   // The ideas the creator chose to try in this window.
-  const [saved, setSaved] = useState<Record<number, string>>({});
+  const [saved, setSaved] = useState<Record<string, { id: string; mode: "try" | "later" }>>({});
 
   async function ask(chosen: string) {
     setPlatform(chosen);
@@ -52,21 +52,23 @@ export default function IdeaButton({ platforms }: { platforms: string[] }) {
     setAnswer(body as Answer);
   }
 
-  async function tryIdea(index: number) {
-    if (!answer || saved[index]) return;
-    const item = answer.ideas[index];
-    setSaved((current) => ({ ...current, [index]: "saving" }));
+  // Saves an idea of this window: to try now (status trying) or to keep for later (status saved).
+  async function save(key: string, mode: "try" | "later", payload: { source: "blumea" | "creative"; title: string; details: Record<string, unknown> }) {
+    if (!answer || saved[key]) return;
+    setSaved((current) => ({ ...current, [key]: { id: "", mode } }));
     const { data } = await supabase
       .from("idea_trials")
       .insert({
         profile_id: profile.id,
         platform: answer.platform,
-        title: item.idea,
-        details: { keep: item.keep, change: item.change, howToKnow: item.howToKnow, limit: item.limit, evidence: item.evidence, locale: t.locale },
+        title: payload.title,
+        source: payload.source,
+        status: mode === "try" ? "trying" : "saved",
+        details: { ...payload.details, locale: t.locale },
       })
       .select("id")
       .single();
-    setSaved((current) => ({ ...current, [index]: (data?.id as string | undefined) ?? "saving" }));
+    setSaved((current) => ({ ...current, [key]: { id: (data?.id as string | undefined) ?? "", mode } }));
     window.dispatchEvent(new Event("blumea:idea-saved"));
   }
 
@@ -82,6 +84,30 @@ export default function IdeaButton({ platforms }: { platforms: string[] }) {
     setAnswer(null);
     setFailure(null);
   }
+
+  const saveButtons = (key: string, payload: { source: "blumea" | "creative"; title: string; details: Record<string, unknown> }) => (
+    <div className="mt-3">
+      {saved[key] ? (
+        <div className="flex flex-wrap items-center gap-3">
+          <p className="text-sm font-semibold text-blumea-success">{saved[key].mode === "try" ? t("idea.savedNote") : t("idea.likedNote")}</p>
+          {saved[key].mode === "try" && saved[key].id && (
+            <button type="button" onClick={() => postedIt(saved[key].id)} className="rounded-full bg-blumea-navy px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-blumea-blue">
+              {t("idea.iPosted")}
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="flex flex-wrap items-center gap-2">
+          <button type="button" onClick={() => save(key, "try", payload)} className="rounded-full border border-blumea-navy px-4 py-2 text-xs font-semibold text-blumea-navy transition-colors hover:bg-blumea-navy hover:text-white">
+            {t("idea.tryIt")}
+          </button>
+          <button type="button" onClick={() => save(key, "later", payload)} className="rounded-full border border-slate-300 px-4 py-2 text-xs font-semibold text-blumea-slate transition-colors hover:border-blumea-blue hover:text-blumea-navy">
+            {t("idea.likeIt")}
+          </button>
+        </div>
+      )}
+    </div>
+  );
 
   const quote = (text: string) => (t.locale === "he" ? `״${text}״` : `“${text}”`);
 
@@ -175,22 +201,7 @@ export default function IdeaButton({ platforms }: { platforms: string[] }) {
                       ) : null
                     )}
                   </dl>
-                  <div className="mt-4">
-                    {saved[index] ? (
-                      <div className="flex flex-wrap items-center gap-3">
-                        <p className="text-sm font-semibold text-blumea-success">{t("idea.savedNote")}</p>
-                        {saved[index] !== "saving" && (
-                          <button type="button" onClick={() => postedIt(saved[index])} className="rounded-full bg-blumea-navy px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-blumea-blue">
-                            {t("idea.iPosted")}
-                          </button>
-                        )}
-                      </div>
-                    ) : (
-                      <button type="button" onClick={() => tryIdea(index)} className="rounded-full border border-blumea-navy px-4 py-2 text-xs font-semibold text-blumea-navy transition-colors hover:bg-blumea-navy hover:text-white">
-                        {t("idea.tryIt")}
-                      </button>
-                    )}
-                  </div>
+                  {saveButtons(`idea-${index}`, { source: "blumea", title: item.idea, details: { keep: item.keep, change: item.change, howToKnow: item.howToKnow, limit: item.limit, evidence: item.evidence } })}
                 </article>
               ))}
 
@@ -199,24 +210,26 @@ export default function IdeaButton({ platforms }: { platforms: string[] }) {
                   <div className="flex items-center gap-2">
                     <Lightbulb size={16} className="text-blumea-blue" />
                     <p className="text-sm font-semibold text-blumea-navy">{t("idea.creativeTitle")}</p>
-                    <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold text-blumea-slate">{t("idea.creativeLabel")}</span>
+                    <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold text-blumea-blue">{t("idea.creativeLabel")}</span>
                   </div>
-                  {answer.creative.note && <p className="mt-2 text-xs leading-5 text-blumea-slate">{answer.creative.note}</p>}
-                  <ul className="mt-3 space-y-2">
-                    {answer.creative.hooks.map((hook, index) => (
+                  <p className="mt-2 text-xs leading-5 text-blumea-slate">{t("idea.creativeIntro")}</p>
+                  <ul className="mt-3 space-y-3">
+                    {answer.creative.ideas.map((item, index) => (
                       <li key={index} className="rounded-xl bg-white p-3 text-sm leading-6 text-blumea-navy">
-                        <span className="font-semibold">{quote(hook.hook)}</span>
-                        <span className="ms-2 rounded-full bg-blumea-mist px-2 py-0.5 text-[10px] font-semibold text-blumea-blue">{hook.typeLabel}</span>
-                        {hook.fits && <p className="mt-0.5 text-xs leading-5 text-blumea-slate">{hook.fits}</p>}
+                        <p>
+                          <span className="text-blumea-slate">{t("idea.creativeHook")}: </span>
+                          <span className="font-semibold">{quote(item.hook)}</span>
+                          <span className="ms-2 rounded-full bg-blumea-mist px-2 py-0.5 text-[10px] font-semibold text-blumea-blue">{item.typeLabel}</span>
+                        </p>
+                        <p className="mt-1">
+                          <span className="text-blumea-slate">{t("idea.creativeTodo")}: </span>
+                          {item.todo}
+                        </p>
+                        {item.fits && <p className="mt-0.5 text-xs leading-5 text-blumea-slate">{item.fits}</p>}
+                        {saveButtons(`creative-${index}`, { source: "creative", title: item.todo, details: { hook: item.hook, type: item.type, fits: item.fits } })}
                       </li>
                     ))}
                   </ul>
-                  {answer.creative.video && (
-                    <p className="mt-3 text-sm leading-6 text-blumea-navy">
-                      <span className="font-semibold">{t("idea.creativeVideo")}: </span>
-                      {answer.creative.video}
-                    </p>
-                  )}
                 </article>
               )}
 

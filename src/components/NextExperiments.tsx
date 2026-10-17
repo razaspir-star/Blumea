@@ -5,6 +5,7 @@ import { useT } from "@/lib/i18n/client";
 import VideoText from "@/components/VideoText";
 import IdeaButton from "@/components/IdeaButton";
 import IdeaTrials from "@/components/IdeaTrials";
+import AppLink from "@/components/AppLink";
 import type { DashboardVideo } from "@/lib/dashboard-data";
 
 // "Try in your next video": up to three experiments drawn from the creator's own
@@ -18,7 +19,12 @@ export default function NextExperiments({ experiments, platforms, videos }: { ex
           <h2 className="text-2xl font-semibold tracking-tight text-blumea-navy">{t("experimentsBox.title")}</h2>
           <p className="mt-1 text-sm text-blumea-slate">{t("experimentsBox.subtitle")}</p>
         </div>
-        <IdeaButton platforms={platforms} />
+        <div className="flex items-center gap-4">
+          <AppLink href="/ideas" className="text-sm font-semibold text-blumea-blue transition-opacity hover:opacity-70">
+            {t("idea.myIdeasLink")}
+          </AppLink>
+          <IdeaButton platforms={platforms} />
+        </div>
       </div>
 
       <IdeaTrials videos={videos} />
