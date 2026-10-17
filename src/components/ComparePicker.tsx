@@ -201,9 +201,21 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
           )}
 
           {type === "usual" && (
-            <div className="blumea-step">
-              <p className="mt-2 text-xs leading-5 text-blumea-slate">{t("compare2.chooseOne")}</p>
-              {videoGrid(videos, null, pickForUsual)}
+            <div key={aPlatform ?? "-"} className="blumea-step">
+              {!aPlatform ? (
+                <>
+                  <p className="mt-3 text-xs font-semibold text-blumea-navy">{t("compare.pickPlatformOne")}</p>
+                  {platformChoice((platform) => setAPlatform(platform))}
+                </>
+              ) : (
+                <>
+                  <p className="mt-3 text-xs font-semibold text-blumea-navy">{t("compare2.chooseOne")}</p>
+                  <button type="button" onClick={() => setAPlatform(null)} className="mt-1 text-xs font-semibold text-blumea-blue hover:opacity-70">
+                    {t("compare.changePlatform")}
+                  </button>
+                  {videoGrid((videos ?? []).filter((video) => video.platform === aPlatform), null, pickForUsual)}
+                </>
+              )}
             </div>
           )}
 

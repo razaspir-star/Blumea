@@ -73,9 +73,11 @@ export type UsualResult = {
   notes: string[];
 };
 
-export function usualComparison(video: DashboardVideo, all: DashboardVideo[], t: Translator): UsualResult {
-  const others = all.filter((v) => v.id !== video.id && v.platform === video.platform);
-  const enough = others.length >= USUAL_MIN_OTHERS;
+type PoolTexts = { above: TextKey; below: TextKey; close: TextKey };
+
+// The rows and sentences for a video held against a pool of other videos (all the others, or the others
+// of the same format).
+export function againstPool(video: DashboardVideo, others: DashboardVideo[], t: Translator, enough: boolean, texts: PoolTexts, extra: Record<string, string | number> = {}) {
   const name = t.locale === "he" ? `״${videoRef(video.id, video.title)}״` : `“${videoRef(video.id, video.title)}”`;
 
   const rows: UsualRow[] = METRICS.map((m) => {
@@ -98,10 +100,17 @@ export function usualComparison(video: DashboardVideo, all: DashboardVideo[], t:
       else below.push(gapItem(m, row.usual, row.value, false, row.value, row.usual, t));
     });
     const total = rows.length;
-    if (above.length > 0) statements.push(t("compare2.usualAbove", { video: name, n: above.length, total, list: topGaps(above) }));
-    if (below.length > 0) statements.push(t("compare2.usualBelow", { video: name, n: below.length, total, list: topGaps(below) }));
-    if (statements.length === 0) statements.push(t("compare2.usualClose", { video: name }));
+    if (above.length > 0) statements.push(t(texts.above, { video: name, n: above.length, total, list: topGaps(above), ...extra }));
+    if (below.length > 0) statements.push(t(texts.below, { video: name, n: below.length, total, list: topGaps(below), ...extra }));
+    if (statements.length === 0) statements.push(t(texts.close, { video: name, ...extra }));
   }
+  return { rows, statements };
+}
+
+export function usualComparison(video: DashboardVideo, all: DashboardVideo[], t: Translator): UsualResult {
+  const others = all.filter((v) => v.id !== video.id && v.platform === video.platform);
+  const enough = others.length >= USUAL_MIN_OTHERS;
+  const { rows, statements } = againstPool(video, others, t, enough, { above: "compare2.usualAbove", below: "compare2.usualBelow", close: "compare2.usualClose" });
 
   const notes: string[] = [t("compare2.usualDisclaimer")];
   if ((video.views ?? Infinity) < SMALL_VIDEO_VIEWS) notes.push(t("compare.small"));

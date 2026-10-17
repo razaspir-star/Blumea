@@ -19,9 +19,10 @@ export type CompareAccess = {
   resetsOn: string;
 };
 
-function capFor(plan: string, kind: CompareKind): number | null {
+// Video vs your other videos (key starts with "usual:") is for Pro and owner only.
+function capFor(plan: string, kind: CompareKind, key: string): number | null {
   if (plan === "owner") return null;
-  if (kind === "regular") return plan === "pro" ? null : FREE_REGULAR_PER_MONTH;
+  if (kind === "regular") return plan === "pro" ? null : key.startsWith("usual:") ? 0 : FREE_REGULAR_PER_MONTH;
   return plan === "pro" ? PRO_DEEP_PER_MONTH : 0;
 }
 
@@ -38,7 +39,7 @@ export async function registerComparison(admin: SupabaseClient, profileId: strin
   ]);
 
   const plan = (profile?.plan as string | undefined) ?? "free";
-  const cap = capFor(plan, kind);
+  const cap = capFor(plan, kind, key);
   const used = count ?? 0;
 
   // Already counted this month: open again for free. Otherwise it needs room under the cap.
