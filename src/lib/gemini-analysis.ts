@@ -23,7 +23,9 @@ export const MODEL = "gemini-3.8-flash";
 // `familiar_moment` tag. `hook_style` stays for now.
 // v9 (2026-10-17): adds `setting` (place, background and light), so Compare can notice when two
 // videos were filmed differently. Added at the end, so the other answers are asked for as before.
-export const PROMPT_VERSION = "v9";
+// v10 (2026-10-17): speech before singing is kept apart from the sung line (a video that starts with
+// talking and then sings fills both), and unclear sung words are written as "..." instead of guessed.
+export const PROMPT_VERSION = "v10";
 export const THINKING_LEVEL = "low";
 
 // One prompt per language of the free-text descriptions (English is the measured one).
@@ -45,7 +47,8 @@ export const FIELD_META: Record<string, { kind: "fact" | "inferred"; cap?: "high
   subtitles_detected: { kind: "fact" },
   on_screen_texts: { kind: "fact" },
   spoken_hook_text: { kind: "fact" },
-  sung_hook_lyrics: { kind: "fact" },
+  // Words in a sung line are often misheard (music under the voice, Hebrew lyrics): shown as an AI reading.
+  sung_hook_lyrics: { kind: "inferred", cap: "low" },
   visual_hook: { kind: "fact" },
   sound_kind: { kind: "fact", cap: "medium" },
   speech: { kind: "fact", cap: "medium" },

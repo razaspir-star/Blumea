@@ -56,7 +56,7 @@ export default function WordingCompare({
       <p className="text-xs font-semibold text-blumea-blue">
         {label} <span className="font-normal text-blumea-slate">· {quote(shortTitle(title, 40))}</span>
       </p>
-      {hook.onScreen === null && hook.words === null ? (
+      {hook.onScreen === null && hook.spoken === null && hook.sung === null ? (
         <p className="mt-1.5 text-sm leading-6 text-blumea-slate">{t("compare.hookEmpty")}</p>
       ) : (
         <div className="mt-1.5 space-y-1 text-sm leading-6 text-blumea-navy">
@@ -66,10 +66,16 @@ export default function WordingCompare({
               {quote(hook.onScreen)}
             </p>
           )}
-          {hook.words !== null && (
+          {hook.spoken !== null && (
             <p>
-              <span className="text-blumea-slate">{t("compare.hookWords")}: </span>
-              {quote(hook.words)}
+              <span className="text-blumea-slate">{t("compare.hookSpoken")}: </span>
+              {quote(hook.spoken)}
+            </p>
+          )}
+          {hook.sung !== null && (
+            <p>
+              <span className="text-blumea-slate">{t("compare.hookSung")}: </span>
+              {quote(hook.sung)}
             </p>
           )}
         </div>
@@ -84,6 +90,7 @@ export default function WordingCompare({
         {hookBlock(t("compare.videoA"), titleA, hooks.a)}
         {hookBlock(t("compare.videoB"), titleB, hooks.b)}
       </div>
+      <p className="mt-2 text-xs leading-5 text-blumea-slate">{t("compare.hookNote")}</p>
 
       {(state === "idle" || state === "error") && (
         <>
@@ -115,7 +122,15 @@ export default function WordingCompare({
             <ul className="mt-2 space-y-2.5">
               {result.differences.map((item) => (
                 <li key={item.aspect} className="text-sm leading-6 text-blumea-navy">
-                  <span className="font-semibold">{item.aspect}.</span> {item.a} {item.b}
+                  <span className="font-semibold">{item.aspect}</span>
+                  <p>
+                    <span className="text-blumea-slate">{t("compare.videoA")}: </span>
+                    {item.a}
+                  </p>
+                  <p>
+                    <span className="text-blumea-slate">{t("compare.videoB")}: </span>
+                    {item.b}
+                  </p>
                 </li>
               ))}
             </ul>

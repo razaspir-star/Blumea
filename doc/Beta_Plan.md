@@ -12,7 +12,7 @@ Written 2026-10-13. Working rule: we go stage by stage. Each stage ends with a s
 | Area | State | Beta blocker? |
 |---|---|---|
 | YouTube connect, First Scan, First Look, analysis, cross-video insights, next experiments | Built and checked on real data (owner's channel) | No |
-| TikTok upload (QR handoff, live progress, screenshots for viewer numbers) | Built; two real videos analysed in production; screenshot reading verified on 6 real screenshots | Needs a full production test; **review outcome unknown** |
+| TikTok upload (QR handoff, live progress, screenshots for viewer numbers) | Built; two real videos analysed in production; screenshot reading verified on 6 real screenshots | Needs a full production test; **app approved for production (portal: this version live since 2026-10-16)** |
 | Monthly cap, free scan 20 videos, plan column | Built | No |
 | Deletion of data, privacy, terms, homepage, favicon | Built; **privacy and terms are unreviewed drafts**; account deletion not tested with a second account | Yes (test); counsel can run in parallel |
 | Google OAuth consent screen | **Still "Testing"**: refresh tokens expire after 7 days, only listed test users can connect | Yes |
@@ -39,6 +39,8 @@ Tasks
 Exit: consent screen in production, domain verified, pack ready, counsel brief sent. Verification itself may still be pending; that does not block the beta.
 
 ## Stage 2 — TikTok: review and a full production check
+
+**Update 2026-10-17: TikTok approved the app for production (the developer portal shows "this version of Blumea has been live since Oct 16, 2026 7:15 AM"). The "until approved" limits below no longer apply; what is left of this stage is the full production check.**
 
 Tasks
 - Owner: report the review outcome in the TikTok developer portal. If rejected again: I fix what they ask (they previously asked for icon match, a full website, privacy/terms links, a test account) and we resubmit.

@@ -10,7 +10,7 @@ import type { Translator } from "@/lib/i18n/translate";
 // regular comparison: only clear gaps, counts always stated, no causes, and a
 // recommendation instead of a guess.
 
-export type HookText = { onScreen: string | null; words: string | null };
+export type HookText = { onScreen: string | null; spoken: string | null; sung: string | null };
 
 export type DeepComparison = {
   // What each video says and shows as its hook (the first seconds).
@@ -182,7 +182,7 @@ export function buildDeep(a: CompareVideo, b: CompareVideo, t: Translator, mixed
 
   const hookText = (v: CompareVideo): HookText => {
     const texts = textsFirst3(v);
-    return { onScreen: texts.length > 0 ? texts.join(" · ") : null, words: firstWords(v) };
+    return { onScreen: texts.length > 0 ? texts.join(" · ") : null, spoken: str(v, "spoken_hook_text"), sung: str(v, "sung_hook_lyrics") };
   };
 
   return { hooks: { a: hookText(a), b: hookText(b) }, opening, viewers, statements, noViewerNumbers };

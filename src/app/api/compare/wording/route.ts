@@ -102,8 +102,8 @@ export async function POST(request: NextRequest) {
   const describe = (side: Side) =>
     JSON.stringify({
       on_screen_text_in_first_seconds: side.onScreen,
-      spoken_words_in_first_seconds: side.spoken,
-      sung_words_in_first_seconds: side.sung,
+      spoken_words_in_opening: side.spoken,
+      sung_words_in_opening: side.sung,
       opening_type: side.hookType,
       topic: side.topic,
       specific_subject_such_as_song_or_dish: side.subject,
@@ -128,7 +128,7 @@ Return ONLY one JSON object:
 }
 
 Rules:
-- hook = the text on screen and the words said or sung in the first seconds. "differences": 0 to 3 concrete contrasts (strength of the promise, a question or a statement, how specific, who is addressed). "aspect" is 2 to 5 words; "a" and "b" are each ONE short clause about that video's hook that reads naturally after "aspect" (never start with the video names). Quote exact words in their original language. "differs" is true only when the two hooks carry a different message or angle; false when it is the same message with a word or two changed.
+- hook = the text on screen and the words said or sung in the first seconds. "differences": 0 to 3 concrete contrasts (strength of the promise, a question or a statement, how specific, who is addressed). "aspect" is 2 to 5 words; "a" and "b" are each ONE short clause about that video's hook only, so that "a" and "b" can be told apart even when read alone (say what that video does; never mix the two videos in one clause, never start with the video names). Quote exact words in their original language. "differs" is true only when the two hooks carry a different message or angle; false when it is the same message with a word or two changed.
 - content = what the video is about: the song, dish, product or subject. "differs" is true only when it is clearly different (a different song, a different dish or subject); false when it is the same one. "a" and "b" name each one in at most 6 words, without describing it (for a song: just its name, or its first words in quotes; for a dish: its name), null if unknown.
 - setting = where it is filmed and how it looks (place, background, light). Use the setting description when given; use the visual description only if it explicitly states the place or background; otherwise null. "differs" is true only when clearly different (for example a plain white wall against a car or a kitchen); false when similar; null if either one is unknown. "a" and "b" are short phrases, null if unknown.
 - Never say why one video did better. No long dashes.

@@ -74,8 +74,8 @@ ${hookGuideText()}
 - on_screen_texts: EVERY distinct piece of text visible on screen during roughly the first 3 seconds \
 (a label above a person, a card, a title, a caption). One entry per piece of text, with its role. Text that is \
 part of the surroundings, such as a shop sign or a poster, gets the role "scene". Empty list if none.
-- spoken_hook_text: the words SPOKEN (not sung) in roughly the first 3 seconds, or null.
-- sung_hook_lyrics: the first sung line, if the video starts with singing, or null.
+- spoken_hook_text: the words SPOKEN (not sung) in the opening, up to about the first 6 seconds, or null. A video may start with speech and then turn to singing: the speech goes here.
+- sung_hook_lyrics: the first sung line, wherever it first appears in roughly the first 10 seconds, even if the video starts with speech, or null if nobody sings. Write only the words you can clearly make out; replace any word you cannot hear clearly with "..." instead of guessing.
 - visual_hook: one sentence on what happens visually in roughly the first 3 seconds.
 - sound_kind: exactly one of: ${SOUND_KINDS.join(", ")}.
 - speech: one of ${SPEECH_KINDS.map((s) => `"${s}"`).join(", ")}.
