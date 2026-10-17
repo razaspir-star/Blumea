@@ -33,6 +33,7 @@ const compare2 = {
   deepOtherPlatformLink: "Platform vs platform",
   usualDeepBody: "Blumea compares this video with your other videos of the same format, and looks at how its hook did among them. A video that has not been read yet is read when you press the button (YouTube uses one of your analyses). On TikTok you upload the video once.",
   usualUploadHint: "This TikTok video has not been read yet. Upload it once so Blumea can read it.",
+  usualUploadNeeded: "To compare this TikTok video in depth with your other videos, Blumea needs to read it first. Upload it once.",
   usualTitle: "Video vs your other videos",
   usualSubtitle: "How this video did compared with the rest of your videos on the same platform.",
   thisVideo: "This video",

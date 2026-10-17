@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import AppLink from "@/components/AppLink";
@@ -12,7 +12,6 @@ import { loadDashboardData, type DashboardVideo } from "@/lib/dashboard-data";
 import { USUAL_MIN_OTHERS, usualComparison, type UsualRow } from "@/lib/compare-groups";
 import { hookInfoOf, usualDeep, type HookInfo } from "@/lib/compare-usual-deep";
 import { show } from "@/lib/compare-format";
-import { askCompareAccess } from "@/lib/use-compare-access";
 import { supabase } from "@/lib/supabase";
 import { useT } from "@/lib/i18n/client";
 import { GROUP_MIN } from "@/lib/compare-groups";
@@ -61,19 +60,19 @@ function PoolTable({ rows, poolLabel }: { rows: UsualRow[]; poolLabel: string })
   );
 }
 
-// A video against the creator's other videos on the same platform. In depth (a button): against the other
-// videos of the same format, and how its hook did among them.
+// A video against the creator's other videos on the same platform, always in depth (Pro only, so no
+// button): against the other videos of the same format, and how its hook did among them. A YouTube video
+// that was only scanned is read first; a TikTok video needs to be uploaded once.
 export default function UsualPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const t = useT();
   const [videos, setVideos] = useState<DashboardVideo[] | null>(null);
   const [version, setVersion] = useState(0);
-  const [deepRun, setDeepRun] = useState(false);
-  const [deepNote, setDeepNote] = useState<string | null>(null);
-  const [hooks, setHooks] = useState<Map<string, HookInfo>>(new Map());
+  const [hooks, setHooks] = useState<Map<string, HookInfo> | null>(null);
   const [reading, setReading] = useState(false);
   const [readError, setReadError] = useState<string | null>(null);
   const [uploadOpen, setUploadOpen] = useState(false);
+  const readTried = useRef(false);
   const valid = UUID.test(id);
 
   useEffect(() => {
@@ -86,6 +85,58 @@ export default function UsualPage({ params }: { params: Promise<{ id: string }> 
       cancelled = true;
     };
   }, [valid, version]);
+
+  // The in-depth part: runs by itself once the numbers are in.
+  useEffect(() => {
+    if (!videos) return;
+    const current = videos.find((item) => item.id === id);
+    if (!current) return;
+    let cancelled = false;
+
+    async function run(video: DashboardVideo) {
+      if (!video.analyzed) {
+        // A YouTube video that was only scanned is read now (it uses one of the creator's analyses), once.
+        if (video.platform !== "youtube" || readTried.current) return;
+        readTried.current = true;
+        setReadError(null);
+        setReading(true);
+        const { data: session } = await supabase.auth.getSession();
+        const response = await fetch("/api/analyze/youtube", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${session.session?.access_token ?? ""}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ videoId: video.platformVideoId }),
+        }).catch(() => null);
+        if (cancelled) return;
+        if (!response || !response.ok) {
+          const body = response ? await response.json().catch(() => null) : null;
+          setReadError(t("compare.readFailed", { title: video.title, reason: body?.error ?? "" }));
+          setReading(false);
+          return;
+        }
+        const fresh = (await loadDashboardData()).videos;
+        if (cancelled) return;
+        setVideos(fresh);
+        setReading(false);
+        return;
+      }
+
+      // The hooks (as written and said) of this video and of the read videos of the same format.
+      const ids = videos!
+        .filter((item) => item.platform === video.platform && item.analyzed && (item.id === video.id || (video.formatId && item.formatId === video.formatId)))
+        .map((item) => item.id);
+      const map = new Map<string, HookInfo>();
+      if (ids.length > 0) {
+        const { data } = await supabase.from("video_ai_profiles").select("video_id, fields").in("video_id", ids).eq("is_current", true);
+        for (const row of data ?? []) map.set(row.video_id as string, hookInfoOf(row.fields as Record<string, { value?: unknown }> | null));
+      }
+      if (!cancelled) setHooks(map);
+    }
+
+    run(current);
+    return () => {
+      cancelled = true;
+    };
+  }, [videos, id, t]);
 
   if (!valid) notFound();
 
@@ -102,54 +153,7 @@ export default function UsualPage({ params }: { params: Promise<{ id: string }> 
   const result = usualComparison(video, videos, t);
   const thumb = thumbOf(video);
   const needsUpload = video.platform === "tiktok" && !video.analyzed;
-
-  async function runDeep(current: DashboardVideo) {
-    setDeepNote(null);
-    const access = await askCompareAccess("deep", `usual:${current.id}`);
-    if (!access || !access.allowed) {
-      const date = access ? new Date(access.resetsOn).toLocaleDateString(t.locale === "he" ? "he-IL" : "en-US", { month: "long", day: "numeric", timeZone: "UTC" }) : "";
-      setDeepNote(access ? t("compare.deepCapReached", { cap: access.cap ?? 0, date }) : t("compare.deepAccessFailed"));
-      return;
-    }
-
-    // A YouTube video that was only scanned is read now (it uses one of the creator's analyses).
-    let list = videos as DashboardVideo[];
-    if (current.platform === "youtube" && !current.analyzed) {
-      setReadError(null);
-      setReading(true);
-      const { data: session } = await supabase.auth.getSession();
-      const response = await fetch("/api/analyze/youtube", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${session.session?.access_token ?? ""}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ videoId: current.platformVideoId }),
-      }).catch(() => null);
-      if (!response || !response.ok) {
-        const body = response ? await response.json().catch(() => null) : null;
-        setReadError(t("compare.readFailed", { title: current.title, reason: body?.error ?? "" }));
-        setReading(false);
-        return;
-      }
-      list = (await loadDashboardData()).videos;
-      setVideos(list);
-      setReading(false);
-    }
-
-    // The hooks (as written and said) of this video and the read videos of the same format.
-    const fresh = list.find((item) => item.id === current.id);
-    const ids = list
-      .filter((item) => item.platform === current.platform && item.analyzed && (item.id === current.id || (fresh?.formatId && item.formatId === fresh.formatId)))
-      .map((item) => item.id);
-    const map = new Map<string, HookInfo>();
-    if (ids.length > 0) {
-      const { data } = await supabase.from("video_ai_profiles").select("video_id, fields").in("video_id", ids).eq("is_current", true);
-      for (const row of data ?? []) map.set(row.video_id as string, hookInfoOf(row.fields as Record<string, { value?: unknown }> | null));
-    }
-    setHooks(map);
-    setDeepRun(true);
-    setTimeout(() => document.getElementById("deep-results")?.scrollIntoView({ behavior: "smooth", block: "start" }), 120);
-  }
-
-  const deep = deepRun && video.analyzed ? usualDeep(video, videos, hooks, t) : null;
+  const deep = video.analyzed && hooks ? usualDeep(video, videos, hooks, t) : null;
 
   return frame(
     <>
@@ -209,43 +213,22 @@ export default function UsualPage({ params }: { params: Promise<{ id: string }> 
       )}
       {readError && <p className="mt-4 rounded-2xl bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-700">{readError}</p>}
 
-      {!deepRun && (
+      {needsUpload && (
         <div className="blumea-step mt-6 rounded-2xl border border-blumea-blue/25 bg-white p-4 shadow-sm">
           <p className="text-sm font-semibold text-blumea-navy">{t("compare.deepTitle")}</p>
-          <p className="mt-1 text-sm leading-6 text-blumea-slate">{t("compare2.usualDeepBody")}</p>
-          {deepNote && <p className="mt-2 text-sm text-rose-700">{deepNote}</p>}
-
-          {video.platform === "youtube" && !video.analyzed && <p className="mt-2 text-xs leading-5 text-blumea-slate">{t("compare.stepYoutubeRead")}</p>}
-          {needsUpload && (
-            <div className="mt-3 flex flex-wrap items-center gap-3 rounded-xl border border-slate-200/70 bg-slate-50/60 px-3 py-2.5">
-              <p className="min-w-0 flex-1 text-xs leading-5 text-blumea-slate">{t("compare2.usualUploadHint")}</p>
-              <button
-                type="button"
-                onClick={() => setUploadOpen(true)}
-                className="rounded-full bg-blumea-navy px-3.5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-blumea-blue"
-              >
-                {t("compare.stepUploadVideo")}
-              </button>
-            </div>
-          )}
-
+          <p className="mt-1 text-sm leading-6 text-blumea-slate">{t("compare2.usualUploadNeeded")}</p>
           <button
             type="button"
-            disabled={needsUpload || reading}
-            onClick={() => runDeep(video)}
-            className={
-              !needsUpload && !reading
-                ? "mt-4 rounded-full bg-blumea-navy px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blumea-blue"
-                : "mt-4 cursor-not-allowed rounded-full bg-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-400"
-            }
+            onClick={() => setUploadOpen(true)}
+            className="mt-3 rounded-full bg-blumea-navy px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blumea-blue"
           >
-            {needsUpload ? t("compare.deepGoWait") : t("compare.deepGo")}
+            {t("compare.stepUploadVideo")}
           </button>
         </div>
       )}
 
       {deep && (
-        <div id="deep-results" className="blumea-reveal-down scroll-mt-6 pb-8">
+        <div id="deep-results" className="blumea-reveal-down pb-8">
           <h2 className="mt-10 text-2xl font-semibold tracking-tight text-blumea-navy">{t("compare.deepResultTitle")}</h2>
           {!deep.formatId ? (
             <p className="mt-4 rounded-2xl border border-dashed border-slate-300 bg-white/60 p-4 text-sm leading-6 text-blumea-slate">{t("compare2.formatUnknown")}</p>
