@@ -6,6 +6,7 @@ import { Check } from "lucide-react";
 import Modal from "@/components/Modal";
 import { PlatformIcon } from "@/components/PlatformBadge";
 import { useAppRouter } from "@/lib/use-app-router";
+import { useProfile } from "@/components/AppShell";
 import { loadDashboardData, type DashboardVideo } from "@/lib/dashboard-data";
 import { GROUP_MIN, groupOptions, type GroupKind } from "@/lib/compare-groups";
 import { formatLabel } from "@/lib/format-library";
@@ -34,6 +35,8 @@ function thumbOf(video: DashboardVideo): string | null {
 export default function ComparePicker({ onClose, initialA }: { onClose: () => void; initialA?: string }) {
   const t = useT();
   const router = useAppRouter();
+  const profile = useProfile();
+  const free = profile.plan !== "pro" && profile.plan !== "owner";
   const [videos, setVideos] = useState<DashboardVideo[] | null>(null);
   const [type, setType] = useState<CompareType | null>(null);
   const [aId, setAId] = useState<string | null>(initialA ?? null);
@@ -169,7 +172,7 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
   }
 
   // ---- two formats / two openings ----
-  const groups = type === "format" || type === "hook" ? groupOptions(videos ?? [], type as GroupKind) : [];
+  const groups = aPlatform && (type === "format" || type === "hook") ? groupOptions(videos ?? [], type as GroupKind, aPlatform) : [];
   const groupName = (id: string) => (type === "format" ? formatLabel(id, t) : hookTypeLabel(id, t)) ?? id;
   const enoughGroups = groups.filter((group) => group.count >= GROUP_MIN).length >= 2;
 
@@ -193,7 +196,10 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
                   onClick={() => chooseType(item.id)}
                   className="rounded-2xl border border-slate-200 bg-white p-3.5 text-start transition-all hover:-translate-y-0.5 hover:border-blumea-blue hover:shadow-sm"
                 >
-                  <p className="text-sm font-semibold text-blumea-navy">{t(item.title)}</p>
+                  <p className="flex items-center gap-2 text-sm font-semibold text-blumea-navy">
+                    {t(item.title)}
+                    {free && item.id !== "videos" && <span className="rounded-full bg-blumea-mist px-2 py-0.5 text-[10px] font-semibold text-blumea-blue">{t("compare.proTag")}</span>}
+                  </p>
                   <p className="mt-0.5 text-xs leading-5 text-blumea-slate">{t(item.desc)}</p>
                 </button>
               ))}
@@ -287,9 +293,32 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
           )}
 
           {(type === "format" || type === "hook") && (
-            <div className="blumea-step">
-              {!enoughGroups ? (
-                <p className="mt-3 text-sm leading-6 text-blumea-slate">{t("compare2.groupsNeed", { min: GROUP_MIN })}</p>
+            <div key={aPlatform ?? "-"} className="blumea-step">
+              {!aPlatform ? (
+                <>
+                  <p className="mt-3 text-xs font-semibold text-blumea-navy">{t("compare.pickPlatformOne")}</p>
+                  {platformChoice((platform) => {
+                    setAPlatform(platform);
+                    setAId(null);
+                    setBId(null);
+                  })}
+                </>
+              ) : !enoughGroups ? (
+                <>
+                  <p className="mt-3 text-sm leading-6 text-blumea-slate">{t("compare2.groupsNeed", { min: GROUP_MIN })}</p>
+                  {groups.length > 0 && (
+                    <ul className="mt-2 space-y-1 text-xs leading-5 text-blumea-slate">
+                      {groups.map((group) => (
+                        <li key={group.id}>
+                          {groupName(group.id)}: {t("compare2.groupVideos", { count: group.count })}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <button type="button" onClick={() => setAPlatform(null)} className="mt-2 text-xs font-semibold text-blumea-blue hover:opacity-70">
+                    {t("compare.changePlatform")}
+                  </button>
+                </>
               ) : (
                 <>
                   <p className="mt-2 text-xs leading-5 text-blumea-slate">{t("compare2.chooseGroups")}</p>
@@ -327,7 +356,7 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
                     <button
                       type="button"
                       disabled={!aId || !bId}
-                      onClick={() => aId && bId && router.push(`/compare/group/${type}/${aId}/${bId}`)}
+                      onClick={() => aId && bId && router.push(`/compare/group/${type}/${aPlatform}/${aId}/${bId}`)}
                       className={
                         aId && bId
                           ? "rounded-full bg-blumea-navy px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blumea-blue"

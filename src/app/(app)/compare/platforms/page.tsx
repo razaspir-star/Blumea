@@ -53,6 +53,7 @@ export default function PlatformsPage() {
   const rows: { label: string; read: (p: PlatformSummary) => string }[] = [
     { label: t("compare2.rowFollowers"), read: (p) => show(p.followers, "count", t) },
     { label: t("compare2.rowVideos"), read: (p) => String(p.videos) },
+    { label: t("compare2.rowAnalyzed"), read: (p) => String(p.analyzed) },
     { label: t("compare2.rowTypicalViews"), read: (p) => show(p.typicalViews, "count", t) },
     { label: t("compare2.rowTypicalLikes"), read: (p) => show(p.typicalLikes, "count", t) },
     { label: t("compare2.rowTypicalEngagement"), read: (p) => show(p.typicalEngagement, "decimal", t) },

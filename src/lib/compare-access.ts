@@ -19,10 +19,12 @@ export type CompareAccess = {
   resetsOn: string;
 };
 
-// Video vs your other videos (key starts with "usual:") is for Pro and owner only.
+// Everything except video vs video (keys "usual:", "group:", "platforms") is for Pro and owner only.
+const isProOnly = (key: string) => key.startsWith("usual:") || key.startsWith("group:") || key === "platforms";
+
 function capFor(plan: string, kind: CompareKind, key: string): number | null {
   if (plan === "owner") return null;
-  if (kind === "regular") return plan === "pro" ? null : key.startsWith("usual:") ? 0 : FREE_REGULAR_PER_MONTH;
+  if (kind === "regular") return plan === "pro" ? null : isProOnly(key) ? 0 : FREE_REGULAR_PER_MONTH;
   return plan === "pro" ? PRO_DEEP_PER_MONTH : 0;
 }
 

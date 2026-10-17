@@ -122,10 +122,10 @@ export type GroupKind = "format" | "hook";
 export const groupIdOf = (v: DashboardVideo, by: GroupKind) => (by === "format" ? v.formatId : v.hookTypeId);
 
 // The groups the creator can pick from: YouTube videos Blumea has read, by format or opening.
-export function groupOptions(videos: DashboardVideo[], by: GroupKind): { id: string; count: number }[] {
+export function groupOptions(videos: DashboardVideo[], by: GroupKind, platform: string): { id: string; count: number }[] {
   const counts = new Map<string, number>();
   for (const v of videos) {
-    const id = v.platform === "youtube" && v.analyzed ? groupIdOf(v, by) : null;
+    const id = v.platform === platform && v.analyzed ? groupIdOf(v, by) : null;
     if (id) counts.set(id, (counts.get(id) ?? 0) + 1);
   }
   return [...counts.entries()].map(([id, count]) => ({ id, count })).sort((x, y) => y.count - x.count);
@@ -141,8 +141,8 @@ export type GroupResult = {
   notes: string[];
 };
 
-export function groupComparison(videos: DashboardVideo[], by: GroupKind, idA: string, idB: string, nameA: string, nameB: string, t: Translator): GroupResult {
-  const pool = videos.filter((v) => v.platform === "youtube" && v.analyzed);
+export function groupComparison(videos: DashboardVideo[], by: GroupKind, platform: string, idA: string, idB: string, nameA: string, nameB: string, t: Translator): GroupResult {
+  const pool = videos.filter((v) => v.platform === platform && v.analyzed);
   const a = pool.filter((v) => groupIdOf(v, by) === idA);
   const b = pool.filter((v) => groupIdOf(v, by) === idB);
   const enough = a.length >= GROUP_MIN && b.length >= GROUP_MIN;
@@ -187,6 +187,7 @@ export type PlatformSummary = {
   platform: string;
   followers: number | null;
   videos: number;
+  analyzed: number;
   typicalViews: number | null;
   typicalLikes: number | null;
   typicalEngagement: number | null;
@@ -207,6 +208,7 @@ export function platformSummary(videos: DashboardVideo[], accounts: DashboardAcc
     platform,
     followers: accounts.find((account) => account.platform === platform)?.followers ?? null,
     videos: own.length,
+    analyzed: own.filter((v) => v.analyzed).length,
     typicalViews,
     typicalLikes: medianOf(own.map((v) => v.likes)),
     typicalEngagement: medianOf(own.map(engagement)),

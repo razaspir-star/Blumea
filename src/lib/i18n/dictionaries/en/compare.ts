@@ -119,6 +119,7 @@
   formatLink: "Compare the two formats across my videos",
   pickPlatformOne: "Choose the platform of the video",
   updateNumbers: "Update screenshots",
+  proTag: "Pro",
   noGap: "There's no big enough gap between these two videos.",
   differ: "They differ in: {list}. To learn which one matters, change just one thing at a time in your next video.",
   disclaimer: "Based on these two videos.",

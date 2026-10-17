@@ -160,7 +160,7 @@ export default function WordingCompare({
               </div>
               {result.formatCompare && (
                 <AppLink
-                  href={`/compare/group/format/${result.formatCompare.a}/${result.formatCompare.b}`}
+                  href={`/compare/group/format/youtube/${result.formatCompare.a}/${result.formatCompare.b}`}
                   className="mt-3 inline-block rounded-full bg-blumea-navy px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blumea-blue"
                 >
                   {t("compare.formatLink")}

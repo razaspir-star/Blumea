@@ -10,10 +10,10 @@ import { formatLabel } from "@/lib/format-library";
 import { hookTypeLabel } from "@/lib/hook-library";
 import { useT } from "@/lib/i18n/client";
 
-// Format against format, or opening against opening: the creator's own YouTube videos
-// that Blumea has read, grouped, with the typical (median) of each group.
-export default function GroupComparePage({ params }: { params: Promise<{ by: string; a: string; b: string }> }) {
-  const { by: rawBy, a: idA, b: idB } = use(params);
+// Format against format, or hook against hook, on one platform: the creator's own videos there
+// that Blumea has read, grouped, with the typical (middle value) of each group.
+export default function GroupComparePage({ params }: { params: Promise<{ by: string; platform: string; a: string; b: string }> }) {
+  const { by: rawBy, platform: rawPlatform, a: idA, b: idB } = use(params);
   const t = useT();
   const [videos, setVideos] = useState<DashboardVideo[] | null>(null);
   const by: GroupKind | null = rawBy === "format" || rawBy === "hook" ? rawBy : null;
@@ -28,21 +28,22 @@ export default function GroupComparePage({ params }: { params: Promise<{ by: str
     };
   }, []);
 
-  if (!by) notFound();
+  const platform = rawPlatform === "youtube" || rawPlatform === "tiktok" ? rawPlatform : null;
+  if (!by || !platform) notFound();
 
   const label = (id: string) => (by === "format" ? formatLabel(id, t) : hookTypeLabel(id, t)) ?? id;
   const nameA = label(idA);
   const nameB = label(idB);
 
   const frame = (children: React.ReactNode) => (
-    <CompareFrame title={t(by === "format" ? "compare2.groupTitleFormat" : "compare2.groupTitleHook")} subtitle={t("compare2.groupSubtitle")} accessKey={`group:${rawBy}:${[idA, idB].sort().join(",")}`}>
+    <CompareFrame title={t(by === "format" ? "compare2.groupTitleFormat" : "compare2.groupTitleHook")} subtitle={t("compare2.groupSubtitle")} accessKey={`group:${rawBy}:${platform}:${[idA, idB].sort().join(",")}`}>
       {children}
     </CompareFrame>
   );
 
   if (videos === null) return frame(<p className="mt-8 text-sm text-blumea-slate">{t("compare.loading")}</p>);
 
-  const result = groupComparison(videos, by, idA, idB, nameA, nameB, t);
+  const result = groupComparison(videos, by, platform, idA, idB, nameA, nameB, t);
   const tooFew = [
     { name: nameA, count: result.countA },
     { name: nameB, count: result.countB },
