@@ -2,7 +2,7 @@
   evidenceYoutube: "Based on {count} YouTube videos",
   lengthSharedTitle: "Your {format} videos hold viewers better.",
   lengthSharedBody:
-    "In your {betterCount} videos {side} — {domCount} of them {format} — viewers watched a median {betterPct}% of the video. In your {worseCount} {other} ones, {worsePct}%. Length and format go together in your videos, so Blumea can't tell which one it is.",
+    "In your {betterCount} videos {side} — {domCount} of them {format} — viewers typically watched {betterPct}% of the video. In your {worseCount} {other} ones, {worsePct}%. Length and format go together in your videos, so Blumea can't tell which one it is.",
   sideUpTo: "up to {sec} sec",
   sideOver: "over {sec} sec",
   otherLonger: "longer",
@@ -10,7 +10,7 @@
   lengthShortTitle: "Your shorter videos hold viewers better.",
   lengthLongTitle: "Your longer videos hold viewers better.",
   lengthBody:
-    "In your {shortCount} videos up to {cutoff} sec, viewers watched a median {shortPct}% of the video. In your {longCount} longer ones, {longPct}%. A pattern in your videos — it doesn't prove length is the reason.",
+    "In your {shortCount} videos up to {cutoff} sec, viewers typically watched {shortPct}% of the video. In your {longCount} longer ones, {longPct}%. A pattern in your videos — it doesn't prove length is the reason.",
   consistentTitle: "Your videos are consistent.",
   consistentBody:
     "A typical video of yours runs about {dur} sec and viewers watch about {pct}% of it. Shorter and longer ones don't differ clearly yet. Best at holding viewers: “{title}” ({bestPct}%).",
@@ -37,7 +37,7 @@
   followersTop: "The video your followers carried most: “{title}” ({pct} of its views{extra}).",
   followersTopExtra: ", about {n} views from followers per 100 followers",
   followersReach:
-    "Your {higherCount} videos with more followers watching got a median {higher} views vs {lower} for the other {lowerCount}{tail}. A pattern in your videos; it doesn't prove followers are the reason.",
+    "Your {higherCount} videos with more followers watching typically got {higher} views, against {lower} for the other {lowerCount}{tail}. A pattern in your videos; it doesn't prove followers are the reason.",
   followersReachSimilar: ", at a similar length",
   followersReachDiffers: " — but their lengths differ a lot, so it may be the length",
   followersGained:
@@ -76,23 +76,23 @@
   postSameEvidence: "Based on {count} videos",
   postPatternTitle: "When you post may matter.",
   postPatternBody:
-    "Your {betterCount} videos posted {better} got a median {betterViews} views vs {worseViews} for your {worseCount} posted {worse}. A pattern in your videos; it doesn't prove the time is the reason.",
+    "Your {betterCount} videos posted {better} typically got {betterViews} views, against {worseViews} for your {worseCount} posted {worse}. A pattern in your videos; it doesn't prove the time is the reason.",
 };
 
 const exp = {
   askAgainTitle: "Invite a comment with a personal promise again",
   askAgainWhy:
     "{title} asked for comments and promised something back ({text}). It got {per100} comments per 100 views, about {x}× the {usual} of your videos that ask nothing. One video, not a pattern.",
-  askAgainHow: "Look at comments per 100 views after a few days, and compare with that video and with your usual.",
+  askAgainHow: "Look at comments per 100 views after a few days, and compare with that video and with your other videos.",
   askAgainEvidence: "1 video, against {count} that ask nothing",
   askAgainExtra: "It also drew {comments} comments.",
   repeatTitle: "Make another video like {title}",
   repeatWhy:
-    "It is your most-viewed: {views} views, {x}× the usual {usual} across your {count} videos with 1K+ views{format}. A second one shows whether it was the idea or a lucky post.",
+    "It is your most-viewed: {views} views, {x}× what your videos usually get ({usual}), across your {count} videos with 1K+ views{format}. A second one shows whether it was the idea or a lucky post.",
   repeatFormat: ". It is a {format} video",
-  repeatHow: "Compare its views after a few days with the usual, and with that video.",
+  repeatHow: "Compare its views after a few days with your other videos, and with that video.",
   repeatEvidence: "{count} videos with 1K+ views",
-  repeatExtra: "It is also your most-viewed: {views} views, {x}× your usual.",
+  repeatExtra: "It is also your most-viewed: {views} views, {x}× what your videos usually get.",
   followersTitle: "Try a video in the style of {title}",
   followersWhy:
     "It won {gained} new followers, {per1000} per 1,000 views, while a typical video of yours wins about {median}.",
@@ -108,7 +108,7 @@ const exp = {
   timeTitle: "Post one video at a different time",
   timeWhy:
     "{count} of your {of} videos went out {window}. Blumea can't say whether another time would work better for you.",
-  timeHow: "Compare the new video's views after three days with your usual, remembering it is one video.",
+  timeHow: "Compare the new video's views after three days with your other videos, remembering it is one video.",
   timeEvidence: "{of} videos, all at about the same time",
   rewatchTitle: "Find what made {title} get rewatched",
   rewatchWhy:

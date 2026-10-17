@@ -42,6 +42,22 @@ const METRICS: Metric[] = [
 const fmtValue = (x: number, format: MetricFormat) =>
   format === "percent" ? `${Math.round(x)}%` : format === "count" ? formatCount(x) : x.toFixed(2).replace(/\.?0+$/, "");
 
+// One line of "the biggest gaps": a multiple for counts, "a vs b" for percentages.
+type Gap = { size: number; text: string };
+function gapItem(m: Metric, hi: number, lo: number, more: boolean, valueFirst: number, valueSecond: number, t: Translator): Gap {
+  if (m.kind === "points") {
+    return { size: (hi - lo) / 8, text: t("compare2.itemPoints", { metric: t(m.key), a: fmtValue(valueFirst, m.format), b: fmtValue(valueSecond, m.format) }) };
+  }
+  const x = hi / lo;
+  return { size: x, text: t(more ? "compare2.itemMore" : "compare2.itemLess", { metric: t(m.key), x: x.toFixed(1).replace(/\.0$/, "") }) };
+}
+const topGaps = (gaps: Gap[]) =>
+  [...gaps]
+    .sort((x, y) => y.size - x.size)
+    .slice(0, 3)
+    .map((gap) => gap.text)
+    .join(", ");
+
 const medianOf = (values: (number | null)[]): number | null => {
   const real = values.filter((x): x is number => x !== null && Number.isFinite(x));
   return real.length ? median(real) : null;
@@ -70,20 +86,20 @@ export function usualComparison(video: DashboardVideo, all: DashboardVideo[], t:
 
   const statements: string[] = [];
   if (enough) {
-    const above: string[] = [];
-    const below: string[] = [];
+    const above: Gap[] = [];
+    const below: Gap[] = [];
     METRICS.forEach((m) => {
       const row = rows.find((r) => r.key === m.key);
       if (!row || row.value === null || row.usual === null) return;
       const clear =
-        m.kind === "points" ? Math.abs(row.value - row.usual) >= 8 : row.usual > 0 && (row.value / row.usual >= 1.5 || row.value / row.usual <= 1 / 1.5);
+        m.kind === "points" ? Math.abs(row.value - row.usual) >= 8 : row.usual > 0 && row.value > 0 && (row.value / row.usual >= 1.5 || row.value / row.usual <= 1 / 1.5);
       if (!clear) return;
-      (row.value > row.usual ? above : below).push(
-        t("compare2.itemVs", { metric: t(m.key), a: fmtValue(row.value, m.format), b: fmtValue(row.usual, m.format) })
-      );
+      if (row.value > row.usual) above.push(gapItem(m, row.value, row.usual, true, row.value, row.usual, t));
+      else below.push(gapItem(m, row.usual, row.value, false, row.value, row.usual, t));
     });
-    if (above.length > 0) statements.push(t("compare2.usualAbove", { video: name, list: above.join(", ") }));
-    if (below.length > 0) statements.push(t("compare2.usualBelow", { video: name, list: below.join(", ") }));
+    const total = rows.length;
+    if (above.length > 0) statements.push(t("compare2.usualAbove", { video: name, n: above.length, total, list: topGaps(above) }));
+    if (below.length > 0) statements.push(t("compare2.usualBelow", { video: name, n: below.length, total, list: topGaps(below) }));
     if (statements.length === 0) statements.push(t("compare2.usualClose", { video: name }));
   }
 
@@ -131,20 +147,22 @@ export function groupComparison(videos: DashboardVideo[], by: GroupKind, idA: st
 
   const statements: string[] = [];
   if (enough) {
-    const aheadA: string[] = [];
-    const aheadB: string[] = [];
+    const aheadA: Gap[] = [];
+    const aheadB: Gap[] = [];
+    let total = 0;
     for (const m of METRICS) {
       const row = rows.find((r) => r.key === m.key);
       if (!row || row.a === null || row.b === null) continue;
+      total += 1;
       const bigIsA = row.a >= row.b;
       const big = bigIsA ? row.a : row.b;
       const small = bigIsA ? row.b : row.a;
       const clear = m.kind === "points" ? big - small >= 8 : small > 0 && big / small >= 1.3;
       if (!clear) continue;
-      (bigIsA ? aheadA : aheadB).push(t("compare2.itemVs", { metric: t(m.key), a: fmtValue(big, m.format), b: fmtValue(small, m.format) }));
+      (bigIsA ? aheadA : aheadB).push(gapItem(m, big, small, true, big, small, t));
     }
-    if (aheadA.length > 0) statements.push(t("compare2.groupGap", { big: nameA, small: nameB, list: aheadA.join(", ") }));
-    if (aheadB.length > 0) statements.push(t("compare2.groupGap", { big: nameB, small: nameA, list: aheadB.join(", ") }));
+    if (aheadA.length > 0) statements.push(t("compare2.groupGap", { big: nameA, small: nameB, n: aheadA.length, total, list: topGaps(aheadA) }));
+    if (aheadB.length > 0) statements.push(t("compare2.groupGap", { big: nameB, small: nameA, n: aheadB.length, total, list: topGaps(aheadB) }));
     if (statements.length === 0) statements.push(t("compare.noGap"));
     if (lengthA !== null && lengthB !== null && Math.max(lengthA, lengthB) / Math.max(1, Math.min(lengthA, lengthB)) >= 1.5) {
       statements.push(t("compare2.lengthWarn", { a: t("compare.seconds", { n: Math.round(lengthA) }), b: t("compare.seconds", { n: Math.round(lengthB) }) }));

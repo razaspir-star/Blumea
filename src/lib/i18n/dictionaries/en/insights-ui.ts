@@ -1,6 +1,6 @@
 ﻿const formats = {
   title: "Your formats",
-  intro: "How your own YouTube videos compare by format. Typical (median) values, with the number of videos behind each.",
+  intro: "How your own YouTube videos compare by format: what a typical video of each format got (the middle value, so one viral video does not distort it), with the number of videos behind each.",
   colFormat: "Format",
   colVideos: "Videos",
   colViews: "Views",
@@ -13,7 +13,7 @@
   none: "No format has {min} analyzed videos yet, so there is nothing to compare.",
   bestTitle: "Formats that work for you",
   bestBody:
-    "Your {format} videos usually do better than your other videos: a median of {median} {metric} vs {rest}, and {beating} of {count} of them beat your other videos' median.",
+    "Your {format} videos usually do better than your other videos: they typically get {median} {metric}, against {rest} for your other videos, and {beating} of {count} of them did better than that.",
   bestKeep: "Worth keeping in the mix.",
   bestConfounded:
     "They also differ a lot in length from your other videos, so some of it may be the length rather than the format.",
@@ -21,12 +21,12 @@
   metricViews: "views",
   metricLikes: "likes",
   gapPattern:
-    "In your videos, {better} got more {metric} than {worse}: a median of {a} vs {b} ({ac} vs {bc} videos). This is a pattern in your videos; it doesn't prove the format is the reason.",
+    "In your videos, {better} got more {metric} than {worse}: typically {a} against {b} ({ac} vs {bc} videos). This is a pattern in your videos; it doesn't prove the format is the reason.",
   gapConfounded:
-    "{better} videos got more {metric} than {worse} videos (median {a} vs {b}), but they are also very different in length (typically {la} vs {lb}). Blumea can't tell whether the format or the length is behind the gap, so it won't say.",
+    "{better} videos got more {metric} than {worse} videos (typically {a} against {b}), but they are also very different in length (typically {la} vs {lb}). Blumea can't tell whether the format or the length is behind the gap, so it won't say.",
   withinTitle: "Length inside a format",
   withinText:
-    "{format}: your {half} shorter videos (up to {upTo} s) were watched for a median {sw} s ({sp}% of the video); your {half} longer ones (from {from} s), {lw} s ({lp}%).",
+    "{format}: your {half} shorter videos (up to {upTo} s) were typically watched for {sw} s ({sp}% of the video); your {half} longer ones (from {from} s), {lw} s ({lp}%).",
   withinStay: "Viewers stay longer on the longer ones, so length doesn't look like what's limiting them.",
   withinSame:
     "Viewers stop at about the same point either way, so the longer ones lose a bigger share — a tighter cut of the same piece may be worth a try.",

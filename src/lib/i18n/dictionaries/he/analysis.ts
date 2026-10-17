@@ -5,7 +5,7 @@ const fieldLabel: Dictionary["analysis"]["fieldLabel"] = {
   format: "פורמט",
   layout: "איך זה מוצג",
   hook_style: "סגנון",
-  hook_type: "פתיחה",
+  hook_type: "הוק",
   familiar_moment: "רגע מוכר",
   topic: "תוכן",
   subtitles_detected: "כתוביות",
@@ -48,8 +48,8 @@ const analysis: Dictionary["analysis"] = {
   howViewersWatched: "איך הצופים צפו",
   needsDays: "ב-{platform} לוקח בדרך כלל 2–3 ימים אחרי הפרסום עד שמדווחים איך אנשים צפו. כדאי לחזור מאוחר יותר.",
   notReported: "{platform} לא דיווחה על התנהגות הצופים בסרטון הזה.",
-  vsUsual: "לעומת {median} בדרך כלל",
-  vsCohort: "לעומת {median} בסרטוני {label} הרגילים שלך",
+  vsUsual: "לעומת {median} בשאר הסרטונים שלך",
+  vsCohort: "לעומת {median} בשאר סרטוני {label} שלך",
   cohortNoun: "סרטוני {label}",
   cohortNounAll: "סרטונים",
   views: "צפיות",
@@ -84,7 +84,7 @@ const analysis: Dictionary["analysis"] = {
   commentDisclaimer:
     "קצב התגובות בהשוואה ל-{count} הסרטונים האחרים שלך; הטקסט כפי שה-AI קרא אותו. סרטון אחד, אז אין הוכחה שהטקסט היה הסיבה.",
   commentBody:
-    "הסרטון הזה קיבל {comments} תגובות — בערך {per100} לכל 100 צפיות, לעומת {usual} בדרך כלל (בערך פי {multiple}).",
+    "הסרטון הזה קיבל {comments} תגובות — בערך {per100} לכל 100 צפיות, לעומת {usual} בשאר הסרטונים שלך (בערך פי {multiple}).",
   commentQuote: "הטקסט שעל המסך: ״{quote}״",
   commentAction: "שווה לנסות שוב הזמנה ישירה דומה ולראות אם התגובות חוזרות.",
   strongDisclaimer:

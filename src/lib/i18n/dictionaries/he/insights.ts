@@ -4,7 +4,7 @@ const cards: Dictionary["cards"] & Record<string, string> = {
   evidenceYoutube: "מבוסס על {count} סרטונים ב-YouTube",
   lengthSharedTitle: "הסרטונים שלך מסוג ״{format}״ שומרים על הצופים טוב יותר.",
   lengthSharedBody:
-    "ב-{betterCount} הסרטונים שלך {side} — {domCount} מהם מסוג ״{format}״ — הצופים צפו בחציון ב-{betterPct}% מהסרטון. ב-{worseCount} הסרטונים {other} שלך: {worsePct}%. אורך ופורמט הולכים יחד בסרטונים שלך, ולכן Blumea לא יכולה לדעת מי מהם הסיבה.",
+    "ב-{betterCount} הסרטונים שלך {side} — {domCount} מהם מסוג ״{format}״ — הצופים צפו בדרך כלל ב-{betterPct}% מהסרטון. ב-{worseCount} הסרטונים {other} שלך: {worsePct}%. אורך ופורמט הולכים יחד בסרטונים שלך, ולכן Blumea לא יכולה לדעת מי מהם הסיבה.",
   sideUpTo: "עד {sec} שניות",
   sideOver: "מעל {sec} שניות",
   otherLonger: "הארוכים יותר",
@@ -12,7 +12,7 @@ const cards: Dictionary["cards"] & Record<string, string> = {
   lengthShortTitle: "הסרטונים הקצרים שלך שומרים על הצופים טוב יותר.",
   lengthLongTitle: "הסרטונים הארוכים שלך שומרים על הצופים טוב יותר.",
   lengthBody:
-    "ב-{shortCount} הסרטונים שלך באורך של עד {cutoff} שניות, הצופים צפו בחציון ב-{shortPct}% מהסרטון. ב-{longCount} הסרטונים הארוכים יותר: {longPct}%. דפוס בסרטונים שלך — זה לא מוכיח שהאורך הוא הסיבה.",
+    "ב-{shortCount} הסרטונים שלך באורך של עד {cutoff} שניות, הצופים צפו בדרך כלל ב-{shortPct}% מהסרטון. ב-{longCount} הסרטונים הארוכים יותר: {longPct}%. דפוס בסרטונים שלך — זה לא מוכיח שהאורך הוא הסיבה.",
   consistentTitle: "הסרטונים שלך עקביים.",
   consistentBody:
     "סרטון טיפוסי שלך נמשך בערך {dur} שניות, והצופים צופים בכ-{pct}% ממנו. סרטונים קצרים וארוכים עדיין לא נבדלים בבירור. הכי טוב בשמירה על צופים: ״{title}״ ({bestPct}%).",
@@ -39,7 +39,7 @@ const cards: Dictionary["cards"] & Record<string, string> = {
   followersTop: "הסרטון שהעוקבים שלך נשאו הכי הרבה: ״{title}״ ({pct} מהצפיות שלו{extra}).",
   followersTopExtra: ", בערך {n} צפיות מעוקבים לכל 100 עוקבים",
   followersReach:
-    "ב-{higherCount} הסרטונים שלך שעוקבים צפו בהם יותר, החציון היה {higher} צפיות, לעומת {lower} ב-{lowerCount} האחרים{tail}. דפוס בסרטונים שלך; זה לא מוכיח שהעוקבים הם הסיבה.",
+    "ב-{higherCount} הסרטונים שלך שעוקבים צפו בהם יותר, הם קיבלו בדרך כלל {higher} צפיות, לעומת {lower} ב-{lowerCount} האחרים{tail}. דפוס בסרטונים שלך; זה לא מוכיח שהעוקבים הם הסיבה.",
   followersReachSimilar: ", באורך דומה",
   followersReachDiffers: " — אבל האורכים שלהם שונים מאוד, אז ייתכן שזה האורך",
   followersGained:
@@ -77,23 +77,23 @@ const cards: Dictionary["cards"] & Record<string, string> = {
   postSameEvidence: "מבוסס על {count} סרטונים",
   postPatternTitle: "ייתכן שהשעה שבה מפרסמים משנה.",
   postPatternBody:
-    "ב-{betterCount} הסרטונים שלך שעלו {better} החציון היה {betterViews} צפיות, לעומת {worseViews} ב-{worseCount} הסרטונים שעלו {worse}. דפוס בסרטונים שלך; זה לא מוכיח שהשעה היא הסיבה.",
+    "ב-{betterCount} הסרטונים שלך שעלו {better} הם קיבלו בדרך כלל {betterViews} צפיות, לעומת {worseViews} ב-{worseCount} הסרטונים שעלו {worse}. דפוס בסרטונים שלך; זה לא מוכיח שהשעה היא הסיבה.",
 };
 
 const exp: Dictionary["exp"] = {
   askAgainTitle: "להזמין שוב תגובה עם הבטחה אישית",
   askAgainWhy:
     "{title} ביקש תגובות והבטיח משהו בחזרה ({text}). הוא קיבל {per100} תגובות לכל 100 צפיות, בערך פי {x} מ-{usual} בסרטונים שלך שלא מבקשים כלום. סרטון אחד, לא דפוס.",
-  askAgainHow: "כדאי להסתכל על תגובות לכל 100 צפיות אחרי כמה ימים, ולהשוות לסרטון ההוא ולרגיל שלך.",
+  askAgainHow: "כדאי להסתכל על תגובות לכל 100 צפיות אחרי כמה ימים, ולהשוות לסרטון ההוא ולשאר הסרטונים שלך.",
   askAgainEvidence: "סרטון אחד, מול {count} שלא מבקשים כלום",
   askAgainExtra: "הוא גם משך {comments} תגובות.",
   repeatTitle: "לעשות עוד סרטון כמו {title}",
   repeatWhy:
-    "זה הסרטון עם הכי הרבה צפיות: {views} צפיות, פי {x} מהרגיל ({usual}) על פני {count} הסרטונים שלך עם 1K+ צפיות{format}. סרטון שני יראה אם זה היה הרעיון או פרסום ברת מזל.",
+    "זה הסרטון עם הכי הרבה צפיות: {views} צפיות, פי {x} ממה שהסרטונים שלך מקבלים בדרך כלל ({usual}) על פני {count} הסרטונים שלך עם 1K+ צפיות{format}. סרטון שני יראה אם זה היה הרעיון או פרסום ברת מזל.",
   repeatFormat: ". זה סרטון מסוג ״{format}״",
-  repeatHow: "כדאי להשוות את הצפיות שלו אחרי כמה ימים לרגיל, ולסרטון ההוא.",
+  repeatHow: "כדאי להשוות את הצפיות שלו אחרי כמה ימים לשאר הסרטונים שלך, ולסרטון ההוא.",
   repeatEvidence: "{count} סרטונים עם 1K+ צפיות",
-  repeatExtra: "הוא גם הסרטון עם הכי הרבה צפיות: {views} צפיות, פי {x} מהרגיל.",
+  repeatExtra: "הוא גם הסרטון עם הכי הרבה צפיות: {views} צפיות, פי {x} ממה שהסרטונים שלך מקבלים בדרך כלל.",
   followersTitle: "לנסות סרטון בסגנון של {title}",
   followersWhy:
     "הוא הרוויח {gained} עוקבים חדשים, {per1000} לכל 1,000 צפיות, בזמן שסרטון טיפוסי שלך מרוויח בערך {median}.",
@@ -109,7 +109,7 @@ const exp: Dictionary["exp"] = {
   timeTitle: "לפרסם סרטון אחד בשעה אחרת",
   timeWhy:
     "{count} מתוך {of} הסרטונים שלך עלו {window}. Blumea לא יכולה להגיד אם שעה אחרת הייתה עובדת טוב יותר.",
-  timeHow: "כדאי להשוות את הצפיות של הסרטון החדש אחרי שלושה ימים לרגיל שלך, ולזכור שזה סרטון אחד.",
+  timeHow: "כדאי להשוות את הצפיות של הסרטון החדש אחרי שלושה ימים לשאר הסרטונים שלך, ולזכור שזה סרטון אחד.",
   timeEvidence: "{of} סרטונים, כולם בערך באותה שעה",
   rewatchTitle: "למצוא מה גרם ל-{title} להיצפות שוב",
   rewatchWhy:

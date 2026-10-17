@@ -3,7 +3,7 @@ const fieldLabel = {
   format: "Format",
   layout: "How it's shown",
   hook_style: "Style",
-  hook_type: "Opening",
+  hook_type: "Hook",
   familiar_moment: "Familiar moment",
   topic: "Content",
   subtitles_detected: "Subtitles",
@@ -46,8 +46,8 @@ const analysis = {
   howViewersWatched: "How viewers watched",
   needsDays: "{platform} usually needs 2–3 days after posting before it reports how people watched. Check back later.",
   notReported: "{platform} hasn't reported viewer behavior for this video.",
-  vsUsual: "vs your usual {median}",
-  vsCohort: "vs your usual {label} videos: {median}",
+  vsUsual: "against {median} in your other videos",
+  vsCohort: "against {median} in your other {label} videos",
   cohortNoun: "{label} videos",
   cohortNounAll: "analyzed videos",
   views: "Views",
@@ -83,7 +83,7 @@ const analysis = {
   commentDisclaimer:
     "Comment rate compared with your other {count} videos; the text is as the AI read it. One video, so no proof the text was the reason.",
   commentBody:
-    "This video drew {comments} comments — about {per100} per 100 views vs your usual {usual} (about {multiple}×).",
+    "This video drew {comments} comments — about {per100} per 100 views against {usual} in your other videos (about {multiple}×).",
   commentQuote: "Its on-screen text: “{quote}”",
   commentAction: "Worth trying a similar direct invitation again and seeing if comments repeat.",
   strongDisclaimer:

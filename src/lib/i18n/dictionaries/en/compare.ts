@@ -53,7 +53,7 @@
   disclaimer: "One pair of videos: something to look at, not proof of why one did better.",
   small: "One of them has under 1,000 views, so its numbers are noisy. Take this loosely.",
   pickerKicker: "COMPARE",
-  pickerTitle: "Compare two videos",
+  pickerTitle: "Compare",
   pickFirst: "Choose the first video",
   pickSecond: "Now choose a video to compare it with",
   samePlatform: "Only videos from the same platform can be compared, because views mean different things on different platforms.",
