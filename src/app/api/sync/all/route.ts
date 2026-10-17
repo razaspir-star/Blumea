@@ -3,9 +3,11 @@ import { timingSafeEqual } from "node:crypto";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { syncProfile } from "@/lib/sync";
 import { cleanupStaleUploads } from "@/lib/upload-cleanup";
+import { runDueIdeaAnalyses } from "@/lib/idea-auto";
 
 // Syncing many creators in one call can take a while.
-export const maxDuration = 60;
+// The scheduled analyses of videos posted for an idea (a few, one after another) need room.
+export const maxDuration = 300;
 
 // For a scheduler: syncs every creator with a connected account. Protected by
 // CRON_SECRET; without that env var set, it answers 404. Two ways in:
@@ -33,7 +35,9 @@ async function run(request: NextRequest) {
   }
   // Also sweep any uploaded video that was left behind (normally none).
   const uploadsRemoved = await cleanupStaleUploads(getSupabaseAdmin()).catch(() => -1);
-  return NextResponse.json({ profiles: profileIds.length, uploadsRemoved, results });
+  // The videos creators posted for an idea and asked to have analyzed on this day (YouTube).
+  const ideas = await runDueIdeaAnalyses(getSupabaseAdmin(), 200_000).catch(() => null);
+  return NextResponse.json({ profiles: profileIds.length, uploadsRemoved, ideas, results });
 }
 
 export const POST = run;
