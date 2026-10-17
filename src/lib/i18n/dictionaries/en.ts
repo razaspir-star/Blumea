@@ -13,6 +13,7 @@ import connections from "./en/connections";
 import home from "./en/home";
 import errors from "./en/errors";
 import compare from "./en/compare";
+import compare2 from "./en/compare2";
 
 const en = {
   ...auth,
@@ -28,6 +29,7 @@ const en = {
   ...home,
   ...errors,
   ...compare,
+  ...compare2,
   common: {
     language: "Language",
     english: "English",

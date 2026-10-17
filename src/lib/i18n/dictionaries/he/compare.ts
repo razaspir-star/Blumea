@@ -34,6 +34,7 @@ const compare: Dictionary["compare"] = {
   metricDrop: "הירידה החדה ביותר ב-",
   metricRewatch: "צפיות חוזרות (התחלות לכל צפייה)",
   metricFollowers: "צפיות מעוקבים",
+  metricFollowersGained: "עוקבים חדשים לכל 1,000 צפיות",
   metricTraffic: "המקור העיקרי לצפיות",
   metricFull: "נצפה עד הסוף",
   metricNewFollowers: "עוקבים חדשים",

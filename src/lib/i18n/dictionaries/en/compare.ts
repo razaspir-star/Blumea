@@ -32,6 +32,7 @@
   metricDrop: "Sharpest drop at",
   metricRewatch: "Rewatches (starts per view)",
   metricFollowers: "Views from followers",
+  metricFollowersGained: "New followers per 1,000 views",
   metricTraffic: "Main source of views",
   metricFull: "Watched to the end",
   metricNewFollowers: "New followers",

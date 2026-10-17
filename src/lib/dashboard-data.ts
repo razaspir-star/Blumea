@@ -4,6 +4,7 @@ import { lengthVsWatchSharePattern, type LengthWatchPattern } from "@/lib/insigh
 import {
   biggestDropRule,
   payoffAfterAvgWatchRule,
+  stayedToWatchPct,
   type KeyMoment,
 } from "@/lib/insight-rules";
 import { platformHas } from "@/lib/platform-capabilities";
@@ -56,6 +57,9 @@ export type DashboardVideo = {
   // True when Blumea has read the video with AI (an AI profile exists). A video
   // found by the First Scan has numbers only.
   analyzed: boolean;
+  // How the opening works (hook library id) and the "stayed past the opening" estimate, for comparisons.
+  hookTypeId: string | null;
+  stayedPct: number | null;
   // A picture for the card: TikTok covers copied to our storage (YouTube builds its own from the id).
   thumbnailUrl: string | null;
   // From the YouTube Analytics breakdowns (null when not available yet).
@@ -146,6 +150,8 @@ export async function loadDashboardData(): Promise<DashboardData> {
       publishedAt: video.published_at ?? null,
       formatId: typeof fields?.format?.value === "string" ? (fields.format.value as string) : null,
       analyzed: fields !== undefined,
+      hookTypeId: typeof fields?.hook_type?.value === "string" ? (fields.hook_type.value as string) : null,
+      stayedPct: stayedToWatchPct((snapshot.breakdowns as { engagement?: { views: number; engagedViews: number } } | null)?.engagement),
       thumbnailUrl: video.thumbnail_path ? supabase.storage.from("video-thumbs").getPublicUrl(video.thumbnail_path).data.publicUrl : null,
       ctaRead: fields !== undefined && "call_to_action" in fields,
       cta: ctaOf(fields?.call_to_action?.value),
