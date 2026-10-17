@@ -102,6 +102,7 @@
   recHookOnly: "The content is similar, and the hook is the main difference. {better} got clearly more views. Worth trying the hook style of {better} in a new video.",
   recSetting: "{better} got clearly more views. The setting differs. {better}: {sb}. {weaker}: {sw}. Worth trying {cw}, the content of {weaker}, in a setting like the one of {better}.",
   recSettingOnly: "{better} got clearly more views. The setting differs. {better}: {sb}. {weaker}: {sw}. Worth filming the next video in a setting like the one of {better}.",
+  stepReread: "Read again (adds the setting)",
   noGap: "There's no big enough gap between these two videos.",
   differ: "They differ in: {list}. To learn which one matters, change just one thing at a time in your next video.",
   disclaimer: "Based on these two videos.",
