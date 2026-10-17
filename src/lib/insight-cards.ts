@@ -6,7 +6,6 @@ import { SMALL_VIDEO_VIEWS } from "@/lib/cross-video-insights";
 import type { TextKey, Translator } from "@/lib/i18n/translate";
 import { videoRef } from "@/lib/video-ref";
 import { platformName } from "@/lib/platform-capabilities";
-import { LEVEL_BANDS } from "@/lib/creator-level";
 
 // The cross-video insight cards for a creator who has analyzed videos. The
 // Dashboard shows the first three (working / opportunity / watch); the Insights
@@ -37,22 +36,53 @@ export function realInsightCards(derived: DashboardDerived, t: Translator): Insi
     return t.locale === "en" ? label.toLowerCase() : label;
   };
 
-  // Where the creator stands in general (not only against their own videos), and what that means for keeping or
-  // improving it. One card per platform with enough videos.
+  // Where the creator stands: their own trajectory and what brings followers (not fixed numbers: a market or a
+  // niche has its own norm that Blumea does not know). One card per platform with enough videos.
   const quoteTitle = (id: string, title: string) => (t.locale === "he" ? `״${videoRef(id, title)}״` : `“${videoRef(id, title)}”`);
   for (const level of derived.levels) {
     const platform = platformName(level.platform, t);
-    const median = formatCount(level.typical);
-    const lines: string[] = [c(`level${level.band[0].toUpperCase()}${level.band.slice(1)}Body`, { platform, median, count: level.count, small: formatCount(LEVEL_BANDS.growing) })];
+    const lines: string[] = [];
+    // 1. a typical video, against the audience when it is known
+    const typical = formatCount(level.typical);
+    if (level.followers && level.followers > 0) {
+      const ratio = level.typical / level.followers;
+      lines.push(
+        ratio >= 1
+          ? c("levelTypicalTimes", { platform, median: typical, count: level.count, x: ratio.toFixed(1).replace(/\.0$/, ""), followers: formatCount(level.followers) })
+          : c("levelTypicalPct", { platform, median: typical, count: level.count, pct: Math.max(1, Math.round(ratio * 100)), followers: formatCount(level.followers) })
+      );
+    } else {
+      lines.push(c("levelTypical", { platform, median: typical, count: level.count }));
+    }
+    // 2. the trajectory
+    if (level.trend && level.recent !== null && level.earlier !== null) {
+      lines.push(c(`levelTrend${level.trend[0].toUpperCase()}${level.trend.slice(1)}`, { n: level.recentCount, a: formatCount(Math.round(level.recent)), m: level.earlierCount, b: formatCount(Math.round(level.earlier)) }));
+    }
+    // 3. followers: per video, the trend, and the change of the account
+    if (level.gained) {
+      const share = level.followers && level.followers > 0 ? (level.gained.typical / level.followers) * 100 : null;
+      lines.push(
+        share !== null && share >= 0.1
+          ? c("levelGainedShare", { k: level.gained.typical.toFixed(level.gained.typical < 10 ? 1 : 0).replace(/\.0$/, ""), pct: share.toFixed(share < 10 ? 1 : 0).replace(/\.0$/, ""), followers: formatCount(level.followers as number), count: level.gained.count })
+          : c("levelGained", { k: level.gained.typical.toFixed(level.gained.typical < 10 ? 1 : 0).replace(/\.0$/, ""), count: level.gained.count })
+      );
+      if (level.gained.trend && level.gained.trend !== "steady" && level.gained.recent !== null && level.gained.earlier !== null) {
+        lines.push(c(`levelGainedTrend${level.gained.trend[0].toUpperCase()}${level.gained.trend.slice(1)}`, { a: level.gained.recent.toFixed(0), b: level.gained.earlier.toFixed(0) }));
+      }
+    }
+    // 4. what carries the growth: keep it
+    if (level.carrier) {
+      lines.push(c("levelCarrier", { format: fmt(level.carrier.formatId), a: level.carrier.typical.toFixed(0), b: level.carrier.others.toFixed(0), n: level.carrier.count, m: level.carrier.othersCount }));
+    }
     if (level.standout) {
       lines.push(c("levelStandout", { video: quoteTitle(level.standout.id, level.standout.title), views: formatCount(level.standout.views), x: level.standout.ratio.toFixed(1).replace(/\.0$/, "") }));
-    } else if (level.flat) {
-      lines.push(c("levelFlat", { lo: formatCount(level.lowest), hi: formatCount(level.highest) }));
     }
-    lines.push(c(level.band === "low" ? "levelAimLow" : level.band === "growing" ? "levelAimGrowing" : "levelAimKeep"));
+    if (level.typical < SMALL_VIDEO_VIEWS) lines.push(c("levelSmall", { small: views }));
+    // 5. the aim
+    lines.push(c(level.trend === "growing" ? "levelAimKeep" : level.trend === "declining" ? "levelAimDown" : "levelAimSteady"));
     cards.push({
-      tone: level.band === "low" ? "opportunity" : "working",
-      title: c(`level${level.band[0].toUpperCase()}${level.band.slice(1)}Title`, { platform }),
+      tone: level.trend === "growing" ? "working" : "opportunity",
+      title: c(level.trend ? `levelTitle${level.trend[0].toUpperCase()}${level.trend.slice(1)}` : "levelTitleNone", { platform }),
       body: lines.join(" "),
       evidence: c("evidenceLevel", { count: level.count, platform }),
     });
