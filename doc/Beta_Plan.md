@@ -78,6 +78,10 @@ Tasks
 
 Exit: Compare works on real data for the owner, locked for a free test account, no mock data left in production code paths.
 
+## Stage 4b — Compare to the end, KEEP recommendations, "Blumea Idea" (added 2026-10-17, owner)
+
+Order agreed with the owner: (1) finish reviewing the remaining Compare categories one by one with him (video vs your other videos, format vs format, hook vs hook, platform vs platform), (2) the KEEP recommendations (the "keep" recommendation bothers him; he will say what exactly, nothing is changed until he does; to confirm with him whether he means the KEEP of KEEP / IMPROVE / TRY NEXT), (3) a new feature he wants to think through with me before it is built: **Blumea Idea** = give the creator an idea for a video based on what already exists in their data (what worked, formats, hooks, setting, songs, the comparisons), then (4) Stage 5. Nothing about Blumea Idea is designed yet: first a conversation about what it should and should not say (it must follow the product's rules: code decides what may be said, recommendations only from clear differences, never a promise, never a cause), and a cost check.
+
 ## Stage 5 — Safety net before real people
 
 - Second real account: sign up, connect, scan, analyse, check it never sees account 1's data; delete account 2 and verify everything is gone (database rows, vault tokens, bucket).
@@ -139,6 +143,7 @@ Per free creator about ₪0.06–0.09 for First Look plus up to about ₪0.16–
 | 2 | TikTok review + production check | S–M | TikTok |
 | 3 | Hebrew (3a, 3b) | L | — |
 | 4 | Compare | M | — |
+| 4b | Remaining Compare categories, KEEP recommendations, Blumea Idea | M | owner's review and design talk |
 | 5 | Safety net | M | — |
 | 6 | Beta waves 0–3 | rolling | owner's outreach |
 
