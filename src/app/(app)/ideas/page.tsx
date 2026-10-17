@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import AppLink from "@/components/AppLink";
+import IdeaButton from "@/components/IdeaButton";
 import IdeaTrials from "@/components/IdeaTrials";
 import { PlatformIcon } from "@/components/PlatformBadge";
 import { useProfile } from "@/components/AppShell";
@@ -161,8 +162,13 @@ export default function IdeasPage() {
       <AppLink href="/dashboard" className="inline-flex items-center gap-1.5 text-sm font-semibold text-blumea-blue transition-opacity hover:opacity-70">
         {t("compare.back")}
       </AppLink>
-      <h1 className="mt-4 text-3xl font-semibold tracking-tight text-blumea-navy sm:text-4xl">{t("idea.pageTitle")}</h1>
-      <p className="mt-2 text-blumea-slate">{t("idea.pageSubtitle")}</p>
+      <div className="mt-4 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-3xl font-semibold tracking-tight text-blumea-navy sm:text-4xl">{t("idea.pageTitle")}</h1>
+          <p className="mt-2 text-blumea-slate">{t("idea.pageSubtitle")}</p>
+        </div>
+        {videos && <IdeaButton platforms={platforms} />}
+      </div>
 
       <div className="mt-8">{videos && <IdeaTrials videos={videos} />}</div>
 
