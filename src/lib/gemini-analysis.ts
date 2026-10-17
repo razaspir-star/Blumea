@@ -21,7 +21,9 @@ export const MODEL = "gemini-3.8-flash";
 // asked for exactly as before; checked on the owner's own videos.
 // v8 (2026-10-10): adds `hook_type` (+ runner-up) from the hook library and the
 // `familiar_moment` tag. `hook_style` stays for now.
-export const PROMPT_VERSION = "v8";
+// v9 (2026-10-17): adds `setting` (place, background and light), so Compare can notice when two
+// videos were filmed differently. Added at the end, so the other answers are asked for as before.
+export const PROMPT_VERSION = "v9";
 export const THINKING_LEVEL = "low";
 
 // One prompt per language of the free-text descriptions (English is the measured one).
@@ -56,6 +58,7 @@ export const FIELD_META: Record<string, { kind: "fact" | "inferred"; cap?: "high
   subject_specific: { kind: "inferred" },
   key_moments: { kind: "fact" },
   call_to_action: { kind: "fact" },
+  setting: { kind: "inferred" },
 };
 
 export function confidenceOf(field: string): "high" | "medium" | "low" {

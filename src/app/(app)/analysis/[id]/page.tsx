@@ -101,6 +101,7 @@ const REAL_FIELD_IDS = [
   "sung_hook_lyrics",
   "call_to_action",
   "visual_hook",
+  "setting",
   "sound_kind",
   "speech_language",
   "music_description",

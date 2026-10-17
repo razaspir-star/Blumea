@@ -4,10 +4,11 @@ import { useState } from "react";
 import BlumeaFlowerLoader from "@/components/BlumeaFlowerLoader";
 import { supabase } from "@/lib/supabase";
 import { shortTitle } from "@/lib/video-ref";
+import VideoText from "@/components/VideoText";
 import { useT } from "@/lib/i18n/client";
 import type { HookText } from "@/lib/compare-deep";
 
-type Analysis = { differences: { aspect: string; a: string; b: string }[]; suggestion: string | null };
+type Analysis = { differences: { aspect: string; a: string; b: string }[]; diffs: string[]; recommendations: string[] };
 
 // The hook of each video (what it writes on screen and says or sings in the first seconds),
 // side by side, and a button that analyzes how the two hooks differ and what is worth trying.
@@ -119,8 +120,29 @@ export default function WordingCompare({
               ))}
             </ul>
           )}
-          {result.suggestion && (
-            <p className="mt-3 rounded-xl border border-blumea-blue/25 bg-blumea-mist/60 p-3 text-sm leading-6 text-blumea-navy">{result.suggestion}</p>
+          {result.diffs.length > 0 && (
+            <>
+              <p className="mt-4 text-sm font-semibold text-blumea-navy">{t("compare.diffTitle")}</p>
+              <ul className="mt-2 space-y-2">
+                {result.diffs.map((line) => (
+                  <li key={line} className="text-sm leading-6 text-blumea-navy">
+                    <VideoText text={line} />
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+          {result.recommendations.length > 0 && (
+            <>
+              <p className="mt-4 text-sm font-semibold text-blumea-navy">{t("compare.recTitle")}</p>
+              <div className="mt-2 space-y-2">
+                {result.recommendations.map((line) => (
+                  <p key={line} className="rounded-xl border border-blumea-blue/25 bg-blumea-mist/60 p-3 text-sm leading-6 text-blumea-navy">
+                    <VideoText text={line} />
+                  </p>
+                ))}
+              </div>
+            </>
           )}
         </div>
       )}

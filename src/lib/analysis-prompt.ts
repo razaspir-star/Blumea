@@ -53,7 +53,8 @@ Watch the video and return ONLY one JSON object (no markdown fences, no commenta
   "known_format_or_trend": string | null,
   "subject_specific": string | null,
   "key_moments": [ { "at_seconds": number, "type": "hook" | "reveal" | "peak" | "transition" | "other", "what_happens": string } ],
-  "call_to_action": { "type": string, "text": string, "where": "on_screen_text" | "spoken" | "sung", "at_seconds": number } | null
+  "call_to_action": { "type": string, "text": string, "where": "on_screen_text" | "spoken" | "sung", "at_seconds": number } | null,
+  "setting": string | null
 }
 
 What each key means:
@@ -91,13 +92,14 @@ allowed, but never invent one; use null if you have none.
 - subject_specific: a specific product, game, dish, song, place and so on, if there is one.
 - key_moments: 1 to 3 moments, seconds from the start. Describe only what happens, no interpretation.
 - call_to_action: the ONE clearest thing the video itself asks viewers to do, or null if it asks nothing. Only an explicit ask shown or said in the video counts, in ANY part of it, including the end - not a hope you infer. type is one of: ${CTA_TYPES.map((s) => `"${s}"`).join(", ")}. "comment_question" = asks viewers for an opinion or an answer, including a question, a poll or "tell me if I should continue" ("what do you think?", "which one?"); "comment_invite" = ONLY when commenting is invited together with a personal promise or reward in return (for example "comment and I will remember you", "write your name and I will reply") - a plain question is never comment_invite; "follow" = follow or subscribe; "like_or_share" = like, share or save; "tag_friend" = tag or send to someone; "link_or_buy" = visit a link or buy; "other" = any other explicit ask. text = the exact words, in their original language; where = how the ask appears; at_seconds = when it first appears.
+- setting: where the video is filmed and how it looks, in one short phrase: the place or background, the light, and where the camera is (for example "bedroom, plain white wall, daylight from a window" or "car, driver's seat"). Describe only what is seen; null if it cannot be seen.
 
 Rules:
 - Quote text EXACTLY as written, in its original language and spelling. Do not correct, translate, add or drop letters.
 - Do NOT describe any person's age, gender, ethnicity, body or appearance. Say "a person" or "the creator" and describe only what they do.
 - Use null (or an empty list) for anything that is absent.
 - Describe only what you can actually see or hear.${language === "he" ? `
-- Language: write these free-text descriptions in Hebrew: topic, visual_hook, music_description, subject_specific, and each key moment's what_happens. Everything else stays exactly as specified above (ids in English, quoted text in its original language, speech_language as its English name).` : ""}`;
+- Language: write these free-text descriptions in Hebrew: topic, visual_hook, music_description, subject_specific, setting, and each key moment's what_happens. Everything else stays exactly as specified above (ids in English, quoted text in its original language, speech_language as its English name).` : ""}`;
 }
 
 export function parseJson(text: string): Record<string, unknown> | null {

@@ -12,6 +12,7 @@ const fieldLabel = {
   sung_hook_lyrics: "Sung hook",
   call_to_action: "Asks viewers to",
   visual_hook: "Visual hook",
+  setting: "Setting",
   sound_kind: "Sound",
   speech_language: "Language",
   music_description: "Music",

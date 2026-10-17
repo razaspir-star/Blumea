@@ -14,6 +14,7 @@ const fieldLabel: Dictionary["analysis"]["fieldLabel"] = {
   sung_hook_lyrics: "הפתיח המושר",
   call_to_action: "מבקש מהצופים",
   visual_hook: "פתיח חזותי",
+  setting: "סביבת הצילום",
   sound_kind: "סאונד",
   speech_language: "שפה",
   music_description: "מוזיקה",
