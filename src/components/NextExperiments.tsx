@@ -4,10 +4,12 @@ import type { NextExperiment } from "@/lib/next-experiments";
 import { useT } from "@/lib/i18n/client";
 import VideoText from "@/components/VideoText";
 import IdeaButton from "@/components/IdeaButton";
+import IdeaTrials from "@/components/IdeaTrials";
+import type { DashboardVideo } from "@/lib/dashboard-data";
 
 // "Try in your next video": up to three experiments drawn from the creator's own
 // numbers. Each says what it rests on and what to look at afterwards.
-export default function NextExperiments({ experiments, platforms }: { experiments: NextExperiment[]; platforms: string[] }) {
+export default function NextExperiments({ experiments, platforms, videos }: { experiments: NextExperiment[]; platforms: string[]; videos: DashboardVideo[] }) {
   const t = useT();
   return (
     <section className="mt-8">
@@ -18,6 +20,8 @@ export default function NextExperiments({ experiments, platforms }: { experiment
         </div>
         <IdeaButton platforms={platforms} />
       </div>
+
+      <IdeaTrials videos={videos} />
 
       {experiments.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-slate-300 bg-white/60 p-5">

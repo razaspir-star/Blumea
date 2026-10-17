@@ -28,11 +28,14 @@ export default function IdeaButton({ platforms }: { platforms: string[] }) {
   const [loading, setLoading] = useState(false);
   const [answer, setAnswer] = useState<Answer | null>(null);
   const [failure, setFailure] = useState<Failure | null>(null);
+  // The ideas the creator chose to try in this window.
+  const [saved, setSaved] = useState<number[]>([]);
 
   async function ask(chosen: string) {
     setPlatform(chosen);
     setAnswer(null);
     setFailure(null);
+    setSaved([]);
     setLoading(true);
     const { data } = await supabase.auth.getSession();
     const response = await fetch("/api/idea", {
@@ -49,7 +52,21 @@ export default function IdeaButton({ platforms }: { platforms: string[] }) {
     setAnswer(body as Answer);
   }
 
+  async function tryIdea(index: number) {
+    if (!answer || saved.includes(index)) return;
+    const item = answer.ideas[index];
+    setSaved((current) => [...current, index]);
+    await supabase.from("idea_trials").insert({
+      profile_id: profile.id,
+      platform: answer.platform,
+      title: item.idea,
+      details: { keep: item.keep, change: item.change, howToKnow: item.howToKnow, limit: item.limit, evidence: item.evidence },
+    });
+    window.dispatchEvent(new Event("blumea:idea-saved"));
+  }
+
   function reset() {
+    setSaved([]);
     setPlatform(null);
     setAnswer(null);
     setFailure(null);
@@ -147,6 +164,15 @@ export default function IdeaButton({ platforms }: { platforms: string[] }) {
                       ) : null
                     )}
                   </dl>
+                  <div className="mt-4">
+                    {saved.includes(index) ? (
+                      <p className="text-sm font-semibold text-blumea-success">{t("idea.savedNote")}</p>
+                    ) : (
+                      <button type="button" onClick={() => tryIdea(index)} className="rounded-full border border-blumea-navy px-4 py-2 text-xs font-semibold text-blumea-navy transition-colors hover:bg-blumea-navy hover:text-white">
+                        {t("idea.tryIt")}
+                      </button>
+                    )}
+                  </div>
                 </article>
               ))}
 
