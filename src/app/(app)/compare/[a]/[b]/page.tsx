@@ -5,16 +5,17 @@ import Image from "next/image";
 import AppLink from "@/components/AppLink";
 import AnalyzeModal from "@/components/AnalyzeModal";
 import ComparePicker from "@/components/ComparePicker";
+import Modal from "@/components/Modal";
+import { AddNumbers } from "@/components/TiktokViewerCard";
 import PlatformBadge from "@/components/PlatformBadge";
 import VideoText from "@/components/VideoText";
 import { useProfile } from "@/components/AppShell";
 import { notFound } from "next/navigation";
-import { Lock } from "lucide-react";
+import { Check, Lock } from "lucide-react";
 import { loadCompareVideo, type CompareVideo } from "@/lib/compare-data";
 import { supabase } from "@/lib/supabase";
-import VideoRef from "@/components/VideoText";
 import { buildComparison, type MetricFormat, type MetricRow } from "@/lib/compare-insights";
-import { videoRef } from "@/lib/video-ref";
+import { buildDeep } from "@/lib/compare-deep";
 import { formatCount, formatTime } from "@/lib/format";
 import { useT } from "@/lib/i18n/client";
 import { platformName } from "@/lib/platform-capabilities";
@@ -82,9 +83,11 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
   // What Blumea is reading right now so the comparison can say how a video is built, and why a read failed.
   const [reading, setReading] = useState<string | null>(null);
   const [readError, setReadError] = useState<string | null>(null);
-  // TikTok: the regular comparison uses numbers; "in-depth" also needs both videos read (uploaded once).
-  const [deep, setDeep] = useState(false);
+  // TikTok: the regular comparison uses numbers; "in-depth" needs each TikTok video read (uploaded once),
+  // then the creator presses "Compare in depth".
+  const [deepRun, setDeepRun] = useState(false);
   const [uploadFor, setUploadFor] = useState<CompareVideo | null>(null);
+  const [numbersFor, setNumbersFor] = useState<CompareVideo | null>(null);
   const [version, setVersion] = useState(0);
   const valid = UUID.test(idA) && UUID.test(idB);
 
@@ -168,8 +171,20 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
   const comparison = buildComparison(a, b, t, mixed);
   const tiktokPair = a.platform === "tiktok" || b.platform === "tiktok";
   const bothRead = a.fields !== null && b.fields !== null;
-  // YouTube videos are read automatically; a TikTok pair is in-depth once both are read or the creator asks for it.
-  const showBuilt = !tiktokPair || bothRead || deep;
+  // YouTube videos are read automatically (in-depth right away); with a TikTok video the creator presses "Compare in depth".
+  const showBuilt = !tiktokPair || deepRun;
+  const deepResult = showBuilt && bothRead ? buildDeep(a, b, t, mixed) : null;
+  const noGapText = t("compare.noGap");
+  const statements = deepResult
+    ? [...comparison.statements.filter((statement) => statement !== noGapText), ...deepResult.statements]
+    : comparison.statements;
+  const tiktokVideos = [a, b].filter((video) => video.platform === "tiktok");
+  const allTiktokRead = tiktokVideos.every((video) => video.fields !== null);
+
+  function runDeep() {
+    setDeepRun(true);
+    setTimeout(() => document.getElementById("deep-results")?.scrollIntoView({ behavior: "smooth", block: "start" }), 120);
+  }
 
   const body = (
     <>
@@ -192,38 +207,59 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
         </p>
       )}
       {readError && <p className="mt-4 rounded-2xl bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-700">{readError}</p>}
-      {unlocked && tiktokPair && !bothRead && !deep && (
-        <div className="mt-4 rounded-2xl border border-blumea-blue/25 bg-white p-4 shadow-sm">
+      {unlocked && tiktokPair && !deepRun && (
+        <div className="blumea-step mt-4 rounded-2xl border border-blumea-blue/25 bg-white p-4 shadow-sm">
           <p className="text-sm font-semibold text-blumea-navy">{t("compare.deepTitle")}</p>
           <p className="mt-1 text-sm leading-6 text-blumea-slate">{t("compare.deepBody")}</p>
+
+          <div className="mt-3 space-y-2">
+            {tiktokVideos.map((video) => (
+              <div key={video.id} className="rounded-xl border border-slate-200/70 bg-slate-50/60 px-3 py-2.5">
+                <p className="truncate text-sm font-semibold text-blumea-navy">{video.title}</p>
+                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
+                  {video.fields !== null ? (
+                    <span className="inline-flex items-center gap-1.5 font-semibold text-blumea-success">
+                      <Check size={14} strokeWidth={2.4} />
+                      {t("compare.stepVideo")}
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setUploadFor(video)}
+                      className="rounded-full bg-blumea-navy px-3.5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-blumea-blue"
+                    >
+                      {t("compare.stepUploadVideo")}
+                    </button>
+                  )}
+                  <span className="text-blumea-slate">{t("compare.stepNumbers")}:</span>
+                  {video.tiktokScreens !== null ? (
+                    <span className="inline-flex items-center gap-1.5 font-semibold text-blumea-success">
+                      <Check size={14} strokeWidth={2.4} />
+                      {t("compare.stepNumbersHave")}
+                    </span>
+                  ) : null}
+                  <button type="button" onClick={() => setNumbersFor(video)} className="font-semibold text-blumea-blue hover:opacity-70">
+                    {t("compare.addNumbers")}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
           <button
             type="button"
-            onClick={() => setDeep(true)}
-            className="mt-3 rounded-full bg-blumea-navy px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blumea-blue"
+            disabled={!allTiktokRead}
+            onClick={runDeep}
+            className={
+              allTiktokRead
+                ? "mt-4 rounded-full bg-blumea-navy px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blumea-blue"
+                : "mt-4 cursor-not-allowed rounded-full bg-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-400"
+            }
           >
-            {t("compare.deepButton")}
+            {allTiktokRead ? t("compare.deepGo") : t("compare.deepGoWait")}
           </button>
         </div>
       )}
-      {unlocked &&
-        tiktokPair &&
-        deep &&
-        [a, b]
-          .filter((video) => video.fields === null)
-          .map((video) => (
-            <div key={video.id} className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-3">
-              <p className="text-sm leading-6 text-blumea-slate">
-                <VideoRef text={t("compare.notReadYet", { title: videoRef(video.id, video.title) })} />
-              </p>
-              <button
-                type="button"
-                onClick={() => setUploadFor(video)}
-                className="rounded-full bg-blumea-navy px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blumea-blue"
-              >
-                {t("compare.uploadToRead")}
-              </button>
-            </div>
-          ))}
 
       {mixed && (
         <p className="mt-4 rounded-2xl bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-800">
@@ -262,6 +298,57 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
             </div>
           </section>
 
+          {showBuilt && deepResult && (
+            <div id="deep-results" className="blumea-reveal-down scroll-mt-6">
+              <h2 className="mt-10 text-2xl font-semibold tracking-tight text-blumea-navy">{t("compare.deepResultTitle")}</h2>
+
+              {deepResult.opening.length > 0 && (
+                <section className="mt-5">
+                  <h3 className="text-lg font-semibold tracking-tight text-blumea-navy">{t("compare.deepOpening")}</h3>
+                  <div className="mt-3 overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm">
+                    {deepResult.opening.map((row) => (
+                      <div
+                        key={row.key}
+                        className="grid grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,1fr)] gap-x-3 border-b border-slate-100 px-4 py-3 text-sm last:border-b-0"
+                      >
+                        <span className="text-blumea-slate">{t(row.key)}</span>
+                        <span className="text-blumea-navy">{row.a ?? t("compare.notAnalyzed")}</span>
+                        <span className="text-blumea-navy">
+                          {row.b ?? t("compare.notAnalyzed")}
+                          {row.a !== null && row.b !== null && !row.same && (
+                            <span className="ms-2 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">{t("compare.different")}</span>
+                          )}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {deepResult.noViewerNumbers.length > 0 && !mixed && (
+                <section className="mt-6">
+                  <h3 className="text-lg font-semibold tracking-tight text-blumea-navy">{t("compare.deepViewers")}</h3>
+                  <div className="mt-3 space-y-2">
+                    {deepResult.noViewerNumbers.map((video) => (
+                      <div key={video.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-3">
+                        <p className="text-sm leading-6 text-blumea-slate">{t("compare.noViewerNumbers", { title: video.title })}</p>
+                        {video.platform === "tiktok" && (
+                          <button
+                            type="button"
+                            onClick={() => setNumbersFor(video)}
+                            className="rounded-full bg-blumea-navy px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blumea-blue"
+                          >
+                            {t("compare.addNumbers")}
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </div>
+          )}
+
           {showBuilt && comparison.identity.length > 0 && (
             <section className="mt-8">
               <h2 className="text-xl font-semibold tracking-tight text-blumea-navy">{t("compare.built")}</h2>
@@ -288,7 +375,7 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
           <section className="mt-8 pb-6">
             <h2 className="text-xl font-semibold tracking-tight text-blumea-navy">{t("compare.stands")}</h2>
             <div className="mt-3 space-y-3">
-              {comparison.statements.map((statement, index) => (
+              {statements.map((statement, index) => (
                 <p key={index} className="rounded-2xl border border-blumea-blue/25 bg-white p-4 text-sm leading-6 text-blumea-navy shadow-sm">
                   <VideoText text={statement} />
                 </p>
@@ -331,6 +418,20 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
       )}
 
       {pickerOpen && <ComparePicker onClose={() => setPickerOpen(false)} />}
+
+      {numbersFor && (
+        <Modal kicker={t("compare.pickerKicker")} title={t("compare.stepNumbers")} onClose={() => setNumbersFor(null)}>
+          <p className="mt-3 truncate text-sm font-semibold text-blumea-navy">{numbersFor.title}</p>
+          <AddNumbers
+            platformVideoId={numbersFor.platformVideoId}
+            label={t("viewerCard.readMine")}
+            onDone={() => {
+              setNumbersFor(null);
+              setVersion((current) => current + 1);
+            }}
+          />
+        </Modal>
+      )}
 
       {uploadFor && (
         <AnalyzeModal

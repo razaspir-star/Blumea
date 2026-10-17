@@ -16,7 +16,7 @@ const clock = (seconds: number) => `${Math.floor(seconds / 60)}:${String(Math.ro
 const pctText = (value: number) => `${Number.isInteger(value) ? value : value.toFixed(1)}%`;
 
 // Lets the creator share (more) screenshots of this video's TikTok analytics.
-function AddNumbers({ platformVideoId, label }: { platformVideoId: string; label: string }) {
+export function AddNumbers({ platformVideoId, label, onDone }: { platformVideoId: string; label: string; onDone?: () => void }) {
   const t = useT();
   const [files, setFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
@@ -31,7 +31,12 @@ function AddNumbers({ platformVideoId, label }: { platformVideoId: string; label
       setBusy(false);
       return;
     }
-    window.location.reload();
+    if (onDone) {
+      setBusy(false);
+      onDone();
+    } else {
+      window.location.reload();
+    }
   }
 
   if (busy) {
