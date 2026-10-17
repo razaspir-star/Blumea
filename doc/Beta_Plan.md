@@ -84,6 +84,8 @@ Order agreed with the owner: (1) finish reviewing the remaining Compare categori
 
 ## Stage 5 — Safety net before real people
 
+**Status (2026-10-17): built, waiting for the owner's checklist and the dry run. See "Stage 5 summary" in doc/CLAUDE.md.**
+
 - Second real account: sign up, connect, scan, analyse, check it never sees account 1's data; delete account 2 and verify everything is gone (database rows, vault tokens, bucket).
 - Error visibility: Vercel logs checked, an error notification to the owner for failed analyses and failed syncs, a simple "something went wrong" page that is not a stack trace.
 - Cost guards: Gemini credit is manual (no auto-reload) — a low-balance alert plan, per-user cap already in place; expected beta cost stated before the wave opens.

@@ -647,3 +647,32 @@ After "I'll try this idea" the window now offers "I posted the video" (and the D
 Sidebar (2026-10-17, owner): "Ideas" (a light bulb) is now a sidebar item between Insights and Connections, and Settings moved to the bottom of the sidebar, above the language switch (on the mobile bar it stays last in the row). Checked in the browser.
 
 "My ideas" form, second round (2026-10-17, owner): the format is no longer limited to the creator's own. The picker shows "My formats" (the formats Blumea has read on that platform, with the number of videos) and an expandable "Formats I don't use yet" with every other format of the library; every format has a small "i" that shows a short plain explanation (one sentence per format, ``idea.fmt_<id>``, English and Hebrew). A hook field was added, optional ("the words that open the video"); the idea can be saved with or without a hook, and a saved hook shows on the idea's card. Checked in the browser (Hebrew): the lists, the counts, the explanation under the pressed "i". NOT checked: saving an idea with a hook.
+
+## Stage 5 summary — Safety net (2026-10-17; built, waiting for the owner's checklist and dry run)
+
+**Access by guest list.** The beta is private. Table `access_requests` (email unique case-insensitively, platform, handle, niche, note, status pending / approved / declined; RLS on with no policies, so only the server reads it). The homepage has a "Request access" form (`AccessRequestForm`, `POST /api/access/request`, a honeypot field, the answer is the same whether or not the email exists). `isApproved` (`src/lib/beta-access.ts`): owner and Pro accounts are always in; anyone else needs an approved email. The app shell and the onboarding page ask `/api/access/status` and show `BetaWaiting` ("You are on the list") when not approved; if the check itself fails the creator is not locked out of their own data. The server enforces the same on the routes that cost money or connect an account (`requireApproved` in `src/lib/beta-guard.ts` on both authorize routes; `isApproved` on `/api/scan` and `/api/analyze/youtube`; `/api/idea` and `/api/compare/wording` are Pro-only already). The existing accounts (owner, review@blumea.io) were inserted as approved.
+
+**Owner admin page** `/admin` (sidebar "Admin", owner only; non-owners are sent to the dashboard): the guest list (approve, decline, add an email by hand), accounts count, AI runs today against the daily cap, problems of the last 7 days, and the latest feedback. APIs `/api/admin/access` and `/api/admin/overview` check `plan = owner` on the server.
+
+**Beta notice** at registration (free, may change, feedback shapes it, own accounts only). The legal pages were not edited: counsel review still decides the wording of the Terms.
+
+**Feedback.** A "Feedback" button on every signed-in screen (a note, stored with the page path) and a thumbs up / down "Was this right?" under each card on the Insights page. Table `feedback` (RLS: a creator inserts and reads their own rows only).
+
+**Event log and errors.** Table `app_events` (RLS on, no policies). `logEvent` (`src/lib/events.ts`) records `analysis_done`, `analysis_failed`, `idea_failed`, `daily_cap_hit`; the browser reports `client_error` through `/api/events` (whitelisted names, at most 5 per page load, message and path only). Page-view / funnel events for the success numbers are not added yet: to decide with the owner before the wave opens.
+
+**Cost guard.** `src/lib/cost-guard.ts`: one daily cap on all AI runs together (video analyses plus Ideas and in-depth comparisons), default 150, `AI_DAILY_CAP` environment variable overrides it; over the cap, new runs wait until tomorrow with a calm message; the owner is never blocked. This sits on top of each creator's monthly cap.
+
+**Expired connections.** Column `connected_accounts.needs_reconnect` (migration `connected_accounts_needs_reconnect`): set when YouTube or TikTok refuses to renew the access, cleared on a successful refresh or reconnect. The Connections page shows "Needs reconnecting" with a working Reconnect button, and a banner on every screen says so until fixed.
+
+**Migrations applied this stage:** `beta_access_feedback_events`, `connected_accounts_needs_reconnect`.
+
+**Checked:** type-check and lint clean; `isApproved` tested against the database (owner true, the approved reviewer true even with different letter case, a stranger false); the daily count works (20 runs today, not over the cap); the homepage form renders in Hebrew in the browser. Not tested: the full flow with a real stranger account (the assistant never signs in or creates accounts), and the Vercel cron.
+
+**Owner decisions and actions still open:**
+1. Supabase backups: the organization is on the Free plan (no automatic backups). Pro is about 25 USD a month, or manual exports.
+2. Supabase Auth: turn on leaked-password protection (dashboard setting).
+3. Approve revoking EXECUTE from anon / authenticated on `handle_new_user()` and `rls_auto_enable()` (security advisor warning); nothing was changed.
+4. The beta WhatsApp group link (to place on the waiting screen and in the approval email).
+5. The dry run: sign up as a stranger on a fresh account (request access, approve it in /admin, sign in, connect, scan, analyze, delete the account and check everything is gone).
+6. Decide the daily cap number once the expected beta cost is stated (150 AI runs a day is a proposal).
+7. A real phone test of the TikTok flow, and the Vercel cron after the first real post.
