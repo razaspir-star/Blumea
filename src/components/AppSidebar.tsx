@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   PlaySquare,
   Sparkles,
+  Lightbulb,
   Link2,
   Settings,
   LogOut,
@@ -38,18 +39,26 @@ const navigation = [
     matches: ["/insights"],
   },
   {
+    label: "nav.ideas" as TextKey,
+    icon: Lightbulb,
+    path: "/ideas",
+    matches: ["/ideas"],
+  },
+  {
     label: "nav.connections" as TextKey,
     icon: Link2,
     path: "/connections",
     matches: ["/connections"],
   },
-  {
-    label: "nav.settings" as TextKey,
-    icon: Settings,
-    path: "/settings",
-    matches: ["/settings"],
-  },
 ];
+
+// Settings sits at the bottom of the sidebar, above the language switch.
+const settingsItem = {
+  label: "nav.settings" as TextKey,
+  icon: Settings,
+  path: "/settings",
+  matches: ["/settings"],
+};
 
 function useActivePath() {
   const pathname = usePathname();
@@ -126,6 +135,22 @@ export default function AppSidebar() {
       </nav>
 
       <div className="mt-auto">
+        {(() => {
+          const Icon = settingsItem.icon;
+          const active = isActive(settingsItem.matches);
+          return (
+            <button
+              type="button"
+              onClick={() => router.push(settingsItem.path)}
+              className={`mb-3 flex h-11 w-full items-center gap-3 rounded-xl px-3 text-sm font-medium transition-colors ${
+                active ? "bg-blumea-mist text-blumea-navy" : "text-blumea-slate hover:bg-blumea-mist/60 hover:text-blumea-navy"
+              }`}
+            >
+              <Icon size={19} strokeWidth={1.8} />
+              <span>{t(settingsItem.label)}</span>
+            </button>
+          );
+        })()}
         <LanguageSwitch className="mb-3" />
       </div>
 
@@ -165,7 +190,7 @@ export function MobileNav() {
       </div>
 
       <nav className="mt-3 flex gap-1 overflow-x-auto">
-        {navigation.map((item) => {
+        {[...navigation, settingsItem].map((item) => {
           const Icon = item.icon;
           const active = isActive(item.matches);
 

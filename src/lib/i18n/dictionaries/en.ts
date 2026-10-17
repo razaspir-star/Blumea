@@ -45,6 +45,7 @@ const en = {
     content: "Content",
     insights: "Insights",
     connections: "Connections",
+    ideas: "Ideas",
     settings: "Settings",
   },
 };

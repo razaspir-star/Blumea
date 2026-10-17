@@ -46,6 +46,7 @@ const he: Dictionary = {
     content: "תכנים",
     insights: "תובנות",
     connections: "חיבורים",
+    ideas: "רעיונות",
     settings: "הגדרות",
   },
 };
