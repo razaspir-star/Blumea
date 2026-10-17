@@ -14,6 +14,10 @@ import type { TextKey, Translator } from "@/lib/i18n/translate";
 
 export const USUAL_MIN_OTHERS = 10;
 export const GROUP_MIN = 4;
+// Hooks: a creator with a consistent style has one hook type with many videos and the others with a few; from 2
+// videos the comparison is shown, but only as a hint (owner decision 2026-10-17).
+export const HOOK_MIN = 2;
+export const groupMinFor = (by: GroupKind) => (by === "hook" ? HOOK_MIN : GROUP_MIN);
 export const PLATFORM_MIN = 5;
 
 // ---- the numbers of one video ----
@@ -136,6 +140,8 @@ export type GroupResult = {
   countA: number;
   countB: number;
   enough: boolean;
+  // Enough to show, but at least one group has fewer than GROUP_MIN videos: only a hint.
+  few: boolean;
   rows: GroupRow[];
   statements: string[];
   notes: string[];
@@ -145,7 +151,9 @@ export function groupComparison(videos: DashboardVideo[], by: GroupKind, platfor
   const pool = videos.filter((v) => v.platform === platform && v.analyzed);
   const a = pool.filter((v) => groupIdOf(v, by) === idA);
   const b = pool.filter((v) => groupIdOf(v, by) === idB);
-  const enough = a.length >= GROUP_MIN && b.length >= GROUP_MIN;
+  const min = groupMinFor(by);
+  const enough = a.length >= min && b.length >= min;
+  const few = enough && (a.length < GROUP_MIN || b.length < GROUP_MIN);
 
   const lengthA = medianOf(a.map((v) => v.durationSec));
   const lengthB = medianOf(b.map((v) => v.durationSec));
@@ -179,7 +187,7 @@ export function groupComparison(videos: DashboardVideo[], by: GroupKind, platfor
   }
 
   const notes: string[] = [t("compare2.groupDisclaimer", { count: pool.length })];
-  return { countA: a.length, countB: b.length, enough, rows, statements, notes };
+  return { countA: a.length, countB: b.length, enough, few, rows, statements, notes };
 }
 
 // ---- platform against platform (each against its own usual) ----

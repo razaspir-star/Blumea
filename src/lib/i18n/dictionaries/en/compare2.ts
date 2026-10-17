@@ -35,6 +35,7 @@ const compare2 = {
   usualUploadHint: "This TikTok video has not been read yet. Upload it once so Blumea can read it.",
   usualUploadNeeded: "To compare this TikTok video in depth with your other videos, Blumea needs to read it first. Upload it once.",
   rowAnalyzed: "Videos analyzed",
+  groupFew: "Only a hint: {nameA} has {countA} analyzed videos and {nameB} has {countB}. With fewer than {min} in a group, one video can change the picture.",
   usualTitle: "Video vs your other videos",
   usualSubtitle: "How this video did compared with the rest of your videos on the same platform.",
   thisVideo: "This video",

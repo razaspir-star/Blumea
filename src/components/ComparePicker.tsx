@@ -8,7 +8,7 @@ import { PlatformIcon } from "@/components/PlatformBadge";
 import { useAppRouter } from "@/lib/use-app-router";
 import { useProfile } from "@/components/AppShell";
 import { loadDashboardData, type DashboardVideo } from "@/lib/dashboard-data";
-import { GROUP_MIN, groupOptions, type GroupKind } from "@/lib/compare-groups";
+import { groupMinFor, groupOptions, type GroupKind } from "@/lib/compare-groups";
 import { formatLabel } from "@/lib/format-library";
 import { hookTypeLabel } from "@/lib/hook-library";
 import { useT } from "@/lib/i18n/client";
@@ -174,7 +174,8 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
   // ---- two formats / two openings ----
   const groups = aPlatform && (type === "format" || type === "hook") ? groupOptions(videos ?? [], type as GroupKind, aPlatform) : [];
   const groupName = (id: string) => (type === "format" ? formatLabel(id, t) : hookTypeLabel(id, t)) ?? id;
-  const enoughGroups = groups.filter((group) => group.count >= GROUP_MIN).length >= 2;
+  const groupMin = groupMinFor(type === "hook" ? "hook" : "format");
+  const enoughGroups = groups.filter((group) => group.count >= groupMin).length >= 2;
 
   return (
     <Modal kicker={t("compare.pickerKicker")} title={t("compare.pickerTitle")} onClose={onClose}>
@@ -305,7 +306,7 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
                 </>
               ) : !enoughGroups ? (
                 <>
-                  <p className="mt-3 text-sm leading-6 text-blumea-slate">{t("compare2.groupsNeed", { min: GROUP_MIN })}</p>
+                  <p className="mt-3 text-sm leading-6 text-blumea-slate">{t("compare2.groupsNeed", { min: groupMin })}</p>
                   {groups.length > 0 && (
                     <ul className="mt-2 space-y-1 text-xs leading-5 text-blumea-slate">
                       {groups.map((group) => (
@@ -324,7 +325,7 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
                   <p className="mt-2 text-xs leading-5 text-blumea-slate">{t("compare2.chooseGroups")}</p>
                   <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
                     {groups.map((group) => {
-                      const usable = group.count >= GROUP_MIN;
+                      const usable = group.count >= groupMin;
                       const picked = aId === group.id ? "a" : bId === group.id ? "b" : null;
                       return (
                         <button

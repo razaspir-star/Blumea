@@ -4,7 +4,7 @@ import { use, useEffect, useState } from "react";
 import { notFound } from "next/navigation";
 import CompareFrame from "@/components/CompareFrame";
 import { loadDashboardData, type DashboardVideo } from "@/lib/dashboard-data";
-import { GROUP_MIN, groupComparison, type GroupKind } from "@/lib/compare-groups";
+import { GROUP_MIN, groupComparison, groupMinFor, type GroupKind } from "@/lib/compare-groups";
 import { leader, show } from "@/lib/compare-format";
 import { formatLabel } from "@/lib/format-library";
 import { hookTypeLabel } from "@/lib/hook-library";
@@ -47,7 +47,7 @@ export default function GroupComparePage({ params }: { params: Promise<{ by: str
   const tooFew = [
     { name: nameA, count: result.countA },
     { name: nameB, count: result.countB },
-  ].filter((group) => group.count < GROUP_MIN);
+  ].filter((group) => group.count < groupMinFor(by));
 
   return frame(
     <>
@@ -64,11 +64,17 @@ export default function GroupComparePage({ params }: { params: Promise<{ by: str
         ))}
       </div>
 
+      {result.few && (
+        <p className="mt-4 rounded-2xl bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-800">
+          {t("compare2.groupFew", { nameA, countA: result.countA, nameB, countB: result.countB, min: GROUP_MIN })}
+        </p>
+      )}
+
       {!result.enough ? (
         <div className="mt-6 space-y-2">
           {tooFew.map((group) => (
             <p key={group.name} className="rounded-2xl border border-dashed border-slate-300 bg-white/60 p-4 text-sm leading-6 text-blumea-slate">
-              {t("compare2.groupTooFew", { min: GROUP_MIN, name: group.name, count: group.count })}
+              {t("compare2.groupTooFew", { min: groupMinFor(by), name: group.name, count: group.count })}
             </p>
           ))}
         </div>

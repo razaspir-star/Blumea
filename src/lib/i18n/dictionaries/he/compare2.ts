@@ -35,6 +35,7 @@ const compare2: Dictionary["compare2"] = {
   usualUploadHint: "סרטון ה-TikTok הזה עוד לא נקרא. מעלים אותו פעם אחת כדי ש-Blumea תקרא אותו.",
   usualUploadNeeded: "כדי להשוות את סרטון ה-TikTok הזה לשאר הסרטונים שלך לעומק, Blumea צריכה לקרוא אותו קודם. מעלים אותו פעם אחת.",
   rowAnalyzed: "סרטונים שנותחו",
+  groupFew: "רמז בלבד: ב-{nameA} יש {countA} סרטונים שנותחו וב-{nameB} {countB}. כשיש פחות מ-{min} בקבוצה, סרטון אחד יכול לשנות את התמונה.",
   usualTitle: "סרטון מול שאר הסרטונים שלי",
   usualSubtitle: "איך הסרטון הזה הצליח לעומת שאר הסרטונים שלך באותה פלטפורמה.",
   thisVideo: "הסרטון הזה",
