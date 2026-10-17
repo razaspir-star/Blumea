@@ -69,6 +69,20 @@ const cards: Dictionary["cards"] & Record<string, string> = {
   postSameEvidence: "מבוסס על {count} סרטונים",
   postPatternTitle: "ייתכן שהשעה שבה מפרסמים משנה.",
   postPatternBody: "ב-{betterCount} הסרטונים שלך שעלו {better} הם קיבלו בדרך כלל {betterViews} צפיות, לעומת {worseViews} ב-{worseCount} הסרטונים שעלו {worse}.",
+  levelLowTitle: "יש מקום לצמוח ב-{platform}.",
+  levelLowBody: "סרטון טיפוסי שלך ב-{platform} מקבל {median} צפיות (על פני {count} סרטונים). מתחת ל-{small} צפיות Blumea גם קוראת פחות מכל סרטון, כי חלק מהמספרים קטנים מדי כדי להישען עליהם, ולכן המטרה הראשונה היא להעלות את המספר הטיפוסי.",
+  levelGrowingTitle: "רמה לבנות עליה ב-{platform}.",
+  levelGrowingBody: "סרטון טיפוסי שלך ב-{platform} מקבל {median} צפיות (על פני {count} סרטונים). זה בסיס לבנות עליו.",
+  levelStrongTitle: "רמה חזקה ב-{platform}.",
+  levelStrongBody: "סרטון טיפוסי שלך ב-{platform} מקבל {median} צפיות (על פני {count} סרטונים). זה חזק בפני עצמו, לא רק ביחס לשאר הסרטונים שלך.",
+  levelVeryStrongTitle: "רמה חזקה מאוד ב-{platform}.",
+  levelVeryStrongBody: "סרטון טיפוסי שלך ב-{platform} מקבל {median} צפיות (על פני {count} סרטונים). זה חזק מאוד בפני עצמו, לא רק ביחס לשאר הסרטונים שלך.",
+  levelStandout: "{video} קיבל {views} צפיות, פי {x} מסרטון טיפוסי שלך.",
+  levelFlat: "הסרטונים שלך קרובים זה לזה ({lo} עד {hi} צפיות): עוד שום סרטון לא בלט, ולכן כדאי לשנות דבר אחד בכל פעם כדי למצוא מה מזיז את המספר.",
+  levelAimLow: "כדאי לשמר את מה שיש בסרטונים החזקים שלך, ולשנות דבר אחד בכל פעם בסרטונים הבאים כדי להעלות את המספר הטיפוסי.",
+  levelAimGrowing: "כדאי לשמר את מה שיש בסרטונים שמעל הטיפוסי שלך, ולכוון להעלות את המספר הטיפוסי עצמו.",
+  levelAimKeep: "המטרה עכשיו היא לשמר את הרמה הזו: להמשיך לעשות סרטונים כמו החזקים שלך, ולבדוק כל כמה סרטונים שהמספר הטיפוסי מחזיק.",
+  evidenceLevel: "מבוסס על {count} סרטונים ב-{platform}",
 };
 
 const exp: Dictionary["exp"] = {

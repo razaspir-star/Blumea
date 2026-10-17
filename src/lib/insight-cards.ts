@@ -5,6 +5,8 @@ import { formatLabel } from "@/lib/format-library";
 import { SMALL_VIDEO_VIEWS } from "@/lib/cross-video-insights";
 import type { TextKey, Translator } from "@/lib/i18n/translate";
 import { videoRef } from "@/lib/video-ref";
+import { platformName } from "@/lib/platform-capabilities";
+import { LEVEL_BANDS } from "@/lib/creator-level";
 
 // The cross-video insight cards for a creator who has analyzed videos. The
 // Dashboard shows the first three (working / opportunity / watch); the Insights
@@ -34,6 +36,27 @@ export function realInsightCards(derived: DashboardDerived, t: Translator): Insi
     const label = formatLabel(id, t) ?? id;
     return t.locale === "en" ? label.toLowerCase() : label;
   };
+
+  // Where the creator stands in general (not only against their own videos), and what that means for keeping or
+  // improving it. One card per platform with enough videos.
+  const quoteTitle = (id: string, title: string) => (t.locale === "he" ? `״${videoRef(id, title)}״` : `“${videoRef(id, title)}”`);
+  for (const level of derived.levels) {
+    const platform = platformName(level.platform, t);
+    const median = formatCount(level.typical);
+    const lines: string[] = [c(`level${level.band[0].toUpperCase()}${level.band.slice(1)}Body`, { platform, median, count: level.count, small: formatCount(LEVEL_BANDS.growing) })];
+    if (level.standout) {
+      lines.push(c("levelStandout", { video: quoteTitle(level.standout.id, level.standout.title), views: formatCount(level.standout.views), x: level.standout.ratio.toFixed(1).replace(/\.0$/, "") }));
+    } else if (level.flat) {
+      lines.push(c("levelFlat", { lo: formatCount(level.lowest), hi: formatCount(level.highest) }));
+    }
+    lines.push(c(level.band === "low" ? "levelAimLow" : level.band === "growing" ? "levelAimGrowing" : "levelAimKeep"));
+    cards.push({
+      tone: level.band === "low" ? "opportunity" : "working",
+      title: c(`level${level.band[0].toUpperCase()}${level.band.slice(1)}Title`, { platform }),
+      body: lines.join(" "),
+      evidence: c("evidenceLevel", { count: level.count, platform }),
+    });
+  }
 
   const pattern = derived.lengthPattern;
   if (pattern) {

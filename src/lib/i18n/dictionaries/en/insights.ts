@@ -70,6 +70,23 @@
   postPatternBody: "Your {betterCount} videos posted {better} typically got {betterViews} views, against {worseViews} for your {worseCount} posted {worse}.",
 };
 
+const level = {
+  levelLowTitle: "There is room to grow on {platform}.",
+  levelLowBody: "A typical video on {platform} gets {median} views (across {count} videos). Under {small} views Blumea can also read less of each video, because some of the numbers are too small to rely on, so the first aim is to raise the typical number.",
+  levelGrowingTitle: "A level to build on, on {platform}.",
+  levelGrowingBody: "A typical video on {platform} gets {median} views (across {count} videos). That is a base to build on.",
+  levelStrongTitle: "A strong level on {platform}.",
+  levelStrongBody: "A typical video on {platform} gets {median} views (across {count} videos). That is strong on its own, not only against your other videos.",
+  levelVeryStrongTitle: "A very strong level on {platform}.",
+  levelVeryStrongBody: "A typical video on {platform} gets {median} views (across {count} videos). That is very strong on its own, not only against your other videos.",
+  levelStandout: "{video} got {views} views, {x}× your typical video.",
+  levelFlat: "Your videos land close to each other ({lo} to {hi} views): nothing has stood out yet, so change one thing at a time to find what moves the number.",
+  levelAimLow: "Keep what your strongest video has, and change one thing at a time in the next ones to raise the typical number.",
+  levelAimGrowing: "Keep what the videos above your typical have, and aim to raise the typical number itself.",
+  levelAimKeep: "The aim now is to keep this level: keep making videos like your strongest ones, and check every few videos that the typical number holds.",
+  evidenceLevel: "Based on {count} videos on {platform}",
+};
+
 const exp = {
   askAgainTitle: "Invite a comment with a personal promise again",
   askAgainWhy: "{title} asked for comments and promised something back ({text}). It got {per100} comments per 100 views, about {x}× the {usual} of your videos that ask nothing.",
@@ -106,5 +123,5 @@ const exp = {
   rewatchExtra: "It was also rewatched more than your other videos of its length ({ratio} starts per view).",
 };
 
-const insightTexts = { cards, exp };
+const insightTexts = { cards: { ...cards, ...level }, exp };
 export default insightTexts;

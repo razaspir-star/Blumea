@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { creatorLevels, type CreatorLevel } from "@/lib/creator-level";
 import { median } from "@/lib/insight-patterns";
 import { PAYOFF_FORMATS } from "@/lib/format-library";
 import { lengthVsWatchSharePattern, type LengthWatchPattern } from "@/lib/insight-patterns";
@@ -255,6 +256,8 @@ export type DashboardDerived = {
   } | null;
   payoff: { fires: number; of: number } | null;
   drops: { count: number; of: number; medianAtSec: number } | null;
+  // The creator's general level on each platform (creator-level.ts).
+  levels: CreatorLevel[];
 };
 
 function typicalVideo(videos: DashboardVideo[]): DashboardDerived["typical"] {
@@ -314,6 +317,7 @@ export function deriveDashboard(videos: DashboardVideo[], accounts: DashboardAcc
 
   return {
     analyzedCount: videos.length,
+    levels: creatorLevels(videos),
     engagement: totalViews > 0 ? { ratePct: ((withViews.reduce((s, v) => s + (v.likes ?? 0) + (v.comments ?? 0), 0)) / totalViews) * 100 } : null,
     interactions: videos.length > 0 ? interactions : null,
     interactionsByPlatform: [...new Set(videos.map((v) => v.platform))].map((platform) => ({
