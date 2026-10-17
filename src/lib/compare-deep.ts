@@ -1,6 +1,7 @@
 import { biggestDropAt, type CompareVideo } from "@/lib/compare-data";
 import { familiarLabel, hookTypeLabel } from "@/lib/hook-library";
-import type { IdentityRow } from "@/lib/compare-insights";
+import type { IdentityRow, MetricRow } from "@/lib/compare-insights";
+import { stayedToWatchPct } from "@/lib/insight-rules";
 import { videoRef } from "@/lib/video-ref";
 import type { Translator } from "@/lib/i18n/translate";
 
@@ -11,6 +12,8 @@ import type { Translator } from "@/lib/i18n/translate";
 
 export type DeepComparison = {
   opening: IdentityRow[];
+  // How viewers watched: every number both sides have, side by side.
+  viewers: MetricRow[];
   statements: string[];
   // Videos whose viewer numbers are missing (TikTok without screenshots).
   noViewerNumbers: CompareVideo[];
@@ -104,6 +107,7 @@ export function buildDeep(a: CompareVideo, b: CompareVideo, t: Translator, mixed
   }
 
   // ---- how viewers watched (same platform only: the numbers are counted differently) ----
+  const beforeViewers = statements.length;
   if (!mixed) {
     const sa = a.tiktokScreens;
     const sb = b.tiktokScreens;
@@ -142,7 +146,40 @@ export function buildDeep(a: CompareVideo, b: CompareVideo, t: Translator, mixed
     }
   }
 
+  const viewerStatement = statements.length > beforeViewers;
+  // The viewer numbers side by side (watching, stopping, who they were).
+  const watchShare = (v: CompareVideo) =>
+    v.avgWatchSec !== null && v.durationSec ? (v.avgWatchSec / v.durationSec) * 100 : (v.tiktokScreens?.avgPercentWatched ?? null);
+  const avgWatch = (v: CompareVideo) => v.avgWatchSec ?? v.tiktokScreens?.avgWatchSec ?? null;
+  const followersPct = (v: CompareVideo) => {
+    const rows = v.breakdowns?.subscribedStatus;
+    if (rows && rows.length > 0) {
+      const total = rows.reduce((sum, item) => sum + item.views, 0);
+      const subs = rows.filter((item) => item.subscribed).reduce((sum, item) => sum + item.views, 0);
+      return total > 0 ? (subs / total) * 100 : null;
+    }
+    return v.tiktokScreens?.followersPct ?? null;
+  };
+  const m = (key: MetricRow["key"], va: number | null, vb: number | null, format: MetricRow["format"], better: MetricRow["better"] = "higher"): MetricRow | null =>
+    va === null && vb === null ? null : { key, a: va, b: vb, format, better };
+  const viewers = [
+    m("compare.metricWatchShare", watchShare(a), watchShare(b), "percent"),
+    m("compare.metricAvgWatch", avgWatch(a), avgWatch(b), "seconds"),
+    m("compare.metricStayed", stayedToWatchPct(a.breakdowns?.engagement), stayedToWatchPct(b.breakdowns?.engagement), "percent"),
+    m("compare.metricFull", a.tiktokScreens?.watchedFullPct ?? null, b.tiktokScreens?.watchedFullPct ?? null, "percent"),
+    m("compare.metricStopped", stopSec(a), stopSec(b), "clock", "none"),
+    m("compare.metricFollowers", followersPct(a), followersPct(b), "percent", "none"),
+    m("compare.metricNewViewers", a.tiktokScreens?.newViewersPct ?? null, b.tiktokScreens?.newViewersPct ?? null, "percent", "none"),
+    m("compare.metricNewFollowers", a.tiktokScreens?.newFollowers ?? null, b.tiktokScreens?.newFollowers ?? null, "count"),
+    m("compare.metricSaves", a.tiktokScreens?.saves ?? null, b.tiktokScreens?.saves ?? null, "count"),
+  ].filter((row): row is MetricRow => row !== null);
+
+  // Both have viewer numbers but nothing differs clearly: say so, so the section is never silent.
+  if (viewers.length > 0 && viewerNumbers(a) && viewerNumbers(b) && !viewerStatement) {
+    statements.push(t("compare.viewersNoGap"));
+  }
+
   const noViewerNumbers = [a, b].filter((video) => !viewerNumbers(video));
 
-  return { opening, statements, noViewerNumbers };
+  return { opening, viewers, statements, noViewerNumbers };
 }

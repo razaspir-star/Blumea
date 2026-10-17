@@ -6,6 +6,7 @@ import AppLink from "@/components/AppLink";
 import AnalyzeModal from "@/components/AnalyzeModal";
 import ComparePicker from "@/components/ComparePicker";
 import Modal from "@/components/Modal";
+import WordingCompare from "@/components/WordingCompare";
 import { AddNumbers } from "@/components/TiktokViewerCard";
 import PlatformBadge from "@/components/PlatformBadge";
 import VideoText from "@/components/VideoText";
@@ -322,12 +323,40 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
                       </div>
                     ))}
                   </div>
+                  <WordingCompare idA={a.id} idB={b.id} titleA={a.title} titleB={b.title} />
                 </section>
               )}
 
-              {deepResult.noViewerNumbers.length > 0 && !mixed && (
+              {(deepResult.viewers.length > 0 || (deepResult.noViewerNumbers.length > 0 && !mixed)) && (
                 <section className="mt-6">
                   <h3 className="text-lg font-semibold tracking-tight text-blumea-navy">{t("compare.deepViewers")}</h3>
+                  {deepResult.viewers.length > 0 && (
+                    <div className="mt-3 overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm">
+                      <div className="grid grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,1fr)] gap-x-3 border-b border-slate-100 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-blumea-slate">
+                        <span />
+                        <span>{t("compare.videoA")}</span>
+                        <span>{t("compare.videoB")}</span>
+                      </div>
+                      {deepResult.viewers.map((row) => {
+                        const win = leader(row);
+                        const cell = (side: "a" | "b") => (
+                          <span className={win === side ? "font-semibold text-blumea-blue" : "text-blumea-navy"}>
+                            <span className="ltr-island">{show(row[side], row.format, t)}</span>
+                          </span>
+                        );
+                        return (
+                          <div
+                            key={row.key}
+                            className="grid grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,1fr)] gap-x-3 border-b border-slate-100 px-4 py-3 text-sm last:border-b-0"
+                          >
+                            <span className="text-blumea-slate">{t(row.key)}</span>
+                            {cell("a")}
+                            {cell("b")}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                   <div className="mt-3 space-y-2">
                     {deepResult.noViewerNumbers.map((video) => (
                       <div key={video.id} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-3">
