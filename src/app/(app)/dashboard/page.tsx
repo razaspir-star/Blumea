@@ -542,7 +542,7 @@ export default function DashboardPage() {
 
 {hasRealVideos && (
   <div className="mx-auto w-full max-w-7xl">
-    <NextExperiments experiments={nextExperiments(derived, selectedVideos, t)} />
+    <NextExperiments experiments={nextExperiments(derived, selectedVideos, t)} platforms={[...new Set(selectedVideos.map((video) => video.platform))]} />
   </div>
 )}
 

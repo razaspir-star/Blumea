@@ -3,16 +3,20 @@
 import type { NextExperiment } from "@/lib/next-experiments";
 import { useT } from "@/lib/i18n/client";
 import VideoText from "@/components/VideoText";
+import IdeaButton from "@/components/IdeaButton";
 
 // "Try in your next video": up to three experiments drawn from the creator's own
 // numbers. Each says what it rests on and what to look at afterwards.
-export default function NextExperiments({ experiments }: { experiments: NextExperiment[] }) {
+export default function NextExperiments({ experiments, platforms }: { experiments: NextExperiment[]; platforms: string[] }) {
   const t = useT();
   return (
     <section className="mt-8">
-      <div className="mb-4">
-        <h2 className="text-2xl font-semibold tracking-tight text-blumea-navy">{t("experimentsBox.title")}</h2>
-        <p className="mt-1 text-sm text-blumea-slate">{t("experimentsBox.subtitle")}</p>
+      <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 className="text-2xl font-semibold tracking-tight text-blumea-navy">{t("experimentsBox.title")}</h2>
+          <p className="mt-1 text-sm text-blumea-slate">{t("experimentsBox.subtitle")}</p>
+        </div>
+        <IdeaButton platforms={platforms} />
       </div>
 
       {experiments.length === 0 ? (

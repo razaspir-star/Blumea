@@ -14,6 +14,7 @@ import home from "./en/home";
 import errors from "./en/errors";
 import compare from "./en/compare";
 import compare2 from "./en/compare2";
+import idea from "./en/idea";
 
 const en = {
   ...auth,
@@ -30,6 +31,7 @@ const en = {
   ...errors,
   ...compare,
   ...compare2,
+  ...idea,
   common: {
     language: "Language",
     english: "English",
