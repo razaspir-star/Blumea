@@ -5,6 +5,7 @@ import AppLink from "@/components/AppLink";
 import FormatRankingSection from "@/components/FormatRankingSection";
 import { deriveDashboard, loadDashboardData, type DashboardData } from "@/lib/dashboard-data";
 import { realInsightCards } from "@/lib/insight-cards";
+import CardFeedback from "@/components/CardFeedback";
 import VideoText from "@/components/VideoText";
 import { useT } from "@/lib/i18n/client";
 import type { TextKey } from "@/lib/i18n/translate";
@@ -84,6 +85,7 @@ export default function InsightsPage() {
                   <VideoText text={card.body} />
                 </p>
                 {card.evidence && <p className="mt-4 text-xs text-blumea-slate">{card.evidence}</p>}
+                <CardFeedback target={card.title} />
               </article>
             );
           })}

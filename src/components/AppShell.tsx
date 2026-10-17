@@ -6,6 +6,9 @@ import { getCurrentProfile, type Profile } from "@/lib/auth";
 import BlumeaLoader from "@/components/BlumeaLoader";
 import AppSidebar, { MobileNav } from "@/components/AppSidebar";
 import BetaWaiting from "@/components/BetaWaiting";
+import FeedbackButton from "@/components/FeedbackButton";
+import ErrorReporter from "@/components/ErrorReporter";
+import ReconnectBanner from "@/components/ReconnectBanner";
 import { useBetaAccess } from "@/lib/use-beta-access";
 
 const ProfileContext = createContext<Profile | null>(null);
@@ -72,7 +75,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <div className="min-w-0 flex-1">
           <MobileNav />
 
+          <ReconnectBanner />
           <main className="p-4 sm:p-6 md:p-8">{children}</main>
+          <FeedbackButton />
+          <ErrorReporter />
         </div>
       </div>
     </ProfileContext>

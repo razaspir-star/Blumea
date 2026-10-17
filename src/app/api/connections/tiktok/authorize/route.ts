@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { signState } from "@/lib/oauth-state";
-import { requireApproved } from "@/lib/beta-access";
+import { requireApproved } from "@/lib/beta-guard";
 
 const SCOPES = ["user.info.basic", "user.info.stats", "video.list"];
 

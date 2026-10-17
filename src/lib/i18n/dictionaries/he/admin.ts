@@ -10,6 +10,11 @@ const admin: Dictionary["admin"] = {
   pending: "ממתינים להחלטה",
   approved: "אושרו",
   declined: "נדחו",
+  creators: "חשבונות",
+  aiToday: "הרצות AI היום / תקרה יומית",
+  problems: "תקלות בשבוע האחרון",
+  feedback: "משוב",
+  none: "עוד אין.",
 };
 
 const adminTexts = { admin };

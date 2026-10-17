@@ -57,7 +57,11 @@ export async function getValidTiktokAccessToken(profileId: string): Promise<stri
   });
   if (!refreshToken) throw new Error("No refresh token stored for this account.");
 
-  const refreshed = await refreshAccessToken(refreshToken);
+  // A refresh that the platform refuses means the creator has to connect again (a revoked or expired grant).
+  const refreshed = await refreshAccessToken(refreshToken).catch(async (error) => {
+    await supabaseAdmin.from("connected_accounts").update({ needs_reconnect: true }).eq("id", account.id);
+    throw error;
+  });
 
   await supabaseAdmin.rpc("update_oauth_secret", {
     secret_id: account.access_token_secret_id,
@@ -71,6 +75,7 @@ export async function getValidTiktokAccessToken(profileId: string): Promise<stri
     .from("connected_accounts")
     .update({
       token_expires_at: new Date(Date.now() + refreshed.expires_in * 1000).toISOString(),
+      needs_reconnect: false,
     })
     .eq("id", account.id);
 

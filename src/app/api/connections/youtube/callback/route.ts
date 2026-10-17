@@ -67,6 +67,7 @@ export async function GET(request: NextRequest) {
       access_token_secret_id: accessSecretId,
       refresh_token_secret_id: refreshSecretId,
       token_expires_at: new Date(Date.now() + tokens.expires_in * 1000).toISOString(),
+      needs_reconnect: false,
       scopes: tokens.scope ? tokens.scope.split(" ") : [],
     },
     { onConflict: "profile_id,platform" }

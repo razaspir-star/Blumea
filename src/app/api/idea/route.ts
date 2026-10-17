@@ -1,3 +1,5 @@
+import { overDailyCap } from "@/lib/cost-guard";
+import { logEvent } from "@/lib/events";
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { translatorFor } from "@/lib/i18n/server";
@@ -36,8 +38,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ code: "limit", error: t("idea.limit", { cap, date }), used, cap }, { status: 402 });
   }
 
+  if (await overDailyCap(admin, plan)) {
+    await logEvent(admin, profileId, "daily_cap_hit", { route: "idea" });
+    return NextResponse.json({ code: "busy", error: t("errors.busy") }, { status: 503 });
+  }
+
   const result = await buildIdea(admin, profileId, platform, t);
   if ("error" in result) {
+    await logEvent(admin, profileId, "idea_failed", { reason: result.error });
     if (result.error === "not_enough") return NextResponse.json({ code: "not_enough", error: t("idea.notEnough", { count: result.read }), read: result.read }, { status: 422 });
     return NextResponse.json({ code: "failed", error: t("idea.failed") }, { status: 502 });
   }

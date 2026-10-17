@@ -17,6 +17,7 @@ import compare2 from "./en/compare2";
 import idea from "./en/idea";
 import beta from "./en/beta";
 import admin from "./en/admin";
+import feedbackTexts from "./en/feedback";
 
 const en = {
   ...auth,
@@ -36,6 +37,7 @@ const en = {
   ...idea,
   ...beta,
   ...admin,
+  ...feedbackTexts,
   common: {
     language: "Language",
     english: "English",

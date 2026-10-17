@@ -39,6 +39,7 @@ function usePlatformConnection(
   const searchParams = useSearchParams();
   const [connected, setConnected] = useState<boolean | null>(null);
   const [handle, setHandle] = useState<string | null>(null);
+  const [needsReconnect, setNeedsReconnect] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const connectedNotice = searchParams.get(connectedParam) ? messages.connected : null;
@@ -51,12 +52,13 @@ function usePlatformConnection(
     async function load() {
       const { data } = await supabase
         .from("connected_accounts")
-        .select("handle")
+        .select("handle, needs_reconnect")
         .eq("platform", platform)
         .maybeSingle();
       if (!cancelled) {
         setConnected(Boolean(data));
         setHandle(data?.handle ?? null);
+        setNeedsReconnect(Boolean(data?.needs_reconnect));
       }
     }
 
@@ -107,7 +109,7 @@ function usePlatformConnection(
     setBusy(false);
   }
 
-  return { connected, handle, busy, connect, disconnect, connectedNotice, errorNotice };
+  return { connected, needsReconnect, handle, busy, connect, disconnect, connectedNotice, errorNotice };
 }
 
 const logos: Record<PlatformId, string> = {
@@ -158,6 +160,7 @@ function ConnectionsPageInner() {
   function statusOf(id: PlatformId): ConnectionStatus {
     const connection = real[id];
     if (connection) {
+      if (connection.connected && connection.needsReconnect) return "needs_reconnect";
       return connection.connected ? "connected" : "disconnected";
     }
     return connections[id] ?? ((profile.platforms ?? []).includes(id) ? "connected" : "disconnected");
@@ -258,7 +261,7 @@ function ConnectionsPageInner() {
                     {status === "needs_reconnect" && (
                       <button
                         type="button"
-                        onClick={() => setConnection(platform.id, "connected")}
+                        onClick={() => (real[platform.id] ? real[platform.id]!.connect() : setConnection(platform.id, "connected"))}
                         className="rounded-full bg-amber-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-amber-600"
                       >
                         {t("connections.reconnect")}

@@ -278,6 +278,10 @@ setSignupSuccess(true);
             <p className="mt-3 text-sm leading-6 text-blumea-slate">
               {t("register.subtitle")}
             </p>
+
+            <p className="mt-4 rounded-2xl bg-blumea-mist px-4 py-3 text-start text-xs leading-5 text-blumea-navy">
+              {t("beta.registerNotice")}
+            </p>
           </div>
 
 

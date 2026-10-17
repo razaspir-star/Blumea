@@ -1,4 +1,5 @@
 const errors = {
+  busy: "Blumea is very busy right now and is pausing new analyses until tomorrow. Please try again then. Nothing was lost.",
   limit: "You've used your {cap} free analyses this month. They start over on {date}. Your numbers keep updating, and more analyses are coming with Blumea Pro.",
   notOwnChannel: "You can only analyze videos from your own channel.",
   linkExpired: "This link has expired. Open Blumea on your computer and scan a new code.",

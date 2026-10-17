@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { signState } from "@/lib/oauth-state";
-import { requireApproved } from "@/lib/beta-access";
+import { requireApproved } from "@/lib/beta-guard";
 
 const SCOPES = [
   "https://www.googleapis.com/auth/youtube.readonly",

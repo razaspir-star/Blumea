@@ -17,6 +17,14 @@ type AccessRequest = {
   created_at: string;
 };
 
+type Overview = {
+  creators: number;
+  aiRunsToday: number;
+  dailyCap: number;
+  problems: { name: string; props: Record<string, unknown> | null; created_at: string }[];
+  feedback: { kind: string; target: string | null; rating: string | null; note: string | null; created_at: string }[];
+};
+
 // The owner's page. For now: the guest list of the private beta. Events, errors and cost will join it.
 export default function AdminPage() {
   const t = useT();
@@ -24,6 +32,7 @@ export default function AdminPage() {
   const profile = useProfile();
   const [requests, setRequests] = useState<AccessRequest[] | null>(null);
   const [email, setEmail] = useState("");
+  const [overview, setOverview] = useState<Overview | null>(null);
 
   const call = useCallback(async (init?: { method: "POST"; body: object }) => {
     const { data } = await supabase.auth.getSession();
@@ -39,6 +48,15 @@ export default function AdminPage() {
     const body = await call();
     setRequests(body?.requests ?? []);
   }, [call]);
+
+  useEffect(() => {
+    if (profile.plan === "owner") {
+      supabase.auth.getSession().then(async ({ data }) => {
+        const response = await fetch("/api/admin/overview", { headers: { Authorization: `Bearer ${data.session?.access_token ?? ""}` } });
+        if (response.ok) setOverview(await response.json());
+      });
+    }
+  }, [profile.plan]);
 
   useEffect(() => {
     if (profile.plan !== "owner") {
@@ -100,6 +118,21 @@ export default function AdminPage() {
       <h1 className="text-2xl font-semibold text-blumea-navy">{t("admin.title")}</h1>
       <p className="mt-1 text-sm text-blumea-slate">{t("admin.guestListHelp")}</p>
 
+      {overview && (
+        <div className="mt-6 grid grid-cols-2 gap-3">
+          <div className="rounded-2xl border border-slate-200/70 bg-white p-4">
+            <p className="text-xs text-blumea-slate">{t("admin.creators")}</p>
+            <p className="mt-1 text-2xl font-semibold text-blumea-navy">{overview.creators}</p>
+          </div>
+          <div className="rounded-2xl border border-slate-200/70 bg-white p-4">
+            <p className="text-xs text-blumea-slate">{t("admin.aiToday")}</p>
+            <p className="mt-1 text-2xl font-semibold text-blumea-navy">
+              {overview.aiRunsToday} <span className="text-sm font-normal text-blumea-slate">/ {overview.dailyCap}</span>
+            </p>
+          </div>
+        </div>
+      )}
+
       <form
         className="mt-6 flex flex-wrap gap-2"
         onSubmit={async (event) => {
@@ -126,6 +159,42 @@ export default function AdminPage() {
           {section("pending", t("admin.pending"))}
           {section("approved", t("admin.approved"))}
           {section("declined", t("admin.declined"))}
+        </>
+      )}
+
+      {overview && (
+        <>
+          <section className="mt-10">
+            <h2 className="text-sm font-semibold text-blumea-navy">{t("admin.problems")}</h2>
+            {overview.problems.length === 0 ? (
+              <p className="mt-2 text-sm text-blumea-slate">{t("admin.none")}</p>
+            ) : (
+              <ul className="mt-3 space-y-2">
+                {overview.problems.map((item, index) => (
+                  <li key={index} className="rounded-xl bg-white px-4 py-2.5 text-xs text-blumea-slate shadow-sm">
+                    <span className="font-semibold text-blumea-navy">{item.name}</span> · {new Date(item.created_at).toLocaleString(t.locale)}
+                    <br />
+                    {JSON.stringify(item.props ?? {})}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+          <section className="mt-10">
+            <h2 className="text-sm font-semibold text-blumea-navy">{t("admin.feedback")}</h2>
+            {overview.feedback.length === 0 ? (
+              <p className="mt-2 text-sm text-blumea-slate">{t("admin.none")}</p>
+            ) : (
+              <ul className="mt-3 space-y-2">
+                {overview.feedback.map((item, index) => (
+                  <li key={index} className="rounded-xl bg-white px-4 py-2.5 text-xs text-blumea-slate shadow-sm">
+                    <span className="font-semibold text-blumea-navy">{item.rating === "up" ? "👍" : item.rating === "down" ? "👎" : "💬"}</span> {item.note ?? item.target}
+                    {item.note && item.target ? <span> · {item.target}</span> : null}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
         </>
       )}
     </div>

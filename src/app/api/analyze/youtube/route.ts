@@ -1,3 +1,5 @@
+import { overDailyCap } from "@/lib/cost-guard";
+import { logEvent } from "@/lib/events";
 import { isApproved } from "@/lib/beta-access";
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
@@ -42,7 +44,17 @@ export async function POST(request: NextRequest) {
     .then((body) => body?.videoId)
     .catch(() => undefined);
 
+  const { data: planRow } = await supabaseAdmin.from("profiles").select("plan").eq("id", profileId).maybeSingle();
+  if (await overDailyCap(supabaseAdmin, planRow?.plan)) {
+    await logEvent(supabaseAdmin, profileId, "daily_cap_hit", { route: "analyze" });
+    return NextResponse.json({ code: "busy", error: t("errors.busy") }, { status: 503 });
+  }
+
   const result = await analyzeYoutubeForProfile(supabaseAdmin, profileId, requestedVideoId, t);
-  if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status });
+  if (!result.ok) {
+    await logEvent(supabaseAdmin, profileId, "analysis_failed", { status: result.status, error: String(result.error).slice(0, 200) });
+    return NextResponse.json({ error: result.error }, { status: result.status });
+  }
+  await logEvent(supabaseAdmin, profileId, "analysis_done", { platform: "youtube" });
   return NextResponse.json(result.body);
 }
