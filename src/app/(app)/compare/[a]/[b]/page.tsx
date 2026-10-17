@@ -311,6 +311,7 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
               {deepResult.opening.length > 0 && (
                 <section className="mt-5">
                   <h3 className="text-lg font-semibold tracking-tight text-blumea-navy">{t("compare.deepOpening")}</h3>
+                  <WordingCompare idA={a.id} idB={b.id} titleA={a.title} titleB={b.title} hooks={deepResult.hooks} />
                   <div className="mt-3 overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm">
                     {deepResult.opening.map((row) => (
                       <div
@@ -328,7 +329,6 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
                       </div>
                     ))}
                   </div>
-                  <WordingCompare idA={a.id} idB={b.id} titleA={a.title} titleB={b.title} />
                 </section>
               )}
 

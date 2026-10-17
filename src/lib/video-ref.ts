@@ -7,8 +7,18 @@ const START = "\uE000";
 const MID = "\uE001";
 const END = "\uE002";
 
+// A creator's title can be a whole caption (a recipe, links, hashtags). In a sentence only its
+// beginning is named, cut at a word.
+export function shortTitle(title: string, max = 45): string {
+  const clean = title.replace(/\s+/g, " ").trim();
+  if (clean.length <= max) return clean;
+  const cut = clean.slice(0, max);
+  const space = cut.lastIndexOf(" ");
+  return `${(space > max * 0.5 ? cut.slice(0, space) : cut).replace(/[\s,.;:!?-]+$/, "")}…`;
+}
+
 export function videoRef(id: string, title: string): string {
-  return `${START}${id}${MID}${title.replace(/\s+/g, " ").trim()}${END}`;
+  return `${START}${id}${MID}${shortTitle(title)}${END}`;
 }
 
 export type VideoTextPart = { text: string } | { id: string; title: string };

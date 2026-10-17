@@ -10,7 +10,11 @@ import type { Translator } from "@/lib/i18n/translate";
 // regular comparison: only clear gaps, counts always stated, no causes, and a
 // recommendation instead of a guess.
 
+export type HookText = { onScreen: string | null; words: string | null };
+
 export type DeepComparison = {
+  // What each video says and shows as its hook (the first seconds).
+  hooks: { a: HookText; b: HookText };
   opening: IdentityRow[];
   // How viewers watched: every number both sides have, side by side.
   viewers: MetricRow[];
@@ -61,11 +65,6 @@ export function buildDeep(a: CompareVideo, b: CompareVideo, t: Translator, mixed
       return !id || id === "none" ? t("compare.none") : familiarLabel(id, t);
     }),
     row("compare.rowFirstSeconds", (v) => str(v, "visual_hook")),
-    row("compare.rowOpeningWords", (v) => firstWords(v) ?? t("compare.none")),
-    row("compare.rowOpeningText", (v) => {
-      const texts = textsFirst3(v);
-      return texts.length > 0 ? texts.join(" · ") : t("compare.none");
-    }),
   ].filter((r) => r.a !== null || r.b !== null);
 
   const statements: string[] = [];
@@ -181,5 +180,10 @@ export function buildDeep(a: CompareVideo, b: CompareVideo, t: Translator, mixed
 
   const noViewerNumbers = [a, b].filter((video) => !viewerNumbers(video));
 
-  return { opening, viewers, statements, noViewerNumbers };
+  const hookText = (v: CompareVideo): HookText => {
+    const texts = textsFirst3(v);
+    return { onScreen: texts.length > 0 ? texts.join(" · ") : null, words: firstWords(v) };
+  };
+
+  return { hooks: { a: hookText(a), b: hookText(b) }, opening, viewers, statements, noViewerNumbers };
 }
