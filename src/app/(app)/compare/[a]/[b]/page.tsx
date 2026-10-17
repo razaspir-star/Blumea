@@ -179,6 +179,11 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
   const statements = deepResult
     ? [...comparison.statements.filter((statement) => statement !== noGapText), ...deepResult.statements]
     : comparison.statements;
+  // In the in-depth view each number and each opening row is shown once, in its own part.
+  const viewerKeys = new Set<string>(deepResult?.viewers.map((row) => row.key) ?? []);
+  const openingKeys = new Set<string>(deepResult?.opening.map((row) => row.key) ?? []);
+  const metrics = comparison.metrics.filter((row) => !viewerKeys.has(row.key));
+  const identity = comparison.identity.filter((row) => !openingKeys.has(row.key));
   const tiktokVideos = [a, b].filter((video) => video.platform === "tiktok");
   const allTiktokRead = tiktokVideos.every((video) => video.fields !== null);
 
@@ -278,7 +283,7 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
                 <span>{t("compare.videoA")}</span>
                 <span>{t("compare.videoB")}</span>
               </div>
-              {comparison.metrics.map((row) => {
+              {metrics.map((row) => {
                 const win = leader(row);
                 const cell = (side: "a" | "b") => (
                   <span className={win === side ? "font-semibold text-blumea-blue" : "text-blumea-navy"}>
@@ -378,11 +383,11 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
             </div>
           )}
 
-          {showBuilt && comparison.identity.length > 0 && (
+          {showBuilt && identity.length > 0 && (
             <section className="mt-8">
               <h2 className="text-xl font-semibold tracking-tight text-blumea-navy">{t("compare.built")}</h2>
               <div className="mt-3 overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm">
-                {comparison.identity.map((row) => (
+                {identity.map((row) => (
                   <div
                     key={row.key}
                     className="grid grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,1fr)] gap-x-3 border-b border-slate-100 px-4 py-3 text-sm last:border-b-0"
