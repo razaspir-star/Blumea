@@ -59,7 +59,7 @@ const avgWatch = (v: CompareVideo) => v.avgWatchSec ?? v.tiktokScreens?.avgWatch
 const stayed = (v: CompareVideo) => stayedToWatchPct(v.breakdowns?.engagement);
 const rewatch = (v: CompareVideo) => v.retentionCurve?.[0]?.watchRatio ?? null;
 
-export function buildComparison(a: CompareVideo, b: CompareVideo, t: Translator): Comparison {
+export function buildComparison(a: CompareVideo, b: CompareVideo, t: Translator, mixed = false): Comparison {
   const m = (key: TextKey, va: number | string | null, vb: number | string | null, format: MetricFormat, better: "higher" | "none" = "higher"): MetricRow | null =>
     va === null && vb === null ? null : { key, a: va, b: vb, format, better };
 
@@ -68,7 +68,7 @@ export function buildComparison(a: CompareVideo, b: CompareVideo, t: Translator)
     m("compare.metricViews", a.views, b.views, "count"),
     m("compare.metricLikes", a.likes, b.likes, "count"),
     m("compare.metricComments", a.comments, b.comments, "count"),
-    a.platform === "tiktok" ? m("compare.metricShares", a.shares, b.shares, "count") : null,
+    a.platform === "tiktok" || b.platform === "tiktok" ? m("compare.metricShares", a.shares, b.shares, "count") : null,
     m("compare.metricEngagement", rate(a), rate(b), "decimal"),
     m("compare.metricDuration", a.durationSec, b.durationSec, "seconds", "none"),
     m("compare.metricWatchShare", watchShare(a), watchShare(b), "percent"),
@@ -126,36 +126,39 @@ export function buildComparison(a: CompareVideo, b: CompareVideo, t: Translator)
   };
   const named = (side: "a" | "b") => ({ big: q(side === "a" ? a : b), small: q(side === "a" ? b : a) });
 
-  const views = hi(a.views, b.views, (side, big, small) =>
+  // Across platforms the raw numbers are not set against each other in a sentence (they are counted
+  // differently); only how the two videos are built is.
+  const numbersOk = !mixed;
+  const views = !numbersOk ? null : hi(a.views, b.views, (side, big, small) =>
     small > 0 && big / small >= 1.5
       ? t("compare.viewsGap", { ...named(side), x: (big / small).toFixed(1).replace(/\.0$/, ""), a: formatCount(big), b: formatCount(small) })
       : null
   );
   if (views) statements.push(views);
 
-  const watch = hi(watchShare(a), watchShare(b), (side, big, small) =>
+  const watch = !numbersOk ? null : hi(watchShare(a), watchShare(b), (side, big, small) =>
     big - small >= 8 ? t("compare.watchGap", { ...named(side), a: Math.round(big), b: Math.round(small) }) : null
   );
   if (watch) statements.push(watch);
 
-  const stay = hi(stayed(a), stayed(b), (side, big, small) =>
+  const stay = !numbersOk ? null : hi(stayed(a), stayed(b), (side, big, small) =>
     big - small >= 8 ? t("compare.stayedGap", { ...named(side), a: Math.round(big), b: Math.round(small) }) : null
   );
   if (stay) statements.push(stay);
 
-  const comments = hi(commentRate(a), commentRate(b), (side, big, small) =>
+  const comments = !numbersOk ? null : hi(commentRate(a), commentRate(b), (side, big, small) =>
     small > 0 && big / small >= 1.5 && (side === "a" ? a.comments : b.comments)! >= 5
       ? t("compare.commentsGap", { ...named(side), a: big.toFixed(2), b: small.toFixed(2) })
       : null
   );
   if (comments) statements.push(comments);
 
-  const followers = hi(followersShare(a), followersShare(b), (side, big, small) =>
+  const followers = !numbersOk ? null : hi(followersShare(a), followersShare(b), (side, big, small) =>
     big - small >= 15 ? t("compare.followersGap", { ...named(side), a: Math.round(big), b: Math.round(small) }) : null
   );
   if (followers) statements.push(followers);
 
-  if (statements.length === 0) {
+  if (statements.length === 0 && !mixed) {
     statements.push(t("compare.noGap"));
   } else {
     const differing = identity.filter((row) => row.a !== null && row.b !== null && !row.same).map((row) => t(row.key));

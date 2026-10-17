@@ -17,6 +17,7 @@ import { buildComparison, type MetricFormat, type MetricRow } from "@/lib/compar
 import { videoRef } from "@/lib/video-ref";
 import { formatCount, formatTime } from "@/lib/format";
 import { useT } from "@/lib/i18n/client";
+import { platformName } from "@/lib/platform-capabilities";
 import type { Translator } from "@/lib/i18n/translate";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -99,7 +100,7 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
       // A YouTube video that was only scanned (numbers, no AI reading) is read now, so the
       // "how they are built" part is complete. Not for a locked preview: that must not
       // spend the creator's analyses. TikTok videos need an upload, so they get a hint.
-      if (!unlocked || !a || !b || a.platform !== b.platform) return;
+      if (!unlocked || !a || !b) return;
       const toRead = [a, b].filter((video) => video.platform === "youtube" && video.fields === null);
       if (toRead.length === 0) return;
 
@@ -164,8 +165,8 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
   }
 
   const mixed = a.platform !== b.platform;
-  const comparison = mixed ? null : buildComparison(a, b, t);
-  const tiktokPair = a.platform === "tiktok" && b.platform === "tiktok";
+  const comparison = buildComparison(a, b, t, mixed);
+  const tiktokPair = a.platform === "tiktok" || b.platform === "tiktok";
   const bothRead = a.fields !== null && b.fields !== null;
   // YouTube videos are read automatically; a TikTok pair is in-depth once both are read or the creator asks for it.
   const showBuilt = !tiktokPair || bothRead || deep;
@@ -191,7 +192,7 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
         </p>
       )}
       {readError && <p className="mt-4 rounded-2xl bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-700">{readError}</p>}
-      {unlocked && !mixed && tiktokPair && !bothRead && !deep && (
+      {unlocked && tiktokPair && !bothRead && !deep && (
         <div className="mt-4 rounded-2xl border border-blumea-blue/25 bg-white p-4 shadow-sm">
           <p className="text-sm font-semibold text-blumea-navy">{t("compare.deepTitle")}</p>
           <p className="mt-1 text-sm leading-6 text-blumea-slate">{t("compare.deepBody")}</p>
@@ -205,7 +206,6 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
         </div>
       )}
       {unlocked &&
-        !mixed &&
         tiktokPair &&
         deep &&
         [a, b]
@@ -225,9 +225,13 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
             </div>
           ))}
 
-      {mixed || !comparison ? (
-        <p className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-white/60 p-4 text-sm leading-6 text-blumea-slate">{t("compare.mixed")}</p>
-      ) : (
+      {mixed && (
+        <p className="mt-4 rounded-2xl bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-800">
+          {t("compare.mixedNotice", { a: platformName(a.platform, t), b: platformName(b.platform, t) })}
+        </p>
+      )}
+
+      {(
         <>
           <section className="mt-8">
             <h2 className="text-xl font-semibold tracking-tight text-blumea-navy">{t("compare.numbers")}</h2>

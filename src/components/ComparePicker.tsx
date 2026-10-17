@@ -38,6 +38,9 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
   const [type, setType] = useState<CompareType | null>(null);
   const [aId, setAId] = useState<string | null>(initialA ?? null);
   const [bId, setBId] = useState<string | null>(null);
+  // The platform chosen for each of the two videos (video vs video picks the platform first).
+  const [aPlatform, setAPlatform] = useState<string | null>(null);
+  const [bPlatform, setBPlatform] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -53,6 +56,8 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
     setType(null);
     setAId(initialA ?? null);
     setBId(null);
+    setAPlatform(null);
+    setBPlatform(null);
   }
 
   function chooseType(next: CompareType) {
@@ -67,6 +72,8 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
     setType(next);
     setAId(next === "videos" ? (initialA ?? null) : null);
     setBId(null);
+    setAPlatform(null);
+    setBPlatform(null);
   }
 
   const visibleTypes = initialA ? TYPES.filter((item) => item.id === "videos" || item.id === "usual") : TYPES;
@@ -79,31 +86,21 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
 
   // ---- one video / two videos ----
   const a = videos?.find((video) => video.id === aId) ?? null;
-  const options = (videos ?? []).filter((video) => video.id !== aId && (!a || video.platform === a.platform));
+  const b = videos?.find((video) => video.id === bId) ?? null;
+  const aPlat = aPlatform ?? a?.platform ?? null;
+  const platformsPresent = [...new Set((videos ?? []).map((video) => video.platform))];
+  const mixed = aPlat !== null && bPlatform !== null && aPlat !== bPlatform;
 
-  function pickVideo(video: DashboardVideo) {
-    if (type === "usual") {
-      router.push(`/compare/usual/${video.id}`);
-      return;
-    }
-    if (!a) {
-      setAId(video.id);
-      setBId(null);
-    } else {
-      setBId(video.id);
-    }
-  }
-
-  const videoGrid = (list: DashboardVideo[]) => (
+  const videoGrid = (list: DashboardVideo[], selectedId: string | null, onPick: (video: DashboardVideo) => void) => (
     <div className="mt-4 grid max-h-[340px] grid-cols-2 gap-3 overflow-y-auto pe-1 sm:grid-cols-3">
       {list.map((video) => {
         const thumb = thumbOf(video);
-        const selected = bId === video.id;
+        const selected = selectedId === video.id;
         return (
           <button
             key={video.id}
             type="button"
-            onClick={() => pickVideo(video)}
+            onClick={() => onPick(video)}
             className={`group overflow-hidden rounded-2xl bg-white text-start transition-all ${
               selected ? "border-2 border-blumea-blue shadow-md" : "border border-slate-200 shadow-sm hover:border-blumea-blue/40 hover:shadow-md"
             }`}
@@ -126,6 +123,50 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
       })}
     </div>
   );
+
+  // The small card of a video already chosen, with a way to change it.
+  const chosenCard = (video: DashboardVideo, label: string, onChange: () => void) => {
+    const thumb = thumbOf(video);
+    return (
+      <div className="mt-3 flex items-center gap-3 rounded-2xl border border-blumea-blue/30 bg-blumea-mist/60 p-2.5">
+        <div className="relative h-14 w-10 shrink-0 overflow-hidden rounded-lg bg-slate-100">
+          {thumb && <Image src={thumb} alt="" fill unoptimized sizes="40px" className="object-cover" />}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-blumea-blue">{label}</p>
+          <p className="flex items-center gap-1.5 truncate text-sm font-semibold text-blumea-navy">
+            <PlatformIcon platform={video.platform as "youtube" | "tiktok"} size={12} />
+            <span className="truncate">{video.title}</span>
+          </p>
+        </div>
+        <button type="button" onClick={onChange} className="shrink-0 text-xs font-semibold text-blumea-blue hover:opacity-70">
+          {t("compare.changeVideo")}
+        </button>
+      </div>
+    );
+  };
+
+  const platformChoice = (onChoose: (platform: string) => void, sameAs?: string | null) => (
+    <div className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+      {platformsPresent.map((platform) => (
+        <button
+          key={platform}
+          type="button"
+          onClick={() => onChoose(platform)}
+          className="flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-4 text-sm font-semibold text-blumea-navy transition-all hover:-translate-y-0.5 hover:border-blumea-blue hover:shadow-sm"
+        >
+          <PlatformIcon platform={platform as "youtube" | "tiktok"} size={18} />
+          {platformLabels[platform as "youtube" | "tiktok"]}
+          {sameAs === platform && <span className="text-xs font-normal text-blumea-slate">({t("compare.sameAsFirst")})</span>}
+        </button>
+      ))}
+    </div>
+  );
+
+  // For "video against your other videos": one video from any platform.
+  function pickForUsual(video: DashboardVideo) {
+    router.push(`/compare/usual/${video.id}`);
+  }
 
   // ---- two formats / two openings ----
   const groups = type === "format" || type === "hook" ? groupOptions(videos ?? [], type as GroupKind) : [];
@@ -159,38 +200,62 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
             </div>
           )}
 
-          {(type === "videos" || type === "usual") && (
+          {type === "usual" && (
             <>
-              <p className="mt-2 text-xs leading-5 text-blumea-slate">
-                {type === "usual" ? t("compare2.chooseOne") : a ? t("compare.pickSecond") : t("compare.pickFirst")}
-                {type === "videos" ? ` ${t("compare.samePlatform")}` : ""}
-              </p>
+              <p className="mt-2 text-xs leading-5 text-blumea-slate">{t("compare2.chooseOne")}</p>
+              {videoGrid(videos, null, pickForUsual)}
+            </>
+          )}
 
-              {type === "videos" && a && (
-                <div className="mt-3 flex items-center gap-3 rounded-2xl border border-blumea-blue/30 bg-blumea-mist/60 p-2.5">
-                  <PlatformIcon platform={a.platform as "youtube" | "tiktok"} size={14} />
-                  <p className="min-w-0 flex-1 truncate text-sm font-semibold text-blumea-navy">
-                    <span className="me-2 text-xs font-semibold uppercase tracking-wide text-blumea-blue">{t("compare.first")}</span>
-                    {a.title}
-                  </p>
-                  {!initialA && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAId(null);
-                        setBId(null);
-                      }}
-                      className="shrink-0 text-xs font-semibold text-blumea-blue hover:opacity-70"
-                    >
-                      {t("compare.change")}
+          {type === "videos" && (
+            <div key={`${aPlat ?? "-"}-${a ? "a" : "-"}-${bPlatform ?? "-"}`} className="blumea-expand">
+              <div>
+                {a && chosenCard(a, t("compare.first"), () => { setAId(null); setBId(null); setBPlatform(null); })}
+                {b && chosenCard(b, t("compare.secondVideo"), () => setBId(null))}
+
+                {/* first video: platform, then the video */}
+                {!aPlat && (
+                  <>
+                    <p className="mt-3 text-xs font-semibold text-blumea-navy">{t("compare.pickPlatformFirst")}</p>
+                    {platformChoice((platform) => setAPlatform(platform))}
+                  </>
+                )}
+                {aPlat && !a && (
+                  <>
+                    <p className="mt-3 text-xs font-semibold text-blumea-navy">{t("compare.pickVideoFirst")}</p>
+                    <button type="button" onClick={() => setAPlatform(null)} className="mt-1 text-xs font-semibold text-blumea-blue hover:opacity-70">
+                      {t("compare.changePlatform")}
                     </button>
-                  )}
-                </div>
-              )}
+                    {videoGrid((videos ?? []).filter((video) => video.platform === aPlat), null, (video) => { setAId(video.id); setBId(null); setBPlatform(null); })}
+                  </>
+                )}
 
-              {videoGrid(type === "videos" && a ? options : videos)}
+                {/* second video: platform, then the video */}
+                {a && !bPlatform && (
+                  <>
+                    <p className="mt-3 text-xs font-semibold text-blumea-navy">{t("compare.pickPlatformSecond")}</p>
+                    {platformChoice((platform) => setBPlatform(platform), a.platform)}
+                  </>
+                )}
+                {a && bPlatform && (
+                  <>
+                    {!b && (
+                      <>
+                        <p className="mt-3 text-xs font-semibold text-blumea-navy">{t("compare.pickVideoSecond")}</p>
+                        <button type="button" onClick={() => setBPlatform(null)} className="mt-1 text-xs font-semibold text-blumea-blue hover:opacity-70">
+                          {t("compare.changePlatform")}
+                        </button>
+                        {videoGrid((videos ?? []).filter((video) => video.platform === bPlatform && video.id !== a.id), bId, (video) => setBId(video.id))}
+                      </>
+                    )}
+                    {mixed && (
+                      <p className="mt-3 rounded-2xl bg-amber-50 px-3.5 py-2.5 text-xs leading-5 text-amber-800">
+                        {t("compare.mixedNotice", { a: platformLabels[aPlat as "youtube" | "tiktok"], b: platformLabels[bPlatform as "youtube" | "tiktok"] })}
+                      </p>
+                    )}
+                  </>
+                )}
 
-              {type === "videos" && (
                 <div className="mt-5 flex justify-end">
                   <button
                     type="button"
@@ -205,8 +270,8 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
                     {t("compare.go")}
                   </button>
                 </div>
-              )}
-            </>
+              </div>
+            </div>
           )}
 
           {(type === "format" || type === "hook") && (
