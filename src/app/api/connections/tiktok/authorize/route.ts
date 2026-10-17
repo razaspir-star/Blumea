@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { signState } from "@/lib/oauth-state";
+import { requireApproved } from "@/lib/beta-access";
 
 const SCOPES = ["user.info.basic", "user.info.stats", "video.list"];
 
@@ -10,15 +11,9 @@ function base64url(input: Buffer) {
 }
 
 export async function GET(request: NextRequest) {
-  const token = request.headers.get("authorization")?.replace("Bearer ", "");
-  if (!token) {
-    return NextResponse.json({ error: "Not signed in" }, { status: 401 });
-  }
-
-  const { data, error } = await getSupabaseAdmin().auth.getUser(token);
-  if (error || !data.user) {
-    return NextResponse.json({ error: "Invalid session" }, { status: 401 });
-  }
+  const approved = await requireApproved(getSupabaseAdmin(), request.headers.get("authorization")?.replace("Bearer ", ""));
+  if (approved instanceof NextResponse) return approved;
+  const data = { user: { id: approved.userId } };
 
   // TikTok's v2 Login Kit requires PKCE. The verifier has to survive the round
   // trip to TikTok and back, so — same trick as profile_id — it rides inside

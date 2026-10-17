@@ -9,6 +9,8 @@ import { useAppRouter } from "@/lib/use-app-router";
 import { getCurrentProfile } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import BlumeaLoader from "@/components/BlumeaLoader";
+import BetaWaiting from "@/components/BetaWaiting";
+import { useBetaAccess } from "@/lib/use-beta-access";
 import BlumeaFlowerLoader from "@/components/BlumeaFlowerLoader";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import { useT } from "@/lib/i18n/client";
@@ -39,6 +41,7 @@ import {
 export default function OnboardingPage() {
   const t = useT();
   const router = useAppRouter();
+  const access = useBetaAccess();
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [profile, setProfile] = useState<{
   id: string;
@@ -488,9 +491,11 @@ useEffect(() => {
   });
 }, [profile?.id]);
 
-  if (isCheckingAuth) {
+  if (isCheckingAuth || access === "loading") {
   return <BlumeaLoader />;
 }
+
+if (access === "waiting") return <BetaWaiting />;
 
 
 

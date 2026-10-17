@@ -10,6 +10,7 @@ import {
   Lightbulb,
   Link2,
   Settings,
+  ShieldCheck,
   LogOut,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -51,6 +52,14 @@ const navigation = [
     matches: ["/connections"],
   },
 ];
+
+// Only the owner sees this: the guest list, and later events, errors and cost.
+const adminItem = {
+  label: "nav.admin" as TextKey,
+  icon: ShieldCheck,
+  path: "/admin",
+  matches: ["/admin"],
+};
 
 // Settings sits at the bottom of the sidebar, above the language switch.
 const settingsItem = {
@@ -101,7 +110,7 @@ export default function AppSidebar() {
       <Brand />
 
       <nav className="mt-10 flex flex-col gap-2">
-        {navigation.map((item) => {
+        {(profile.plan === "owner" ? [...navigation, adminItem] : navigation).map((item) => {
           const Icon = item.icon;
           const active = isActive(item.matches);
 
@@ -181,6 +190,7 @@ export function MobileNav() {
   const t = useT();
   const router = useAppRouter();
   const isActive = useActivePath();
+  const profile = useProfile();
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white px-4 py-3 md:hidden">
@@ -190,7 +200,7 @@ export function MobileNav() {
       </div>
 
       <nav className="mt-3 flex gap-1 overflow-x-auto">
-        {[...navigation, settingsItem].map((item) => {
+        {[...navigation, ...(profile.plan === "owner" ? [adminItem] : []), settingsItem].map((item) => {
           const Icon = item.icon;
           const active = isActive(item.matches);
 

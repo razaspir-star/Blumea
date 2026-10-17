@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { signState } from "@/lib/oauth-state";
+import { requireApproved } from "@/lib/beta-access";
 
 const SCOPES = [
   "https://www.googleapis.com/auth/youtube.readonly",
@@ -8,15 +9,9 @@ const SCOPES = [
 ];
 
 export async function GET(request: NextRequest) {
-  const token = request.headers.get("authorization")?.replace("Bearer ", "");
-  if (!token) {
-    return NextResponse.json({ error: "Not signed in" }, { status: 401 });
-  }
-
-  const { data, error } = await getSupabaseAdmin().auth.getUser(token);
-  if (error || !data.user) {
-    return NextResponse.json({ error: "Invalid session" }, { status: 401 });
-  }
+  const approved = await requireApproved(getSupabaseAdmin(), request.headers.get("authorization")?.replace("Bearer ", ""));
+  if (approved instanceof NextResponse) return approved;
+  const data = { user: { id: approved.userId } };
 
   const params = new URLSearchParams({
     client_id: process.env.GOOGLE_CLIENT_ID!,

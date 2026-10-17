@@ -1,3 +1,4 @@
+import { isApproved } from "@/lib/beta-access";
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { getAnalysisUsage, limitMessage } from "@/lib/analysis-limit";
@@ -21,6 +22,10 @@ export async function POST(request: NextRequest) {
   const { data: userData, error: userError } = await supabaseAdmin.auth.getUser(token);
   if (userError || !userData.user) {
     return NextResponse.json({ error: "Invalid session" }, { status: 401 });
+  }
+
+  if (!(await isApproved(supabaseAdmin, userData.user.id, userData.user.email))) {
+    return NextResponse.json({ code: "beta", error: "Private beta" }, { status: 403 });
   }
 
   const profileId = userData.user.id;

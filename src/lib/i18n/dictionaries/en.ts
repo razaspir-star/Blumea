@@ -15,6 +15,8 @@ import errors from "./en/errors";
 import compare from "./en/compare";
 import compare2 from "./en/compare2";
 import idea from "./en/idea";
+import beta from "./en/beta";
+import admin from "./en/admin";
 
 const en = {
   ...auth,
@@ -32,6 +34,8 @@ const en = {
   ...compare,
   ...compare2,
   ...idea,
+  ...beta,
+  ...admin,
   common: {
     language: "Language",
     english: "English",
@@ -46,6 +50,7 @@ const en = {
     insights: "Insights",
     connections: "Connections",
     ideas: "Ideas",
+    admin: "Admin",
     settings: "Settings",
   },
 };

@@ -3,6 +3,7 @@ import Image from "next/image";
 import AppLink from "@/components/AppLink";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import SiteFooter from "@/components/SiteFooter";
+import AccessRequestForm from "@/components/AccessRequestForm";
 import { rich } from "@/lib/i18n/rich";
 import { getT } from "@/lib/i18n/server";
 
@@ -41,8 +42,8 @@ export default async function Home() {
           <AppLink href="/login" className="text-blumea-slate hover:text-blumea-blue">
             {t("home.login")}
           </AppLink>
-          <AppLink href="/register" className="rounded-full bg-blumea-blue px-5 py-2 text-white transition hover:bg-blumea-blue-hover">
-            {t("home.getStarted")}
+          <AppLink href="#request-access" className="rounded-full bg-blumea-blue px-5 py-2 text-white transition hover:bg-blumea-blue-hover">
+            {t("beta.requestAccess")}
           </AppLink>
         </nav>
       </header>
@@ -57,10 +58,10 @@ export default async function Home() {
 
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <AppLink
-              href="/register"
+              href="#request-access"
               className="w-full rounded-2xl bg-blumea-blue px-8 py-3.5 text-base font-semibold text-white shadow-sm transition hover:bg-blumea-blue-hover sm:w-auto"
             >
-              {t("home.getStarted")}
+              {t("beta.requestAccess")}
             </AppLink>
 
             <AppLink
@@ -72,6 +73,7 @@ export default async function Home() {
           </div>
 
           <p className="mt-4 text-sm text-blumea-slate">{t("home.forCreators")}</p>
+          <p className="mx-auto mt-3 max-w-xl rounded-2xl bg-blumea-mist px-4 py-2.5 text-sm font-semibold text-blumea-navy">{t("beta.badge")}</p>
         </section>
 
         <section className="mx-auto w-full max-w-5xl px-6 py-10">
@@ -129,6 +131,9 @@ export default async function Home() {
               </li>
             </ul>
           </div>
+        </section>
+        <section className="mx-auto w-full max-w-3xl px-6 pb-14 pt-4">
+          <AccessRequestForm />
         </section>
       </main>
 

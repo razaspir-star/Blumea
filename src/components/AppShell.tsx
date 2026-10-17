@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { getCurrentProfile, type Profile } from "@/lib/auth";
 import BlumeaLoader from "@/components/BlumeaLoader";
 import AppSidebar, { MobileNav } from "@/components/AppSidebar";
+import BetaWaiting from "@/components/BetaWaiting";
+import { useBetaAccess } from "@/lib/use-beta-access";
 
 const ProfileContext = createContext<Profile | null>(null);
 
@@ -24,6 +26,7 @@ export function useProfile(): Profile {
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
+  const access = useBetaAccess();
 
   useEffect(() => {
     let active = true;
@@ -55,9 +58,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     };
   }, [router]);
 
-  if (!profile) {
+  if (!profile || access === "loading") {
     return <BlumeaLoader />;
   }
+
+  if (access === "waiting") return <BetaWaiting />;
 
   return (
     <ProfileContext value={profile}>

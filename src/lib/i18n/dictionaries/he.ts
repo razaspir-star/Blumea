@@ -14,6 +14,8 @@ import errors from "./he/errors";
 import compare from "./he/compare";
 import compare2 from "./he/compare2";
 import idea from "./he/idea";
+import beta from "./he/beta";
+import admin from "./he/admin";
 
 // Hebrew texts, same keys as en.ts. Plain, short, spoken-style Hebrew; platform names (YouTube, TikTok)
 // and the product name stay in English.
@@ -33,6 +35,8 @@ const he: Dictionary = {
   ...compare,
   ...compare2,
   ...idea,
+  ...beta,
+  ...admin,
   common: {
     language: "שפה",
     english: "English",
@@ -47,6 +51,7 @@ const he: Dictionary = {
     insights: "תובנות",
     connections: "חיבורים",
     ideas: "רעיונות",
+    admin: "ניהול",
     settings: "הגדרות",
   },
 };
