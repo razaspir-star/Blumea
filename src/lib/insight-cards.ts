@@ -143,17 +143,17 @@ export function realInsightCards(derived: DashboardDerived, t: Translator): Insi
 
   const f = derived.followers;
   if (f) {
+    // Card 1: how much of a video's audience already follows the creator.
     const parts: string[] = [c("followersTypical", { pct: pct(f.medianFollowerSharePct) })];
     const top = f.topFollowerShare[0];
     if (top) {
+      const ratio = f.medianViews > 0 ? top.views / f.medianViews : 1;
       parts.push(
         c("followersTop", {
           title: videoRef(top.id, top.title),
           pct: pct(top.sharePct),
-          extra:
-            top.viewsFromFollowersPer100Followers !== null
-              ? c("followersTopExtra", { n: Math.round(top.viewsFromFollowersPer100Followers) })
-              : "",
+          views: formatCount(top.views),
+          vs: ratio >= 1.3 ? c("followersViewsMore") : ratio <= 0.77 ? c("followersViewsFewer") : c("followersViewsSame"),
         })
       );
     }
@@ -168,17 +168,6 @@ export function realInsightCards(derived: DashboardDerived, t: Translator): Insi
         })
       );
     }
-    if (f.medianGainedPer1000 !== null && f.topGained.length > 0) {
-      const g = f.topGained[0];
-      parts.push(
-        c("followersGained", {
-          median: f.medianGainedPer1000.toFixed(1),
-          title: videoRef(g.id, g.title),
-          gained: g.gained,
-          per1000: g.per1000.toFixed(1),
-        })
-      );
-    }
     if (f.leftOutSmall > 0) parts.push(leftOut("followersLeftOut", f.leftOutSmall));
     cards.push({
       tone: "fact",
@@ -186,6 +175,26 @@ export function realInsightCards(derived: DashboardDerived, t: Translator): Insi
       body: parts.join(" "),
       evidence: c("followersEvidence", { eligible: f.eligible, views }),
     });
+
+    // Card 2: new followers (a different question, so a card of its own).
+    if (f.medianGainedPer1000 !== null) {
+      const g = f.topGained[0];
+      const gainedParts = [c("gainedTypical", { median: f.medianGainedPer1000.toFixed(1) })];
+      if (g) {
+        gainedParts[0] = c("followersGained", {
+          median: f.medianGainedPer1000.toFixed(1),
+          title: videoRef(g.id, g.title),
+          gained: g.gained,
+          per1000: g.per1000.toFixed(1),
+        });
+      }
+      cards.push({
+        tone: "fact",
+        title: c("gainedTitle"),
+        body: gainedParts.join(" "),
+        evidence: c("followersEvidence", { eligible: f.eligible, views }),
+      });
+    }
   }
 
   const ct = derived.cta;

@@ -56,6 +56,7 @@ import { Num, rich } from "@/lib/i18n/rich";
 import type { TextKey, Translator } from "@/lib/i18n/translate";
 import { ANALYTICS_LAG_DAYS, platformHas, platformName, viewerBehaviorNote } from "@/lib/platform-capabilities";
 import {
+  PAYOFF_FORMATS,
   categoryLabel,
   formatLabel,
   friendlyFormatLabel,
@@ -244,7 +245,7 @@ function formatFieldLines(
     const ask = value as { type?: string; text?: string } | null;
     if (!ask?.type) return null;
     const what = (type: string) => t(`analysis.cta.${type in { comment_question: 1, comment_invite: 1, follow: 1, like_or_share: 1, tag_friend: 1, link_or_buy: 1, other: 1 } ? type : "generic"}` as TextKey);
-    return [ask.text ? `${what(ask.type)} — “${ask.text.replace(/\s+/g, " ").trim()}”` : what(ask.type)];
+    return [ask.text ? `${what(ask.type)}: “${ask.text.replace(/\s+/g, " ").trim()}”` : what(ask.type)];
   }
   if (value === null || value === undefined) return null;
   if (Array.isArray(value)) {
@@ -416,11 +417,12 @@ function RealVideoAnalysis({ id }: { id: string }) {
   // (§10). All of these are allowed from video one (no baseline minimum).
   const keyMoments = (data.fields?.key_moments?.value as KeyMoment[] | undefined) ?? null;
 
-  const payoffInsight = payoffAfterAvgWatchRule({
-    durationSec: data.durationSec,
-    avgWatchSec: data.avgWatchSec,
-    keyMoments,
-  });
+  // Only for videos built around a reveal: elsewhere there is no reliable "peak" to point at.
+  const ownFormat = data.fields?.format?.value as string | undefined;
+  const payoffInsight =
+    ownFormat && PAYOFF_FORMATS.includes(ownFormat)
+      ? payoffAfterAvgWatchRule({ durationSec: data.durationSec, avgWatchSec: data.avgWatchSec, keyMoments })
+      : null;
 
   const biggestDropInsight = biggestDropRule({
     durationSec: data.durationSec,

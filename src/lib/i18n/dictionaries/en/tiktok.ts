@@ -112,11 +112,11 @@ const analyzeModal = {
   capTiktok: "Upload a video you saved from TikTok for a full analysis.",
   chooseDifferent: "← Choose a different video",
   tiktokNoShare:
-    "TikTok doesn't share the video file with us directly. {phone} — its Save video option (if you've enabled it for this video) isn't available on desktop.",
+    "TikTok doesn't share the video file with us directly. {phone} - its Save video option (if you've enabled it for this video) isn't available on desktop.",
   tiktokPhone: "Open this on your phone, in the TikTok app",
   openToSave: "Open in TikTok to save",
   computerNote:
-    "Working from a computer? Get the saved video onto it however's easiest for you — AirDrop, your phone's cloud photo backup, or sending it to yourself — then upload it below.",
+    "Working from a computer? Get the saved video onto it however's easiest for you - AirDrop, your phone's cloud photo backup, or sending it to yourself - then upload it below.",
   noVideosTiktok: "No videos found on this account.",
   noVideosYoutube: "No videos found on this channel.",
   notSignedIn: "Not signed in.",

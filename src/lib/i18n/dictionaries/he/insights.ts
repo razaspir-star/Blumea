@@ -3,26 +3,22 @@ import type { Dictionary } from "../en";
 const cards: Dictionary["cards"] & Record<string, string> = {
   evidenceYoutube: "מבוסס על {count} סרטונים ב-YouTube",
   lengthSharedTitle: "הסרטונים שלך מסוג ״{format}״ שומרים על הצופים טוב יותר.",
-  lengthSharedBody:
-    "ב-{betterCount} הסרטונים שלך {side} — {domCount} מהם מסוג ״{format}״ — הצופים צפו בדרך כלל ב-{betterPct}% מהסרטון. ב-{worseCount} הסרטונים {other} שלך: {worsePct}%. אורך ופורמט הולכים יחד בסרטונים שלך, ולכן Blumea לא יכולה לדעת מי מהם הסיבה.",
+  lengthSharedBody: "ב-{betterCount} הסרטונים שלך {side} ({domCount} מהם מסוג ״{format}״), הצופים צפו בדרך כלל ב-{betterPct}% מהסרטון. ב-{worseCount} הסרטונים {other} שלך: {worsePct}%. כדי לראות מה חשוב יותר, כדאי לנסות את הפורמט הזה גם באורך השני.",
   sideUpTo: "עד {sec} שניות",
   sideOver: "מעל {sec} שניות",
   otherLonger: "הארוכים יותר",
   otherShorter: "הקצרים יותר",
   lengthShortTitle: "הסרטונים הקצרים שלך שומרים על הצופים טוב יותר.",
   lengthLongTitle: "הסרטונים הארוכים שלך שומרים על הצופים טוב יותר.",
-  lengthBody:
-    "ב-{shortCount} הסרטונים שלך באורך של עד {cutoff} שניות, הצופים צפו בדרך כלל ב-{shortPct}% מהסרטון. ב-{longCount} הסרטונים הארוכים יותר: {longPct}%. דפוס בסרטונים שלך — זה לא מוכיח שהאורך הוא הסיבה.",
+  lengthBody: "ב-{shortCount} הסרטונים שלך באורך של עד {cutoff} שניות, הצופים צפו בדרך כלל ב-{shortPct}% מהסרטון. ב-{longCount} הסרטונים הארוכים יותר: {longPct}%.",
   consistentTitle: "הסרטונים שלך עקביים.",
   consistentBody:
     "סרטון טיפוסי שלך נמשך בערך {dur} שניות, והצופים צופים בכ-{pct}% ממנו. סרטונים קצרים וארוכים עדיין לא נבדלים בבירור. הכי טוב בשמירה על צופים: ״{title}״ ({bestPct}%).",
   notEnoughTitle: "עדיין אין מספיק סרטונים.",
-  notEnoughBody:
-    "Blumea משווה בין הסרטונים שלך ברגע ש-{min} מהם מנותחים — כל תמהיל של אורכים בסדר, וסגנון עקבי הוא לא בעיה.",
+  notEnoughBody: "Blumea משווה בין הסרטונים שלך ברגע ש-{min} מהם מנותחים. כל תמהיל של אורכים בסדר, וסגנון עקבי הוא לא בעיה.",
   notEnoughEvidence: "{count} נותחו עד עכשיו עם נתוני צפייה",
-  payoffTitle: "התמורה מגיעה לא פעם אחרי שהצופים כבר עזבו.",
-  payoffBody:
-    "ב-{fires} מתוך {of} הסרטונים שלך עם נתוני צפייה, הרגע המרכזי מגיע אחרי שהצופה הממוצע כבר הפסיק לצפות. שווה לבדוק להראות אותו מוקדם יותר.",
+  payoffTitle: "החשיפה מגיעה לא פעם אחרי שהצופים כבר עזבו.",
+  payoffBody: "ב-{fires} מתוך {of} הסרטונים שלך שבנויים סביב חשיפה (לפני ואחרי, תהליך, פתיחת קופסה, אתגר), החשיפה מגיעה אחרי שהצופה הממוצע כבר הפסיק לצפות. שווה להראות הצצה לתוצאה מוקדם יותר.",
   payoffEvidence: "נראה ב-{fires} סרטונים שנותחו",
   noFlagTitle: "אין כאן עדיין מה לסמן.",
   noFlagBody:
@@ -32,31 +28,29 @@ const cards: Dictionary["cards"] & Record<string, string> = {
     "ב-{count} מתוך {of} הסרטונים שלך עם נתוני שימור, הירידה החדה ביותר בצופים (לפחות 8% מהם עוזבים בבת אחת) מגיעה בערך ב-{time}.",
   dropsEvidence: "נראה ב-{count} סרטונים",
   noWatchTitle: "אין עדיין ממה להיזהר.",
-  noWatchBody: "אף ירידה חדה לא מופיעה בלפחות {min} מהסרטונים שלך. Blumea שותקת ולא ממציאה דאגה.",
-  followersTitle: "שימור עוקבים",
-  followersTypical:
-    "בסרטון טיפוסי כ-{pct} מהצפיות מגיעות מאנשים שכבר עוקבים אחריך — רגיל בפלטפורמה שרוב הצפייה בה היא גלילה בפיד.",
-  followersTop: "הסרטון שהעוקבים שלך נשאו הכי הרבה: ״{title}״ ({pct} מהצפיות שלו{extra}).",
-  followersTopExtra: ", בערך {n} צפיות מעוקבים לכל 100 עוקבים",
-  followersReach:
-    "ב-{higherCount} הסרטונים שלך שעוקבים צפו בהם יותר, הם קיבלו בדרך כלל {higher} צפיות, לעומת {lower} ב-{lowerCount} האחרים{tail}. דפוס בסרטונים שלך; זה לא מוכיח שהעוקבים הם הסיבה.",
+  noWatchBody: "אף ירידה חדה לא מופיעה ב-{min} סרטונים או יותר.",
+  followersTitle: "העוקבים שלך",
+  followersTypical: "בסרטון טיפוסי, {pct} מהצפיות מגיעות מאנשים שכבר עוקבים אחריך.",
+  followersTop: "הסרטון שהעוקבים שלך צפו בו הכי הרבה הוא ״{title}״: {pct} מהצפיות שלו הגיעו מעוקבים. היו לו {views} צפיות, {vs}.",
+  followersViewsSame: "בדומה לשאר הסרטונים שלך",
+  followersViewsFewer: "פחות משאר הסרטונים שלך",
+  followersViewsMore: "יותר משאר הסרטונים שלך",
+  followersReach: "סרטונים שיותר מהעוקבים שלך צפו בהם קיבלו בדרך כלל {higher} צפיות, לעומת {lower} בשאר ({higherCount} ו-{lowerCount} סרטונים){tail}.",
   followersReachSimilar: ", באורך דומה",
-  followersReachDiffers: " — אבל האורכים שלהם שונים מאוד, אז ייתכן שזה האורך",
-  followersGained:
-    "עוקבים חדשים לכל 1,000 צפיות: בערך {median} בסרטון טיפוסי; ״{title}״ הרוויח {gained} ({per1000} לכל 1,000 צפיות).",
-  followersLeftOut_one:
-    "סרטון אחד עם פחות מ-{views} צפיות הושאר בחוץ: כמה עוקבים יכולים להיות רוב הקהל הקטן, וזה אומר מעט על כמה טוב שמרו עליהם.",
-  followersLeftOut_other:
-    "{count} סרטונים עם פחות מ-{views} צפיות הושארו בחוץ: כמה עוקבים יכולים להיות רוב הקהל הקטן, וזה אומר מעט על כמה טוב שמרו עליהם.",
+  followersReachDiffers: ", אבל הם גם שונים מאוד באורך",
+  followersGained: "סרטון טיפוסי מביא בערך {median} עוקבים חדשים לכל 1,000 צפיות. ״{title}״ הביא {gained} ({per1000} לכל 1,000 צפיות), יותר משאר הסרטונים שלך.",
+  gainedTitle: "עוקבים חדשים",
+  gainedTypical: "סרטון טיפוסי מביא בערך {median} עוקבים חדשים לכל 1,000 צפיות.",
+  followersLeftOut_one: "סרטון אחד עם פחות מ-{views} צפיות לא נכלל.",
+  followersLeftOut_other: "{count} סרטונים עם פחות מ-{views} צפיות לא נכללו.",
   followersEvidence: "מבוסס על {eligible} סרטונים עם {views}+ צפיות",
   askTitle: "מה הסרטונים שלך מבקשים מהצופים",
   askNone: "תגובות לכל 100 צפיות: {rate} ב-{count} הסרטונים שלך שלא מבקשים כלום.",
   askGroup: "{rate} ב-{count} הסרטונים שלך ש{ask}{same}.",
-  askSame: " — בערך אותו דבר",
+  askSame: ", בערך אותו דבר",
   askStandout: "סרטון אחד, ״{title}״, {ask} (״{text}״) וקיבל {rate} ({comments} תגובות){mult}.",
-  askStandoutMult: " — בערך פי {x} מהסרטונים שלא מבקשים כלום",
-  askStandoutNote:
-    "כל אחד מאלה הוא סרטון אחד, לא דפוס. שווה לנסות שוב את אותו סוג בקשה ולראות אם התגובות חוזרות.",
+  askStandoutMult: ", בערך פי {x} מהסרטונים שלא מבקשים כלום",
+  askStandoutNote: "שווה לנסות שוב את אותו סוג בקשה כדי לראות אם התגובות חוזרות.",
   leftOutShort_one: "סרטון אחד עם פחות מ-{views} צפיות הושאר בחוץ.",
   leftOutShort_other: "{count} סרטונים עם פחות מ-{views} צפיות הושארו בחוץ.",
   askEvidence: "מבוסס על {eligible} סרטונים עם {views}+ צפיות; הבקשות נקראות על ידי AI מהסרטון",
@@ -67,23 +61,19 @@ const cards: Dictionary["cards"] & Record<string, string> = {
   rewatchLength: "הסרטונים ה{which} שלך נצפים שוב יותר ({a} לעומת {b}).",
   rewatchShorter: "קצרים",
   rewatchLonger: "ארוכים",
-  rewatchStandout:
-    "״{title}״ ({dur} שניות) בולט: {ratio} לכל צפייה, בזמן שהסרטונים האחרים שלך באורך דומה מקבלים בערך {usual}. שווה לצפות בו שוב כדי לראות מה שונה — Blumea לא יכולה לדעת מהמספרים אם זה הסיום, השיר או משהו אחר.",
+  rewatchStandout: "״{title}״ ({dur} שניות) בולט: {ratio} לכל צפייה, בזמן שהסרטונים האחרים שלך באורך דומה מקבלים בערך {usual}. שווה לצפות בו שוב כדי לראות מה שונה, ולנסות את זה בסרטון הבא.",
   postSameTitle: "הסרטונים שלך עולים באותה שעה.",
-  postSameBody:
-    "{count} מתוך {of} הסרטונים שלך עלו {window}{hours}. Blumea לא יכולה להגיד אם שעה אחרת הייתה עובדת טוב יותר. שווה לבדוק פעם אחת שעה אחרת.",
+  postSameBody: "{count} מתוך {of} הסרטונים שלך עלו {window}{hours}. שווה לנסות אחד בשעה אחרת.",
   postSameAround: " (בסביבות {h}:00)",
   postSameBetween: ", בין {a}:00 ל-{b}:59",
   postSameEvidence: "מבוסס על {count} סרטונים",
   postPatternTitle: "ייתכן שהשעה שבה מפרסמים משנה.",
-  postPatternBody:
-    "ב-{betterCount} הסרטונים שלך שעלו {better} הם קיבלו בדרך כלל {betterViews} צפיות, לעומת {worseViews} ב-{worseCount} הסרטונים שעלו {worse}. דפוס בסרטונים שלך; זה לא מוכיח שהשעה היא הסיבה.",
+  postPatternBody: "ב-{betterCount} הסרטונים שלך שעלו {better} הם קיבלו בדרך כלל {betterViews} צפיות, לעומת {worseViews} ב-{worseCount} הסרטונים שעלו {worse}.",
 };
 
 const exp: Dictionary["exp"] = {
   askAgainTitle: "להזמין שוב תגובה עם הבטחה אישית",
-  askAgainWhy:
-    "{title} ביקש תגובות והבטיח משהו בחזרה ({text}). הוא קיבל {per100} תגובות לכל 100 צפיות, בערך פי {x} מ-{usual} בסרטונים שלך שלא מבקשים כלום. סרטון אחד, לא דפוס.",
+  askAgainWhy: "{title} ביקש תגובות והבטיח משהו בחזרה ({text}). הוא קיבל {per100} תגובות לכל 100 צפיות, בערך פי {x} מ-{usual} בסרטונים שלך שלא מבקשים כלום.",
   askAgainHow: "כדאי להסתכל על תגובות לכל 100 צפיות אחרי כמה ימים, ולהשוות לסרטון ההוא ולשאר הסרטונים שלך.",
   askAgainEvidence: "סרטון אחד, מול {count} שלא מבקשים כלום",
   askAgainExtra: "הוא גם משך {comments} תגובות.",
@@ -102,13 +92,11 @@ const exp: Dictionary["exp"] = {
   followersExtra:
     "הוא גם הרוויח {gained} עוקבים חדשים, {per1000} לכל 1,000 צפיות, לעומת בערך {median} בסרטון טיפוסי.",
   dropTitle: "לשנות משהו ממש לפני {time}",
-  dropWhy:
-    "ב-{count} מתוך {of} הסרטונים שלך עם נתוני שימור, הירידה החדה ביותר בצופים (לפחות 8% מהם עוזבים בבת אחת) מגיעה בערך ב-{time}. Blumea לא יכולה לדעת מה גורם לזה.",
+  dropWhy: "ב-{count} מתוך {of} הסרטונים שלך עם נתוני שימור, הירידה החדה ביותר בצופים (לפחות 8% מהם עוזבים בבת אחת) מגיעה בערך ב-{time}.",
   dropHow: "כדאי לעקוב אחרי עקומת השימור של הסרטון החדש סביב אותה שנייה.",
   dropEvidence: "{count} מתוך {of} סרטונים",
   timeTitle: "לפרסם סרטון אחד בשעה אחרת",
-  timeWhy:
-    "{count} מתוך {of} הסרטונים שלך עלו {window}. Blumea לא יכולה להגיד אם שעה אחרת הייתה עובדת טוב יותר.",
+  timeWhy: "{count} מתוך {of} הסרטונים שלך עלו {window}.",
   timeHow: "כדאי להשוות את הצפיות של הסרטון החדש אחרי שלושה ימים לשאר הסרטונים שלך, ולזכור שזה סרטון אחד.",
   timeEvidence: "{of} סרטונים, כולם בערך באותה שעה",
   rewatchTitle: "למצוא מה גרם ל-{title} להיצפות שוב",

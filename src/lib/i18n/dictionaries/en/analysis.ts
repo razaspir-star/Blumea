@@ -73,17 +73,13 @@ const analysis = {
   notSubscribed: "Not subscribed",
   avgWatchShort: "{time} avg watch",
   keepAndTest: "What to keep and what to test",
-  smallNumbers: " Small numbers (under 1,000 views) — take this loosely.",
-  payoffDisclaimer:
-    "Based on this one video. Not a pattern yet — Blumea needs more of your analyzed history before it can say this usually helps.",
-  payoffBody:
-    "The payoff ({what}) comes at {at} of a {duration} sec video. The average viewer watched {avg}, so many viewers may leave before it.",
-  payoffAction:
-    "Worth testing: showing it about {sec} seconds earlier. No way to know yet if that changes anything for you, but it's a concrete, testable change.",
-  commentDisclaimer:
-    "Comment rate compared with your other {count} videos; the text is as the AI read it. One video, so no proof the text was the reason.",
+  smallNumbers: " Small numbers (under 1,000 views) - take this loosely.",
+  payoffDisclaimer: "Based on this one video.",
+  payoffBody: "The reveal ({what}) comes at {at} of a {duration} sec video. The average viewer watched {avg}, so many viewers leave before it.",
+  payoffAction: "Worth testing: showing a glimpse of it about {sec} seconds earlier.",
+  commentDisclaimer: "Comment rate compared with your other {count} videos; the text is as the AI read it.",
   commentBody:
-    "This video drew {comments} comments — about {per100} per 100 views against {usual} in your other videos (about {multiple}×).",
+    "This video drew {comments} comments - about {per100} per 100 views against {usual} in your other videos (about {multiple}×).",
   commentQuote: "Its on-screen text: “{quote}”",
   commentAction: "Worth trying a similar direct invitation again and seeing if comments repeat.",
   strongDisclaimer:
@@ -100,7 +96,7 @@ const analysis = {
   dropBody: "The sharpest drop comes around {at}: {points}% of viewers left at that point.",
   dropMoment: "At that point: {what}",
   dropAction: "This may contribute to why fewer viewers stay past this point.",
-  experimentDisclaimer: "A concrete, testable change — not a claim that it helps.",
+  experimentDisclaimer: "An idea to test.",
   understood: "What Blumea understood",
   understoodNote:
     "Read directly from the video by AI. Recommendations need more of your history before Blumea will show them here.",

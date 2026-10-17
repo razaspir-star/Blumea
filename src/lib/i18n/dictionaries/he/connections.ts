@@ -9,7 +9,7 @@ const connections: Dictionary["connections"] = {
   errExpired: "קישור החיבור פג תוקף. כדאי לנסות שוב.",
   errGoogleToken: "Google לא קיבלה את החיבור. כדאי לנסות שוב.",
   errTiktokToken: "TikTok לא קיבלה את החיבור. כדאי לנסות שוב.",
-  errGoogleRefresh: "Google לא העניקה גישה מתמשכת — כדאי לנסות שוב ולאשר את ההרשאות.",
+  errGoogleRefresh: "Google לא העניקה גישה מתמשכת - כדאי לנסות שוב ולאשר את ההרשאות.",
   errTiktokRefresh: "TikTok לא העניקה גישה מתמשכת. כדאי לנסות שוב.",
   errSave: "משהו השתבש בשמירת החיבור. כדאי לנסות שוב.",
   errDenied: "החיבור בוטל.",

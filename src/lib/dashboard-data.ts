@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { median } from "@/lib/insight-patterns";
+import { PAYOFF_FORMATS } from "@/lib/format-library";
 import { lengthVsWatchSharePattern, type LengthWatchPattern } from "@/lib/insight-patterns";
 import {
   biggestDropRule,
@@ -294,7 +295,12 @@ export function deriveDashboard(videos: DashboardVideo[], accounts: DashboardAcc
 
   // Payoff: only videos where a reveal/peak moment was read AND watch time exists.
   const payoffCandidates = videos.filter(
-    (v) => v.durationSec && v.avgWatchSec !== null && v.keyMoments?.some((m) => m.type === "reveal" || m.type === "peak")
+    (v) =>
+      v.durationSec &&
+      v.avgWatchSec !== null &&
+      v.formatId !== null &&
+      PAYOFF_FORMATS.includes(v.formatId) &&
+      v.keyMoments?.some((m) => m.type === "reveal" || m.type === "peak")
   );
   const payoffFires = payoffCandidates.filter(
     (v) => payoffAfterAvgWatchRule({ durationSec: v.durationSec, avgWatchSec: v.avgWatchSec, keyMoments: v.keyMoments }) !== null

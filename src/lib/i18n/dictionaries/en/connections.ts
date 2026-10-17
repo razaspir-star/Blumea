@@ -7,7 +7,7 @@
   errExpired: "That connection link expired. Please try again.",
   errGoogleToken: "Google didn't accept the connection. Please try again.",
   errTiktokToken: "TikTok didn't accept the connection. Please try again.",
-  errGoogleRefresh: "Google didn't grant lasting access — please try again and accept the prompt.",
+  errGoogleRefresh: "Google didn't grant lasting access - please try again and accept the prompt.",
   errTiktokRefresh: "TikTok didn't grant lasting access. Please try again.",
   errSave: "Something went wrong saving the connection. Please try again.",
   errDenied: "Connection cancelled.",

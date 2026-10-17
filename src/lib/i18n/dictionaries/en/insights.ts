@@ -1,26 +1,22 @@
 ﻿const cards = {
   evidenceYoutube: "Based on {count} YouTube videos",
   lengthSharedTitle: "Your {format} videos hold viewers better.",
-  lengthSharedBody:
-    "In your {betterCount} videos {side} — {domCount} of them {format} — viewers typically watched {betterPct}% of the video. In your {worseCount} {other} ones, {worsePct}%. Length and format go together in your videos, so Blumea can't tell which one it is.",
+  lengthSharedBody: "In your {betterCount} videos {side} ({domCount} of them {format}), viewers typically watched {betterPct}% of the video. In your {worseCount} {other} ones, {worsePct}%. To see what matters more, try this format at the other length.",
   sideUpTo: "up to {sec} sec",
   sideOver: "over {sec} sec",
   otherLonger: "longer",
   otherShorter: "shorter",
   lengthShortTitle: "Your shorter videos hold viewers better.",
   lengthLongTitle: "Your longer videos hold viewers better.",
-  lengthBody:
-    "In your {shortCount} videos up to {cutoff} sec, viewers typically watched {shortPct}% of the video. In your {longCount} longer ones, {longPct}%. A pattern in your videos — it doesn't prove length is the reason.",
+  lengthBody: "In your {shortCount} videos up to {cutoff} sec, viewers typically watched {shortPct}% of the video. In your {longCount} longer ones, {longPct}%.",
   consistentTitle: "Your videos are consistent.",
   consistentBody:
     "A typical video of yours runs about {dur} sec and viewers watch about {pct}% of it. Shorter and longer ones don't differ clearly yet. Best at holding viewers: “{title}” ({bestPct}%).",
   notEnoughTitle: "Not enough videos yet.",
-  notEnoughBody:
-    "Blumea compares your videos with each other once {min} are analyzed — any mix of lengths is fine, and a consistent style is not a problem.",
+  notEnoughBody: "Blumea compares your videos with each other once {min} are analyzed. Any mix of lengths is fine, and a consistent style is not a problem.",
   notEnoughEvidence: "{count} analyzed with watch data so far",
-  payoffTitle: "The payoff often comes after viewers have left.",
-  payoffBody:
-    "In {fires} of your {of} videos with watch data, the key moment arrives after the average viewer has already stopped watching. Worth testing showing it earlier.",
+  payoffTitle: "The reveal often comes after viewers have left.",
+  payoffBody: "In {fires} of your {of} videos built around a reveal (before and after, a process, an unboxing, a challenge), the reveal arrives after the average viewer has already stopped watching. Worth showing a glimpse of the result earlier.",
   payoffEvidence: "Seen in {fires} analyzed videos",
   noFlagTitle: "Nothing to flag here yet.",
   noFlagBody:
@@ -30,31 +26,29 @@
     "In {count} of your {of} videos with retention data, the sharpest drop in viewers (8% or more of them leaving at once) comes around {time}.",
   dropsEvidence: "Seen in {count} videos",
   noWatchTitle: "Nothing to watch out for yet.",
-  noWatchBody: "No sharp drop shows up in at least {min} of your videos. Blumea stays quiet rather than invent a concern.",
-  followersTitle: "Follower retention",
-  followersTypical:
-    "In a typical video about {pct} of the views come from people who already follow you — normal on a platform where most viewing is scrolling the feed.",
-  followersTop: "The video your followers carried most: “{title}” ({pct} of its views{extra}).",
-  followersTopExtra: ", about {n} views from followers per 100 followers",
-  followersReach:
-    "Your {higherCount} videos with more followers watching typically got {higher} views, against {lower} for the other {lowerCount}{tail}. A pattern in your videos; it doesn't prove followers are the reason.",
+  noWatchBody: "No sharp drop shows up in {min} or more of your videos.",
+  followersTitle: "Your followers",
+  followersTypical: "In a typical video, {pct} of the views come from people who already follow you.",
+  followersTop: "The video your followers watched most is “{title}”: {pct} of its views came from followers. It got {views} views, {vs}.",
+  followersViewsSame: "about the same as your other videos",
+  followersViewsFewer: "fewer than your other videos",
+  followersViewsMore: "more than your other videos",
+  followersReach: "Videos that more of your followers watched typically got {higher} views, against {lower} for the others ({higherCount} and {lowerCount} videos){tail}.",
   followersReachSimilar: ", at a similar length",
-  followersReachDiffers: " — but their lengths differ a lot, so it may be the length",
-  followersGained:
-    "New followers per 1,000 views: about {median} in a typical video; “{title}” won {gained} ({per1000} per 1,000 views).",
-  followersLeftOut_one:
-    "{count} video under {views} views is left out: a few followers can be most of a small audience, which says little about how well they were kept.",
-  followersLeftOut_other:
-    "{count} videos under {views} views are left out: a few followers can be most of a small audience, which says little about how well they were kept.",
+  followersReachDiffers: ", though they also differ a lot in length",
+  followersGained: "A typical video brings about {median} new followers per 1,000 views. “{title}” brought {gained} ({per1000} per 1,000 views), more than your other videos.",
+  gainedTitle: "New followers",
+  gainedTypical: "A typical video brings about {median} new followers per 1,000 views.",
+  followersLeftOut_one: "{count} video with under {views} views is not included.",
+  followersLeftOut_other: "{count} videos with under {views} views are not included.",
   followersEvidence: "Based on {eligible} videos with {views}+ views",
   askTitle: "What your videos ask viewers to do",
   askNone: "Comments per 100 views: {rate} in your {count} videos that ask nothing.",
   askGroup: "{rate} in your {count} videos {ask}{same}.",
-  askSame: " — about the same",
+  askSame: ", about the same",
   askStandout: "One video, “{title}”, was {ask} (“{text}”) and got {rate} ({comments} comments){mult}.",
-  askStandoutMult: " — about {x}× the videos that ask nothing",
-  askStandoutNote:
-    "Each of those is one video, not a pattern. Worth trying the same kind of ask again and seeing whether the comments repeat.",
+  askStandoutMult: ", about {x}× the videos that ask nothing",
+  askStandoutNote: "Worth trying the same kind of ask again to see whether the comments repeat.",
   leftOutShort_one: "{count} video under {views} views left out.",
   leftOutShort_other: "{count} videos under {views} views left out.",
   askEvidence: "Based on {eligible} videos with {views}+ views; asks are read by AI from the video",
@@ -66,23 +60,19 @@
   rewatchLength: "Your {which} videos are watched again more ({a} vs {b}).",
   rewatchShorter: "shorter",
   rewatchLonger: "longer",
-  rewatchStandout:
-    "“{title}” ({dur} sec) stands out: {ratio} per view, while your other videos of similar length get about {usual}. Worth watching it again to see what is different — Blumea can't tell from the numbers whether it is the ending, the song or something else.",
+  rewatchStandout: "“{title}” ({dur} sec) stands out: {ratio} per view, while your other videos of similar length get about {usual}. Worth watching it again to see what is different, and trying that in your next video.",
   postSameTitle: "You post at the same time.",
-  postSameBody:
-    "{count} of your {of} videos went out {window}{hours}. Blumea can't say whether another time would work better for you. Worth testing a different time once.",
+  postSameBody: "{count} of your {of} videos went out {window}{hours}. Worth trying one at a different time.",
   postSameAround: " (around {h}:00)",
   postSameBetween: ", between {a}:00 and {b}:59",
   postSameEvidence: "Based on {count} videos",
   postPatternTitle: "When you post may matter.",
-  postPatternBody:
-    "Your {betterCount} videos posted {better} typically got {betterViews} views, against {worseViews} for your {worseCount} posted {worse}. A pattern in your videos; it doesn't prove the time is the reason.",
+  postPatternBody: "Your {betterCount} videos posted {better} typically got {betterViews} views, against {worseViews} for your {worseCount} posted {worse}.",
 };
 
 const exp = {
   askAgainTitle: "Invite a comment with a personal promise again",
-  askAgainWhy:
-    "{title} asked for comments and promised something back ({text}). It got {per100} comments per 100 views, about {x}× the {usual} of your videos that ask nothing. One video, not a pattern.",
+  askAgainWhy: "{title} asked for comments and promised something back ({text}). It got {per100} comments per 100 views, about {x}× the {usual} of your videos that ask nothing.",
   askAgainHow: "Look at comments per 100 views after a few days, and compare with that video and with your other videos.",
   askAgainEvidence: "1 video, against {count} that ask nothing",
   askAgainExtra: "It also drew {comments} comments.",
@@ -101,13 +91,11 @@ const exp = {
   followersExtra:
     "It also won {gained} new followers, {per1000} per 1,000 views, against about {median} for a typical video.",
   dropTitle: "Change something just before {time}",
-  dropWhy:
-    "In {count} of your {of} videos with retention data, the sharpest drop in viewers (8% or more of them leaving at once) comes around {time}. Blumea can't tell what causes it.",
+  dropWhy: "In {count} of your {of} videos with retention data, the sharpest drop in viewers (8% or more of them leaving at once) comes around {time}.",
   dropHow: "Watch the retention curve of the new video around that second.",
   dropEvidence: "{count} of {of} videos",
   timeTitle: "Post one video at a different time",
-  timeWhy:
-    "{count} of your {of} videos went out {window}. Blumea can't say whether another time would work better for you.",
+  timeWhy: "{count} of your {of} videos went out {window}.",
   timeHow: "Compare the new video's views after three days with your other videos, remembering it is one video.",
   timeEvidence: "{of} videos, all at about the same time",
   rewatchTitle: "Find what made {title} get rewatched",

@@ -21,8 +21,10 @@ export type FollowerInsight = {
   followerBase: number | null;
   // Share of views that come from people who already follow (typical video).
   medianFollowerSharePct: number;
+  // The typical views of the videos counted here (to say whether a video had more or fewer).
+  medianViews: number;
   // Videos where followers made up the most of the audience.
-  topFollowerShare: { id: string; title: string; sharePct: number; viewsFromFollowersPer100Followers: number | null }[];
+  topFollowerShare: { id: string; title: string; views: number; sharePct: number; viewsFromFollowersPer100Followers: number | null }[];
   // New followers per 1,000 views.
   medianGainedPer1000: number | null;
   topGained: { id: string; title: string; gained: number; per1000: number }[];
@@ -78,9 +80,11 @@ export function followerInsight(videos: FollowerVideo[], followerBase: number | 
     leftOutSmall: withData.length - eligible.length,
     followerBase,
     medianFollowerSharePct: median(eligible.map(share)),
+    medianViews: median(eligible.map((v) => v.views as number)),
     topFollowerShare: byShare.slice(0, 2).map((v) => ({
       id: v.id,
       title: v.title,
+      views: v.views as number,
       sharePct: share(v),
       viewsFromFollowersPer100Followers: followerBase && followerBase > 0 ? ((v.subscribedViews as number) / followerBase) * 100 : null,
     })),

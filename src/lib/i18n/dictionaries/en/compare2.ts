@@ -31,7 +31,7 @@ const compare2 = {
   itemLess: "{metric}: {x}× less",
   itemPoints: "{metric}: {a} vs {b}",
   usualClose: "{video} is close to your other videos on the numbers above.",
-  usualDisclaimer: "One video against your own others: something to look at, not proof of why.",
+  usualDisclaimer: "Based on this video and your other videos on the platform.",
   ratioCol: "Gap",
   // format / opening
   groupTitleFormat: "Format vs format",
@@ -40,7 +40,7 @@ const compare2 = {
   groupTooFew: "Blumea needs at least {min} analyzed videos in each group to compare them. {name} has {count}.",
   groupGap: "{big} videos did better than {small} videos on {n} of {total} numbers. Biggest gaps: {list}.",
   lengthWarn: "These two kinds also differ a lot in length (usually {a} against {b}), so part of the gap may come from the length.",
-  groupDisclaimer: "Based on {count} analyzed YouTube videos. A pattern in your videos; it doesn't prove the format or the opening is the reason.",
+  groupDisclaimer: "Based on {count} analyzed YouTube videos.",
   // platform against platform
   platformsTitle: "Platform vs platform",
   platformsSubtitle: "How you do on each platform, each compared with itself.",

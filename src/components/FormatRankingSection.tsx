@@ -113,13 +113,13 @@ export default function FormatRankingSection() {
           <table className="w-full min-w-[34rem] text-start text-sm">
             <thead>
               <tr className="text-xs uppercase tracking-wide text-blumea-slate">
-                <th className="py-2 pe-3 font-semibold">{t("formats.colFormat")}</th>
-                <th className="px-3 py-2 font-semibold">{t("formats.colVideos")}</th>
-                <th className="px-3 py-2 font-semibold">{t("formats.colViews")}</th>
-                <th className="px-3 py-2 font-semibold">{t("formats.colLikes")}</th>
-                <th className="px-3 py-2 font-semibold" title={t("formats.colStayedTitle")}>{t("formats.colStayed")}</th>
-                <th className="px-3 py-2 font-semibold">{t("formats.colWatched")}</th>
-                <th className="py-2 ps-3 font-semibold">{t("formats.colLength")}</th>
+                <th className="py-2 pe-3 text-start font-semibold">{t("formats.colFormat")}</th>
+                <th className="px-3 py-2 text-start font-semibold">{t("formats.colVideos")}</th>
+                <th className="px-3 py-2 text-start font-semibold">{t("formats.colViews")}</th>
+                <th className="px-3 py-2 text-start font-semibold">{t("formats.colLikes")}</th>
+                <th className="px-3 py-2 text-start font-semibold" title={t("formats.colStayedTitle")}>{t("formats.colStayed")}</th>
+                <th className="px-3 py-2 text-start font-semibold">{t("formats.colWatched")}</th>
+                <th className="py-2 ps-3 text-start font-semibold">{t("formats.colLength")}</th>
               </tr>
             </thead>
             <tbody>

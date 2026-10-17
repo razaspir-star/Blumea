@@ -61,6 +61,11 @@ export const FORMATS: FormatDef[] = [
   { id: "other", label: "Other", textNorm: "optional", description: "none of the above fits." },
 ];
 
+// Formats built around a moment everyone waits for (the result, the unboxing, the outcome of a
+// challenge). Only for these is a "reveal comes too late" claim meaningful; in a chat or a
+// song there is no reliable "peak" to point at.
+export const PAYOFF_FORMATS = ["reveal_before_after", "skill_process", "unboxing_review", "challenge"];
+
 export const FORMAT_IDS = FORMATS.map((format) => format.id);
 
 export type LayoutDef = {

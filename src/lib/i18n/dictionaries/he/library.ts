@@ -44,7 +44,7 @@ const library: Dictionary["library"] = {
     split_screen: "מסך מפוצל",
     green_screen: "מול תמונה",
     conversation: "שיחה",
-    silent: "בלי דיבור — סאונד וטקסט מעבירים את זה",
+    silent: "בלי דיבור - סאונד וטקסט מעבירים את זה",
   },
   category: {
     food: "אוכל ובישול",
