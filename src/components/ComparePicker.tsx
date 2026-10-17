@@ -44,6 +44,8 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
   // The platform chosen for each of the two videos (video vs video picks the platform first).
   const [aPlatform, setAPlatform] = useState<string | null>(null);
   const [bPlatform, setBPlatform] = useState<string | null>(null);
+  // Hook vs hook: "all" formats or one format (null = not chosen yet).
+  const [hookFormat, setHookFormat] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -61,6 +63,7 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
     setBId(null);
     setAPlatform(null);
     setBPlatform(null);
+    setHookFormat(null);
   }
 
   function chooseType(next: CompareType) {
@@ -77,6 +80,7 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
     setBId(null);
     setAPlatform(null);
     setBPlatform(null);
+    setHookFormat(null);
   }
 
   const visibleTypes = initialA ? TYPES.filter((item) => item.id === "videos" || item.id === "usual") : TYPES;
@@ -172,7 +176,9 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
   }
 
   // ---- two formats / two openings ----
-  const groups = aPlatform && (type === "format" || type === "hook") ? groupOptions(videos ?? [], type as GroupKind, aPlatform) : [];
+  const hookInFormat = type === "hook" && hookFormat && hookFormat !== "all" ? hookFormat : null;
+  const groups = aPlatform && (type === "format" || (type === "hook" && hookFormat)) ? groupOptions(videos ?? [], type as GroupKind, aPlatform, hookInFormat) : [];
+  const formatChoices = aPlatform ? groupOptions(videos ?? [], "format", aPlatform) : [];
   const groupName = (id: string) => (type === "format" ? formatLabel(id, t) : hookTypeLabel(id, t)) ?? id;
   const groupMin = groupMinFor(type === "hook" ? "hook" : "format");
   const enoughGroups = groups.filter((group) => group.count >= groupMin).length >= 2;
@@ -304,6 +310,33 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
                     setBId(null);
                   })}
                 </>
+              ) : type === "hook" && hookFormat === null ? (
+                <>
+                  <p className="mt-3 text-xs font-semibold text-blumea-navy">{t("compare2.pickFormatFirst")}</p>
+                  <button type="button" onClick={() => setAPlatform(null)} className="mt-1 text-xs font-semibold text-blumea-blue hover:opacity-70">
+                    {t("compare.changePlatform")}
+                  </button>
+                  <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    <button
+                      type="button"
+                      onClick={() => setHookFormat("all")}
+                      className="rounded-2xl border border-slate-200 bg-white p-3 text-start text-sm font-semibold text-blumea-navy transition-all hover:border-blumea-blue"
+                    >
+                      {t("compare2.allFormats")}
+                    </button>
+                    {formatChoices.map((choice) => (
+                      <button
+                        key={choice.id}
+                        type="button"
+                        onClick={() => setHookFormat(choice.id)}
+                        className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-3 text-start text-sm transition-all hover:border-blumea-blue"
+                      >
+                        <span className="font-semibold text-blumea-navy">{formatLabel(choice.id, t) ?? choice.id}</span>
+                        <span className="text-xs text-blumea-slate">{t("compare2.groupVideos", { count: choice.count })}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
               ) : !enoughGroups ? (
                 <>
                   <p className="mt-3 text-sm leading-6 text-blumea-slate">{t("compare2.groupsNeed", { min: groupMin })}</p>
@@ -353,11 +386,20 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
                       );
                     })}
                   </div>
+                  {hookInFormat && (
+                    <button
+                      type="button"
+                      onClick={() => router.push(`/compare/hooks/${aPlatform}/${hookInFormat}`)}
+                      className="mt-4 w-full rounded-2xl border border-blumea-blue/30 bg-blumea-mist/50 p-3 text-start text-sm font-semibold text-blumea-navy transition-all hover:border-blumea-blue"
+                    >
+                      {t("compare2.whichBestHook", { format: formatLabel(hookInFormat, t) ?? hookInFormat })}
+                    </button>
+                  )}
                   <div className="mt-5 flex justify-end">
                     <button
                       type="button"
                       disabled={!aId || !bId}
-                      onClick={() => aId && bId && router.push(`/compare/group/${type}/${aPlatform}/${aId}/${bId}`)}
+                      onClick={() => aId && bId && router.push(hookInFormat ? `/compare/hooks/${aPlatform}/${hookInFormat}/${aId}/${bId}` : `/compare/group/${type}/${aPlatform}/${aId}/${bId}`)}
                       className={
                         aId && bId
                           ? "rounded-full bg-blumea-navy px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blumea-blue"

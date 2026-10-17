@@ -3,6 +3,7 @@ import { median } from "@/lib/insight-patterns";
 import { SMALL_VIDEO_VIEWS } from "@/lib/cross-video-insights";
 import { formatCount } from "@/lib/format";
 import { videoRef } from "@/lib/video-ref";
+import { hookTypeLabel } from "@/lib/hook-library";
 import type { MetricFormat } from "@/lib/compare-insights";
 import type { TextKey, Translator } from "@/lib/i18n/translate";
 
@@ -126,10 +127,10 @@ export type GroupKind = "format" | "hook";
 export const groupIdOf = (v: DashboardVideo, by: GroupKind) => (by === "format" ? v.formatId : v.hookTypeId);
 
 // The groups the creator can pick from: YouTube videos Blumea has read, by format or opening.
-export function groupOptions(videos: DashboardVideo[], by: GroupKind, platform: string): { id: string; count: number }[] {
+export function groupOptions(videos: DashboardVideo[], by: GroupKind, platform: string, formatId: string | null = null): { id: string; count: number }[] {
   const counts = new Map<string, number>();
   for (const v of videos) {
-    const id = v.platform === platform && v.analyzed ? groupIdOf(v, by) : null;
+    const id = v.platform === platform && v.analyzed && (!formatId || v.formatId === formatId) ? groupIdOf(v, by) : null;
     if (id) counts.set(id, (counts.get(id) ?? 0) + 1);
   }
   return [...counts.entries()].map(([id, count]) => ({ id, count })).sort((x, y) => y.count - x.count);
@@ -147,8 +148,8 @@ export type GroupResult = {
   notes: string[];
 };
 
-export function groupComparison(videos: DashboardVideo[], by: GroupKind, platform: string, idA: string, idB: string, nameA: string, nameB: string, t: Translator): GroupResult {
-  const pool = videos.filter((v) => v.platform === platform && v.analyzed);
+export function groupComparison(videos: DashboardVideo[], by: GroupKind, platform: string, idA: string, idB: string, nameA: string, nameB: string, t: Translator, formatId: string | null = null): GroupResult {
+  const pool = videos.filter((v) => v.platform === platform && v.analyzed && (!formatId || v.formatId === formatId));
   const a = pool.filter((v) => groupIdOf(v, by) === idA);
   const b = pool.filter((v) => groupIdOf(v, by) === idB);
   const min = groupMinFor(by);
@@ -188,6 +189,65 @@ export function groupComparison(videos: DashboardVideo[], by: GroupKind, platfor
 
   const notes: string[] = [t("compare2.groupDisclaimer", { count: pool.length })];
   return { countA: a.length, countB: b.length, enough, few, rows, statements, notes };
+}
+
+// ---- which hook did best inside one format ----
+export type HookRankRow = {
+  id: string;
+  count: number;
+  typicalViews: number | null;
+  typicalLikes: number | null;
+  typicalEngagement: number | null;
+  top: { id: string; title: string; views: number } | null;
+};
+export type HookRanking = { videos: number; rows: HookRankRow[]; usable: HookRankRow[]; statements: string[]; few: boolean };
+
+export function hookRanking(videos: DashboardVideo[], platform: string, formatId: string, t: Translator): HookRanking {
+  const pool = videos.filter((v) => v.platform === platform && v.analyzed && v.formatId === formatId && v.hookTypeId);
+  const byHook = new Map<string, DashboardVideo[]>();
+  for (const v of pool) byHook.set(v.hookTypeId as string, [...(byHook.get(v.hookTypeId as string) ?? []), v]);
+
+  const rows: HookRankRow[] = [...byHook.entries()]
+    .map(([id, list]) => {
+      const best = [...list].filter((v) => v.views !== null).sort((x, y) => (y.views ?? 0) - (x.views ?? 0))[0];
+      return {
+        id,
+        count: list.length,
+        typicalViews: medianOf(list.map((v) => v.views)),
+        typicalLikes: medianOf(list.map((v) => v.likes)),
+        typicalEngagement: medianOf(list.map(engagement)),
+        top: best ? { id: best.id, title: best.title, views: best.views ?? 0 } : null,
+      };
+    })
+    .sort((x, y) => (y.typicalViews ?? 0) - (x.typicalViews ?? 0));
+
+  // A hook counts from HOOK_MIN videos; under GROUP_MIN it is only a hint.
+  const usable = rows.filter((row) => row.count >= HOOK_MIN && row.typicalViews !== null);
+  const statements: string[] = [];
+  const hookName = (id: string) => hookTypeLabel(id, t) ?? id;
+  if (usable.length >= 2) {
+    const [first, second] = usable;
+    const ratio = (first.typicalViews as number) / Math.max(1, second.typicalViews as number);
+    if (ratio >= 1.3) {
+      statements.push(
+        t("compare2.hookRankBest", {
+          hook: hookName(first.id),
+          a: formatCount(first.typicalViews as number),
+          n: first.count,
+          other: hookName(second.id),
+          b: formatCount(second.typicalViews as number),
+          m: second.count,
+        })
+      );
+      if (first.top) statements.push(t("compare2.hookRankTop", { hook: hookName(first.id), video: `${t.locale === "he" ? "״" : "“"}${videoRef(first.top.id, first.top.title)}${t.locale === "he" ? "״" : "”"}`, views: formatCount(first.top.views) }));
+    } else {
+      statements.push(t("compare2.hookRankClose", { hook: hookName(first.id), other: hookName(second.id) }));
+    }
+  } else {
+    statements.push(t("compare2.hookRankNone", { min: HOOK_MIN }));
+  }
+  const few = usable.length >= 2 && usable.slice(0, 2).some((row) => row.count < GROUP_MIN);
+  return { videos: pool.length, rows, usable, statements, few };
 }
 
 // ---- platform against platform (each against its own usual) ----
