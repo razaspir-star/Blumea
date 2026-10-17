@@ -386,6 +386,25 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
                       );
                     })}
                   </div>
+                  {type === "hook" && groups.some((group) => group.count >= 2) && (
+                    <div className="mt-5">
+                      <p className="text-xs font-semibold text-blumea-navy">{t("compare2.insidePrompt")}</p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {groups
+                          .filter((group) => group.count >= 2)
+                          .map((group) => (
+                            <button
+                              key={group.id}
+                              type="button"
+                              onClick={() => router.push(hookInFormat ? `/compare/inside/${aPlatform}/${group.id}/${hookInFormat}` : `/compare/inside/${aPlatform}/${group.id}`)}
+                              className="rounded-full border border-blumea-blue/30 bg-blumea-mist/50 px-3 py-1.5 text-xs font-semibold text-blumea-navy transition-all hover:border-blumea-blue"
+                            >
+                              {groupName(group.id)} ({group.count})
+                            </button>
+                          ))}
+                      </div>
+                    </div>
+                  )}
                   {hookInFormat && (
                     <button
                       type="button"

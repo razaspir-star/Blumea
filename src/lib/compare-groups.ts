@@ -250,6 +250,41 @@ export function hookRanking(videos: DashboardVideo[], platform: string, formatId
   return { videos: pool.length, rows, usable, statements, few };
 }
 
+// ---- the videos of one hook, ranked (which one did best under this hook) ----
+export type HookInside = {
+  videos: DashboardVideo[]; // most views first
+  middle: number | null;
+  statements: string[];
+  few: boolean;
+};
+
+export function hookInside(videos: DashboardVideo[], platform: string, hookId: string, formatId: string | null, t: Translator): HookInside {
+  const pool = videos
+    .filter((v) => v.platform === platform && v.analyzed && v.hookTypeId === hookId && (!formatId || v.formatId === formatId) && v.views !== null)
+    .sort((x, y) => (y.views ?? 0) - (x.views ?? 0));
+  const middle = medianOf(pool.map((v) => v.views));
+  const name = (v: DashboardVideo) => `${t.locale === "he" ? "״" : "“"}${videoRef(v.id, v.title)}${t.locale === "he" ? "״" : "”"}`;
+  const hook = hookTypeLabel(hookId, t) ?? hookId;
+  const statements: string[] = [];
+  if (pool.length >= 2 && middle) {
+    const best = pool[0];
+    const worst = pool[pool.length - 1];
+    const x = (best.views ?? 0) / middle;
+    statements.push(
+      t(x >= 1.3 ? "compare2.insideBest" : "compare2.insideClose", {
+        count: pool.length,
+        hook,
+        video: name(best),
+        views: formatCount(best.views ?? 0),
+        x: x.toFixed(1).replace(/\.0$/, ""),
+        mid: formatCount(middle),
+      })
+    );
+    if (pool.length >= 3) statements.push(t("compare2.insideWorst", { video: name(worst), views: formatCount(worst.views ?? 0), hook }));
+  }
+  return { videos: pool, middle, statements, few: pool.length > 0 && pool.length < GROUP_MIN };
+}
+
 // ---- platform against platform (each against its own usual) ----
 export type PlatformSummary = {
   platform: string;
