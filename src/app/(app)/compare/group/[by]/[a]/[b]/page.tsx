@@ -35,7 +35,7 @@ export default function GroupComparePage({ params }: { params: Promise<{ by: str
   const nameB = label(idB);
 
   const frame = (children: React.ReactNode) => (
-    <CompareFrame title={t(by === "format" ? "compare2.groupTitleFormat" : "compare2.groupTitleHook")} subtitle={t("compare2.groupSubtitle")}>
+    <CompareFrame title={t(by === "format" ? "compare2.groupTitleFormat" : "compare2.groupTitleHook")} subtitle={t("compare2.groupSubtitle")} accessKey={`group:${rawBy}:${[idA, idB].sort().join(",")}`}>
       {children}
     </CompareFrame>
   );

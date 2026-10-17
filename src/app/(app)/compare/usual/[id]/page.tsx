@@ -39,7 +39,7 @@ export default function UsualPage({ params }: { params: Promise<{ id: string }> 
   if (!valid) notFound();
 
   const frame = (children: React.ReactNode) => (
-    <CompareFrame title={t("compare2.usualTitle")} subtitle={t("compare2.usualSubtitle")}>
+    <CompareFrame title={t("compare2.usualTitle")} subtitle={t("compare2.usualSubtitle")} accessKey={`usual:${id}`}>
       {children}
     </CompareFrame>
   );

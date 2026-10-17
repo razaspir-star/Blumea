@@ -27,7 +27,7 @@ export default function PlatformsPage() {
   }, []);
 
   const frame = (children: React.ReactNode) => (
-    <CompareFrame title={t("compare2.platformsTitle")} subtitle={t("compare2.platformsSubtitle")}>
+    <CompareFrame title={t("compare2.platformsTitle")} subtitle={t("compare2.platformsSubtitle")} accessKey="platforms">
       {children}
     </CompareFrame>
   );

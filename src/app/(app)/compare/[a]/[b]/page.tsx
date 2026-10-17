@@ -12,11 +12,13 @@ import PlatformBadge from "@/components/PlatformBadge";
 import VideoText from "@/components/VideoText";
 import { useProfile } from "@/components/AppShell";
 import { notFound } from "next/navigation";
-import { Check, Lock } from "lucide-react";
+import { Check } from "lucide-react";
 import { loadCompareVideo, type CompareVideo } from "@/lib/compare-data";
 import { supabase } from "@/lib/supabase";
 import { buildComparison, type MetricFormat, type MetricRow } from "@/lib/compare-insights";
 import { buildDeep } from "@/lib/compare-deep";
+import { LockedCard, FreeAllowanceNote } from "@/components/CompareFrame";
+import { askCompareAccess, pairKey, useCompareAccess } from "@/lib/use-compare-access";
 import { formatCount, formatTime } from "@/lib/format";
 import { useT } from "@/lib/i18n/client";
 import { platformName } from "@/lib/platform-capabilities";
@@ -78,7 +80,8 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
   const { a: idA, b: idB } = use(params);
   const t = useT();
   const profile = useProfile();
-  const unlocked = profile.plan === "pro" || profile.plan === "owner";
+  // Pro and owner may make in-depth comparisons; whether this one may be opened at all is asked of the server below.
+  const canDeep = profile.plan === "pro" || profile.plan === "owner";
   const [videos, setVideos] = useState<{ a: CompareVideo | null; b: CompareVideo | null } | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   // What Blumea is reading right now so the comparison can say how a video is built, and why a read failed.
@@ -91,6 +94,9 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
   const [numbersFor, setNumbersFor] = useState<CompareVideo | null>(null);
   const [version, setVersion] = useState(0);
   const valid = UUID.test(idA) && UUID.test(idB);
+  const access = useCompareAccess(valid ? pairKey(idA, idB) : "");
+  const unlocked = access?.allowed === true;
+  const [deepNote, setDeepNote] = useState<string | null>(null);
 
   useEffect(() => {
     if (!valid) return;
@@ -121,7 +127,7 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
     </>
   );
 
-  if (videos === null) {
+  if (videos === null || access === null) {
     return (
       <div className="mx-auto w-full max-w-4xl">
         {header}
@@ -166,7 +172,16 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
   const youtubeUnread = [a, b].filter((video) => video.platform === "youtube" && video.fields === null);
   const needsAction = [a, b].filter((video) => video.platform === "tiktok" || video.fields === null);
 
+  const deepKey = pairKey(a.id, b.id);
+
   async function runDeep() {
+    setDeepNote(null);
+    const deepAccess = await askCompareAccess("deep", deepKey);
+    if (!deepAccess || !deepAccess.allowed) {
+      const date = deepAccess ? new Date(deepAccess.resetsOn).toLocaleDateString(t.locale === "he" ? "he-IL" : "en-US", { month: "long", day: "numeric", timeZone: "UTC" }) : "";
+      setDeepNote(deepAccess ? t("compare.deepCapReached", { cap: deepAccess.cap ?? 0, date }) : t("compare.deepAccessFailed"));
+      return;
+    }
     if (youtubeUnread.length > 0) {
       setReadError(null);
       const { data: session } = await supabase.auth.getSession();
@@ -214,10 +229,12 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
         </p>
       )}
       {readError && <p className="mt-4 rounded-2xl bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-700">{readError}</p>}
-      {unlocked && !deepRun && (
+      {!deepRun && (
         <div className="blumea-step mt-4 rounded-2xl border border-blumea-blue/25 bg-white p-4 shadow-sm">
           <p className="text-sm font-semibold text-blumea-navy">{t("compare.deepTitle")}</p>
           <p className="mt-1 text-sm leading-6 text-blumea-slate">{tiktokPair ? t("compare.deepBody") : t("compare.deepBodyYoutube")}</p>
+          {!canDeep && <p className="mt-2 text-sm font-semibold text-blumea-blue">{t("compare.deepProOnly")}</p>}
+          {deepNote && <p className="mt-2 text-sm text-rose-700">{deepNote}</p>}
 
           <div className="mt-3 space-y-2">
             {needsAction.map((video) => (
@@ -266,10 +283,10 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
 
           <button
             type="button"
-            disabled={!allTiktokRead || reading !== null}
+            disabled={!canDeep || !allTiktokRead || reading !== null}
             onClick={runDeep}
             className={
-              allTiktokRead && reading === null
+              canDeep && allTiktokRead && reading === null
                 ? "mt-4 rounded-full bg-blumea-navy px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blumea-blue"
                 : "mt-4 cursor-not-allowed rounded-full bg-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-400"
             }
@@ -446,20 +463,17 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
       {header}
 
       {unlocked ? (
-        body
+        <>
+          <FreeAllowanceNote access={access} />
+          {body}
+        </>
       ) : (
         <div className="relative">
           {/* Locked preview: the comparison of the creator's own two videos, blurred, under a note about Blumea Pro. */}
           <div aria-hidden className="pointer-events-none select-none blur-[6px]">
             {body}
           </div>
-          <div className="absolute inset-x-0 top-24 mx-auto max-w-sm rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-xl">
-            <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-blumea-mist text-blumea-blue">
-              <Lock size={18} strokeWidth={1.8} />
-            </div>
-            <h2 className="mt-3 text-lg font-semibold text-blumea-navy">{t("compare.lockedTitle")}</h2>
-            <p className="mt-2 text-sm leading-6 text-blumea-slate">{t("compare.lockedBody")}</p>
-          </div>
+          <LockedCard access={access} />
         </div>
       )}
 
