@@ -118,6 +118,7 @@
   recOtherFormats: "{better} got clearly more views than {weaker}, but they are different formats, so a hook or a song cannot simply be moved from one to the other. What can be learned is how each format does across all your videos.",
   formatLink: "Compare the two formats across my videos",
   pickPlatformOne: "Choose the platform of the video",
+  updateNumbers: "Update screenshots",
   noGap: "There's no big enough gap between these two videos.",
   differ: "They differ in: {list}. To learn which one matters, change just one thing at a time in your next video.",
   disclaimer: "Based on these two videos.",

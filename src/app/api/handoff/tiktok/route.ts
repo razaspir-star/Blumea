@@ -39,11 +39,26 @@ export async function GET(request: NextRequest) {
     .eq("platform_video_id", handoff.platformVideoId)
     .eq("stage", "waiting");
 
+  // Does this video already have numbers from the creator's screenshots?
+  const admin = getSupabaseAdmin();
+  let hasScreens = false;
+  const { data: row } = await admin
+    .from("videos")
+    .select("id")
+    .eq("profile_id", handoff.profileId)
+    .eq("platform", "tiktok")
+    .eq("platform_video_id", handoff.platformVideoId)
+    .maybeSingle();
+  if (row) {
+    const { data: snaps } = await admin.from("video_metric_snapshots").select("id").eq("video_id", row.id).not("breakdowns->tiktokScreens", "is", null).limit(1);
+    hasScreens = (snaps?.length ?? 0) > 0;
+  }
+
   try {
     const accessToken = await getValidTiktokAccessToken(handoff.profileId);
     const video = await getVideoById(accessToken, handoff.platformVideoId);
-    return NextResponse.json({ title: video.title, shareUrl: video.shareUrl });
+    return NextResponse.json({ title: video.title, shareUrl: video.shareUrl, hasScreens });
   } catch {
-    return NextResponse.json({ title: t("errors.yourVideo"), shareUrl: null });
+    return NextResponse.json({ title: t("errors.yourVideo"), shareUrl: null, hasScreens });
   }
 }

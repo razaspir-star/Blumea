@@ -18,6 +18,23 @@ import { analyzeUploadedVideo, MODEL, PROMPT_VERSION, THINKING_LEVEL } from "@/l
 // An AI analysis can take 20-40 s; give serverless hosting room to finish.
 export const maxDuration = 120;
 
+// TikTok's video lookup sometimes fails once and works a moment later: try again before giving up, because a
+// failure removes the uploaded file and the creator would have to upload it again.
+async function lookupWithRetry(profileId: string, platformVideoId: string) {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      const accessToken = await getValidTiktokAccessToken(profileId);
+      const videoMeta = await getVideoById(accessToken, platformVideoId);
+      return { accessToken, videoMeta };
+    } catch (error) {
+      lastError = error;
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+    }
+  }
+  throw lastError;
+}
+
 export async function POST(request: NextRequest) {
   const t = translatorFor(request);
   const body = await request.json().catch(() => null);
@@ -63,8 +80,7 @@ export async function POST(request: NextRequest) {
   let accessToken: string;
   let videoMeta: Awaited<ReturnType<typeof getVideoById>>;
   try {
-    accessToken = await getValidTiktokAccessToken(profileId);
-    videoMeta = await getVideoById(accessToken, platformVideoId);
+    ({ accessToken, videoMeta } = await lookupWithRetry(profileId, platformVideoId));
   } catch (error) {
     console.error("TikTok video lookup failed", error);
     return fail(t("errors.videoFetchFailed"), 400);

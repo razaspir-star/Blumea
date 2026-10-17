@@ -28,6 +28,7 @@ export default function HandoffPage({ params }: { params: Promise<{ token: strin
   const inputRef = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState<string | null>(null);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [hasScreens, setHasScreens] = useState(false);
   const videoId = videoIdOf(token);
   const [expired, setExpired] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -45,6 +46,7 @@ export default function HandoffPage({ params }: { params: Promise<{ token: strin
         else {
           setTitle(body.title);
           setShareUrl(body.shareUrl ?? null);
+          setHasScreens(body.hasScreens === true);
         }
       })
       .catch(() => setExpired(true));
@@ -133,9 +135,18 @@ export default function HandoffPage({ params }: { params: Promise<{ token: strin
             <input ref={inputRef} type="file" accept="video/*" className="hidden" onChange={(event) => setFile(event.target.files?.[0] ?? null)} />
 
             <p className="mt-6 text-xs font-semibold uppercase tracking-wide text-blumea-slate">{t("handoff.step3")}</p>
-            <div className="mt-2">
-              <TiktokScreensPicker files={screens} onChange={setScreens} />
-            </div>
+            {hasScreens ? (
+              <details className="mt-2">
+                <summary className="cursor-pointer text-sm font-semibold text-blumea-navy">{t("tiktokUpload.screensHave")}</summary>
+                <div className="mt-2">
+                  <TiktokScreensPicker files={screens} onChange={setScreens} />
+                </div>
+              </details>
+            ) : (
+              <div className="mt-2">
+                <TiktokScreensPicker files={screens} onChange={setScreens} />
+              </div>
+            )}
 
             {error && <p className="mt-3 text-sm text-red-500">{error}</p>}
 

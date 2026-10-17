@@ -88,7 +88,10 @@ export default function TiktokViewerCard({
           <Clock3 size={16} strokeWidth={1.8} className="text-blumea-blue" />
           <span className="text-sm font-semibold">{t("analysis.howViewersWatched")}</span>
         </div>
-        <AddNumbers platformVideoId={platformVideoId} label={t("viewerCard.readMine")} />
+        <details className="mt-3">
+          <summary className="cursor-pointer text-sm font-semibold text-blumea-blue">{t("viewerCard.addSummary")}</summary>
+          <AddNumbers platformVideoId={platformVideoId} label={t("viewerCard.readMine")} />
+        </details>
       </section>
     );
   }

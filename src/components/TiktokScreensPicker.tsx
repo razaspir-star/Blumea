@@ -25,12 +25,12 @@ export default function TiktokScreensPicker({
   const bold = (text: string) => <span className="font-semibold text-blumea-navy">{text}</span>;
 
   return (
-    <div className={compact ? "" : "sm:grid sm:grid-cols-[minmax(0,1fr)_200px] sm:items-start sm:gap-5"}>
+    <div className={compact ? "sm:grid sm:grid-cols-[minmax(0,1fr)_150px] sm:items-start sm:gap-4" : "sm:grid sm:grid-cols-[minmax(0,1fr)_200px] sm:items-start sm:gap-5"}>
       {/* Muted loop that starts by itself: the three screens, the screenshot moments and the way back to Blumea.
           Stacked above the steps on a phone, beside the steps and the upload button on a wide screen.
           (Two versions of the video: English and Hebrew captions, built by C:\TiktokGuide\build-guide-v3.mjs.) */}
       <video
-        className="mx-auto mb-3 w-full max-w-[170px] rounded-xl bg-slate-100 sm:order-2 sm:mb-0 sm:max-w-none"
+        className={`mx-auto mb-3 w-full max-w-[170px] rounded-xl bg-slate-100 sm:order-2 sm:mb-0 ${compact ? "" : "sm:max-w-none"}`}
         key={t.locale}
         src={t.locale === "he" ? "/guides/tiktok-analytics-guide-he.mp4?v=1" : "/guides/tiktok-analytics-guide.mp4?v=4"}
         poster={t.locale === "he" ? "/guides/tiktok-analytics-guide-he-poster.jpg" : "/guides/tiktok-analytics-guide-poster.jpg"}

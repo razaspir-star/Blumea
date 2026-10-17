@@ -273,7 +273,7 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
                     </span>
                   ) : null}
                   <button type="button" onClick={() => setNumbersFor(video)} className="font-semibold text-blumea-blue hover:opacity-70">
-                    {t("compare.addNumbers")}
+                    {video.tiktokScreens !== null ? t("compare.updateNumbers") : t("compare.addNumbers")}
                   </button>
                 </div>
                 )}

@@ -34,12 +34,14 @@ const tiktokUpload = {
   drop: "Or drop the saved video here",
   chooseFile: "Choose file",
   optional: "Optional: how people watched it",
+  screensHave: "This video already has numbers from your screenshots. Open to update them (optional).",
   phoneFailed: "Something went wrong with the upload from your phone.",
   analyze: "Analyze video",
 };
 
 const viewerCard = {
   readMine: "Read my screenshots",
+  addSummary: "Add numbers from my TikTok screenshots (optional)",
   reading: "Reading your screenshots…",
   avg: "Average watch",
   ofVideo: "of a {dur} s video{pct}",

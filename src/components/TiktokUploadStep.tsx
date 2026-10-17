@@ -28,6 +28,8 @@ export default function TiktokUploadStep({ video, onDone }: TiktokUploadStepProp
   const [stage, setStage] = useState<UploadStage | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [qr, setQr] = useState<string | null>(null);
+  // This video already has numbers from the creator's screenshots.
+  const [hasScreens, setHasScreens] = useState(false);
   // What the phone is doing (live progress written by the server).
   const [remote, setRemote] = useState<{ stage: string; message: string | null } | null>(null);
 
@@ -88,11 +90,26 @@ export default function TiktokUploadStep({ video, onDone }: TiktokUploadStepProp
         knownProfiles.current = new Set(profiles.map((profile) => profile.id));
         return;
       }
-      if (data && profiles.some((profile) => !knownProfiles.current?.has(profile.id))) onDoneRef.current(data.id);
+      // Only when the upload has finished: the screenshots are saved after the analysis itself.
+      if (data && progress?.stage === "done" && profiles.some((profile) => !knownProfiles.current?.has(profile.id))) onDoneRef.current(data.id);
     }
     poll();
     const timer = setInterval(poll, 2000);
     return () => clearInterval(timer);
+  }, [video.platformVideoId]);
+
+  useEffect(() => {
+    let cancelled = false;
+    async function check() {
+      const { data: row } = await supabase.from("videos").select("id").eq("platform", "tiktok").eq("platform_video_id", video.platformVideoId).maybeSingle();
+      if (!row) return;
+      const { data } = await supabase.from("video_metric_snapshots").select("id").eq("video_id", row.id).not("breakdowns->tiktokScreens", "is", null).limit(1);
+      if (!cancelled) setHasScreens((data?.length ?? 0) > 0);
+    }
+    check().catch(() => null);
+    return () => {
+      cancelled = true;
+    };
   }, [video.platformVideoId]);
 
   async function startAnalysis() {
@@ -195,12 +212,21 @@ export default function TiktokUploadStep({ video, onDone }: TiktokUploadStepProp
         </div>
       )}
 
-      <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
-        <p className="text-sm font-semibold text-blumea-navy">{t("tiktokUpload.optional")}</p>
-        <div className="mt-2">
-          <TiktokScreensPicker files={screens} onChange={setScreens} compact />
+      {hasScreens ? (
+        <details className="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
+          <summary className="cursor-pointer text-sm font-semibold text-blumea-navy">{t("tiktokUpload.screensHave")}</summary>
+          <div className="mt-2">
+            <TiktokScreensPicker files={screens} onChange={setScreens} compact />
+          </div>
+        </details>
+      ) : (
+        <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
+          <p className="text-sm font-semibold text-blumea-navy">{t("tiktokUpload.optional")}</p>
+          <div className="mt-2">
+            <TiktokScreensPicker files={screens} onChange={setScreens} compact />
+          </div>
         </div>
-      </div>
+      )}
 
       {remote?.stage === "failed" && (
         <p className="mt-3 text-sm text-red-500">{remote.message ?? t("tiktokUpload.phoneFailed")}</p>

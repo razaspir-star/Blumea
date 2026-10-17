@@ -37,12 +37,14 @@ const tiktokUpload: Dictionary["tiktokUpload"] = {
   drop: "או לגרור לכאן את הסרטון השמור",
   chooseFile: "בחירת קובץ",
   optional: "אופציונלי: איך אנשים צפו בו",
+  screensHave: "לסרטון הזה כבר יש נתונים מצילומי המסך שלך. אפשר לפתוח כדי לעדכן אותם (לא חובה).",
   phoneFailed: "משהו השתבש בהעלאה מהטלפון.",
   analyze: "ניתוח הסרטון",
 };
 
 const viewerCard: Dictionary["viewerCard"] = {
   readMine: "לקרוא את צילומי המסך שלי",
+  addSummary: "הוספת נתונים מצילומי מסך של TikTok (לא חובה)",
   reading: "קוראת את צילומי המסך שלך…",
   avg: "צפייה ממוצעת",
   ofVideo: "מתוך סרטון של {dur} שנ׳{pct}",
