@@ -7,7 +7,8 @@ import { PlatformIcon } from "@/components/PlatformBadge";
 import { useProfile } from "@/components/AppShell";
 import { loadDashboardData, type DashboardVideo } from "@/lib/dashboard-data";
 import { groupOptions } from "@/lib/compare-groups";
-import { formatLabel } from "@/lib/format-library";
+import { FORMATS, formatLabel } from "@/lib/format-library";
+import type { TextKey } from "@/lib/i18n/translate";
 import { platformName } from "@/lib/platform-capabilities";
 import { supabase } from "@/lib/supabase";
 import { useT } from "@/lib/i18n/client";
@@ -34,6 +35,9 @@ export default function IdeasPage() {
   const [platform, setPlatform] = useState<string>("");
   const [format, setFormat] = useState<string>("");
   const [text, setText] = useState("");
+  const [hook, setHook] = useState("");
+  const [showOther, setShowOther] = useState(false);
+  const [infoFor, setInfoFor] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
@@ -64,6 +68,8 @@ export default function IdeasPage() {
 
   const platforms = [...new Set((videos ?? []).map((video) => video.platform))];
   const formats = videos && platform ? groupOptions(videos, "format", platform) : [];
+  const myFormatIds = new Set(formats.map((item) => item.id));
+  const otherFormats = FORMATS.filter((item) => item.id !== "other" && !myFormatIds.has(item.id));
   const liked = (ideas ?? []).filter((idea) => idea.source !== "mine");
   const mine = (ideas ?? []).filter((idea) => idea.source === "mine");
 
@@ -83,12 +89,39 @@ export default function IdeasPage() {
       source: "mine",
       status: "saved",
       format: format || null,
-      details: { locale: t.locale },
+      details: { locale: t.locale, ...(hook.trim() ? { hook: hook.trim().slice(0, 200) } : {}) },
     });
     setText("");
+    setHook("");
     setBusy(false);
     await load();
   }
+
+  // A format to choose, with a small "i" that explains it. `count` is how many analyzed videos the creator has in it.
+  const formatChip = (id: string, label: string, count: number | null) => (
+    <span
+      key={id || "none"}
+      className={`mt-1.5 inline-flex items-center overflow-hidden rounded-full border text-xs font-semibold transition-colors ${
+        format === id ? "border-blumea-blue bg-blumea-mist text-blumea-navy" : "border-slate-200 bg-white text-blumea-navy hover:border-blumea-blue/50"
+      }`}
+    >
+      <button type="button" onClick={() => setFormat(id)} className="px-3 py-1.5">
+        {label}
+        {count !== null ? <span className="ms-1 font-normal text-blumea-slate">({count})</span> : null}
+      </button>
+      {id && (
+        <button
+          type="button"
+          aria-label={t("idea.mineInfo")}
+          title={t("idea.mineInfo")}
+          onClick={() => setInfoFor(infoFor === id ? null : id)}
+          className={`me-1 flex h-5 w-5 items-center justify-center rounded-full text-[11px] italic ${infoFor === id ? "bg-blumea-blue text-white" : "bg-slate-100 text-blumea-slate hover:bg-blumea-mist"}`}
+        >
+          i
+        </button>
+      )}
+    </span>
+  );
 
   const card = (idea: SavedIdea) => (
     <article key={idea.id} className="rounded-2xl border border-slate-200/70 bg-white p-4 shadow-sm">
@@ -169,18 +202,39 @@ export default function IdeasPage() {
                 ))}
               </select>
             </label>
-            <label className="text-xs font-semibold text-blumea-navy">
-              {t("idea.mineFormat")}
-              <select value={format} onChange={(event) => setFormat(event.target.value)} className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-normal text-blumea-navy">
-                <option value="">{t("idea.mineNoFormat")}</option>
-                {formats.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {formatLabel(item.id, t) ?? item.id}
-                  </option>
-                ))}
-              </select>
-            </label>
           </div>
+          <div className="mt-4">
+            <p className="text-xs font-semibold text-blumea-navy">{t("idea.mineFormat")}</p>
+            {formatChip("", t("idea.mineNoFormat"), null)}
+            {formats.length > 0 && <p className="mt-3 text-xs text-blumea-slate">{t("idea.mineMyFormats")}</p>}
+            <div className="mt-1.5 flex flex-wrap gap-2">{formats.map((item) => formatChip(item.id, formatLabel(item.id, t) ?? item.id, item.count))}</div>
+            <button type="button" onClick={() => setShowOther((current) => !current)} className="mt-3 text-xs font-semibold text-blumea-blue hover:opacity-70">
+              {showOther ? "− " : "+ "}
+              {t("idea.mineOtherFormats")}
+            </button>
+            {showOther && (
+              <>
+                <p className="mt-1 text-xs text-blumea-slate">{t("idea.mineOtherFormatsHelp")}</p>
+                <div className="mt-1.5 flex flex-wrap gap-2">{otherFormats.map((item) => formatChip(item.id, formatLabel(item.id, t) ?? item.id, null))}</div>
+              </>
+            )}
+            {infoFor && (
+              <p className="mt-3 rounded-xl bg-blumea-mist/60 px-3 py-2 text-xs leading-5 text-blumea-navy">
+                <span className="font-semibold">{formatLabel(infoFor, t) ?? infoFor}: </span>
+                {t(`idea.fmt_${infoFor}` as TextKey)}
+              </p>
+            )}
+          </div>
+          <label className="mt-4 block text-xs font-semibold text-blumea-navy">
+            {t("idea.mineHook")}
+            <input
+              value={hook}
+              onChange={(event) => setHook(event.target.value)}
+              maxLength={200}
+              className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-normal text-blumea-navy"
+            />
+            <span className="mt-1 block text-[11px] font-normal text-blumea-slate">{t("idea.mineHookHelp")}</span>
+          </label>
           <label className="mt-3 block text-xs font-semibold text-blumea-navy">
             {t("idea.mineText")}
             <textarea
