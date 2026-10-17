@@ -134,6 +134,78 @@ html[lang="he"] body {
   animation: blumeaModalIn 320ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+@keyframes blumeaModalBackdropOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes blumeaModalOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+}
+
+.blumea-modal-backdrop-out {
+  animation: blumeaModalBackdropOut 200ms ease-in forwards;
+}
+
+.blumea-modal-out {
+  animation: blumeaModalOut 200ms ease-in forwards;
+}
+
+/* A next step inside a window or a page: fades in while sliding from the reading direction. */
+@keyframes blumeaStepIn {
+  from {
+    opacity: 0;
+    transform: translateX(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.blumea-step {
+  animation: blumeaStepIn 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[dir="rtl"] .blumea-step {
+  animation-name: blumeaStepInRtl;
+}
+
+@keyframes blumeaStepInRtl {
+  from {
+    opacity: 0;
+    transform: translateX(-14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blumea-step,
+  .blumea-modal,
+  .blumea-modal-out,
+  .blumea-modal-backdrop-out {
+    animation-duration: 1ms;
+  }
+}
+
 @keyframes blumeaNavProgress {
   0% {
     transform: translateX(-100%);

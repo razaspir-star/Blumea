@@ -136,6 +136,18 @@ export function buildComparison(a: CompareVideo, b: CompareVideo, t: Translator,
   );
   if (views) statements.push(views);
 
+  // Whichever got more views: how old each is changes how to read the gap.
+  if (views && a.publishedAt && b.publishedAt && a.views !== null && b.views !== null) {
+    const bigIsA = a.views >= b.views;
+    const days = (Date.parse(b.publishedAt) - Date.parse(a.publishedAt)) / 86_400_000; // positive: A is older
+    const bigOlderBy = bigIsA ? days : -days;
+    if (Math.abs(bigOlderBy) >= 30) {
+      const n = Math.abs(bigOlderBy);
+      const span = n < 60 ? t("compare.spanDays", { n: Math.round(n) }) : t("compare.spanMonths", { n: Math.round(n / 30) });
+      statements.push(t(bigOlderBy > 0 ? "compare.ageOlder" : "compare.ageNewer", { ...named(bigIsA ? "a" : "b"), span }));
+    }
+  }
+
   const watch = !numbersOk ? null : hi(watchShare(a), watchShare(b), (side, big, small) =>
     big - small >= 8 ? t("compare.watchGap", { ...named(side), a: Math.round(big), b: Math.round(small) }) : null
   );
@@ -152,6 +164,28 @@ export function buildComparison(a: CompareVideo, b: CompareVideo, t: Translator,
       : null
   );
   if (comments) statements.push(comments);
+
+  const engagement = !numbersOk || comments ? null : hi(rate(a), rate(b), (side, big, small) =>
+    small > 0 && big / small >= 1.5 && (side === "a" ? a.views : b.views)! >= 100
+      ? t("compare.engagementGap", { ...named(side), a: big.toFixed(1), b: small.toFixed(1) })
+      : null
+  );
+  if (engagement) statements.push(engagement);
+
+  const sharesRate = (v: CompareVideo) => (v.views && v.views > 0 && v.shares !== null ? (v.shares / v.views) * 100 : null);
+  const sharedMore = !numbersOk ? null : hi(sharesRate(a), sharesRate(b), (side, big, small) =>
+    small > 0 && big / small >= 1.5 && (side === "a" ? a.shares : b.shares)! >= 5
+      ? t("compare.sharesGap", { ...named(side), a: big.toFixed(2), b: small.toFixed(2) })
+      : null
+  );
+  if (sharedMore) statements.push(sharedMore);
+
+  const lengths = hi(a.durationSec, b.durationSec, (side, big, small) =>
+    small > 0 && big / small >= 1.5 && big - small >= 10
+      ? t("compare.durationGap", { long: q(side === "a" ? a : b), short: q(side === "a" ? b : a), a: Math.round(big), b: Math.round(small) })
+      : null
+  );
+  if (lengths) statements.push(lengths);
 
   const followers = !numbersOk ? null : hi(followersShare(a), followersShare(b), (side, big, small) =>
     big - small >= 15 ? t("compare.followersGap", { ...named(side), a: Math.round(big), b: Math.round(small) }) : null

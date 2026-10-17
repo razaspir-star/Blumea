@@ -157,20 +157,23 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal, onTik
         return;
       }
 
-      const response = await fetch("/api/videos/tiktok", {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      });
+      // Opened for one specific TikTok video: look that video up by id (it may be older than the
+      // recent list) and go straight to its upload step.
+      const wanted = startReal?.platform === "tiktok" ? startReal.platformVideoId : undefined;
+      const headers = { Authorization: `Bearer ${session.access_token}` };
+      const [response, wantedResponse] = await Promise.all([
+        fetch("/api/videos/tiktok", { headers }),
+        wanted ? fetch(`/api/videos/tiktok?id=${encodeURIComponent(wanted)}`, { headers }) : Promise.resolve(null),
+      ]);
       const body = await response.json();
+      const wantedBody = wantedResponse?.ok ? await wantedResponse.json() : null;
 
       if (cancelled) return;
-      if (!response.ok) {
+      if (!response.ok && !wantedBody?.video) {
         setTiktokListError(body.error ?? t("analyzeModal.couldNotLoadTiktok"));
       } else {
-        setTiktokVideos(body.videos);
-        // Opened for one specific TikTok video: go straight to its upload step.
-        const wanted = startReal?.platform === "tiktok" ? startReal.platformVideoId : undefined;
-        const match = wanted ? (body.videos as RealTiktokVideo[]).find((video) => video.platformVideoId === wanted) : undefined;
-        if (match) setTiktokSelected(match);
+        setTiktokVideos(response.ok ? body.videos : []);
+        if (wantedBody?.video) setTiktokSelected(wantedBody.video as RealTiktokVideo);
       }
     }
 
@@ -559,7 +562,7 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal, onTik
             </div>
 
             {platform === "tiktok" && tiktokSelected ? (
-              <div className="mt-5">
+              <div key="tiktok-selected" className="blumea-step mt-5">
                 <button
                   type="button"
                   onClick={() => setTiktokSelected(null)}
@@ -608,7 +611,7 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal, onTik
                 <TiktokUploadStep video={tiktokSelected} onDone={(id) => (onTiktokAnalyzed ? onTiktokAnalyzed() : router.push(`/analysis/${id}`))} />
               </div>
             ) : platform === "tiktok" ? (
-              <>
+              <div key="tiktok-list" className="blumea-step">
                 {tiktokListError && (
                   <p className="mt-5 text-sm text-red-500">{tiktokListError}</p>
                 )}
@@ -649,9 +652,9 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal, onTik
                     ))}
                   </div>
                 )}
-              </>
+              </div>
             ) : platform === "youtube" ? (
-              <>
+              <div className="blumea-step">
                 {realLoading && (
                   <p className="mt-5 text-sm text-blumea-slate">Loading your videos…</p>
                 )}
@@ -695,7 +698,7 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal, onTik
                     ))}
                   </div>
                 )}
-              </>
+              </div>
             ) : (
               <>
                 <div className="mt-5 grid max-h-[400px] grid-cols-2 gap-3 overflow-y-auto pr-1 sm:grid-cols-3">

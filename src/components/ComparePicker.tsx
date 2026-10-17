@@ -185,7 +185,7 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
           {back}
 
           {type === null && (
-            <div className="mt-3 grid grid-cols-1 gap-2.5">
+            <div className="blumea-step mt-3 grid grid-cols-1 gap-2.5">
               {visibleTypes.map((item) => (
                 <button
                   key={item.id}
@@ -201,18 +201,18 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
           )}
 
           {type === "usual" && (
-            <>
+            <div className="blumea-step">
               <p className="mt-2 text-xs leading-5 text-blumea-slate">{t("compare2.chooseOne")}</p>
               {videoGrid(videos, null, pickForUsual)}
-            </>
+            </div>
           )}
 
           {type === "videos" && (
-            <div key={`${aPlat ?? "-"}-${a ? "a" : "-"}-${bPlatform ?? "-"}`} className="blumea-expand">
-              <div>
-                {a && chosenCard(a, t("compare.first"), () => { setAId(null); setBId(null); setBPlatform(null); })}
-                {b && chosenCard(b, t("compare.secondVideo"), () => setBId(null))}
+            <div>
+              {a && <div className="blumea-step">{chosenCard(a, t("compare.first"), () => { setAId(null); setBId(null); setBPlatform(null); })}</div>}
+              {b && <div className="blumea-step">{chosenCard(b, t("compare.secondVideo"), () => setBId(null))}</div>}
 
+              <div key={`${aPlat ?? "-"}-${a ? "a" : "-"}-${bPlatform ?? "-"}`} className="blumea-step">
                 {/* first video: platform, then the video */}
                 {!aPlat && (
                   <>
@@ -275,7 +275,7 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
           )}
 
           {(type === "format" || type === "hook") && (
-            <>
+            <div className="blumea-step">
               {!enoughGroups ? (
                 <p className="mt-3 text-sm leading-6 text-blumea-slate">{t("compare2.groupsNeed", { min: GROUP_MIN })}</p>
               ) : (
@@ -327,7 +327,7 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
                   </div>
                 </>
               )}
-            </>
+            </div>
           )}
         </div>
       )}

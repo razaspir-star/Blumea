@@ -294,6 +294,9 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
                 </p>
               ))}
             </div>
+            {unlocked && !showBuilt && (
+              <p className="mt-3 rounded-2xl border border-dashed border-blumea-blue/30 bg-blumea-mist/50 p-4 text-sm leading-6 text-blumea-navy">{t("compare.deepMore")}</p>
+            )}
             {comparison.notes.map((note) => (
               <p key={note} className="mt-3 text-xs leading-5 text-blumea-slate">
                 {note}
