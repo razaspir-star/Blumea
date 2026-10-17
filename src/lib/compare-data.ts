@@ -59,7 +59,7 @@ export async function loadCompareVideo(id: string): Promise<CompareVideo | null>
 
   const youtube = video.platform === "youtube";
   const thumbnailUrl = youtube
-    ? `https://i.ytimg.com/vi/${video.platform_video_id}/mqdefault.jpg`
+    ? `https://i.ytimg.com/vi/${video.platform_video_id}/maxresdefault.jpg`
     : video.thumbnail_path
       ? supabase.storage.from("video-thumbs").getPublicUrl(video.thumbnail_path).data.publicUrl
       : null;

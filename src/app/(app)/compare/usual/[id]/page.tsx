@@ -15,7 +15,7 @@ import { useT } from "@/lib/i18n/client";
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function thumbOf(video: DashboardVideo): string | null {
-  return video.platform === "youtube" ? `https://i.ytimg.com/vi/${video.platformVideoId}/mqdefault.jpg` : video.thumbnailUrl;
+  return video.platform === "youtube" ? `https://i.ytimg.com/vi/${video.platformVideoId}/maxresdefault.jpg` : video.thumbnailUrl;
 }
 
 // A video against the creator's usual: the median of their other videos on the same platform.

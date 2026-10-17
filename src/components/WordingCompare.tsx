@@ -5,10 +5,11 @@ import BlumeaFlowerLoader from "@/components/BlumeaFlowerLoader";
 import { supabase } from "@/lib/supabase";
 import { shortTitle } from "@/lib/video-ref";
 import VideoText from "@/components/VideoText";
+import AppLink from "@/components/AppLink";
 import { useT } from "@/lib/i18n/client";
 import type { HookText } from "@/lib/compare-deep";
 
-type Analysis = { differences: { aspect: string; a: string; b: string }[]; diffs: string[]; recommendations: string[] };
+type Analysis = { differences: { aspect: string; a: string; b: string }[]; diffs: string[]; recommendations: string[]; formatCompare: { a: string; b: string } | null };
 
 // The hook of each video (what it writes on screen and says or sings in the first seconds),
 // side by side, and a button that analyzes how the two hooks differ and what is worth trying.
@@ -157,6 +158,14 @@ export default function WordingCompare({
                   </p>
                 ))}
               </div>
+              {result.formatCompare && (
+                <AppLink
+                  href={`/compare/group/format/${result.formatCompare.a}/${result.formatCompare.b}`}
+                  className="mt-3 inline-block rounded-full bg-blumea-navy px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blumea-blue"
+                >
+                  {t("compare.formatLink")}
+                </AppLink>
+              )}
             </>
           )}
         </div>

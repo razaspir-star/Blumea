@@ -4,6 +4,9 @@ import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { parseJson } from "@/lib/analysis-prompt";
 import { translatorFor } from "@/lib/i18n/server";
 import { videoRef } from "@/lib/video-ref";
+import { formatLabel } from "@/lib/format-library";
+
+const GROUP_MIN = 4;
 
 // Compare, in-depth: what DIFFERS between two videos beyond the numbers, and what is worth
 // trying because of it. One small text call (no video), only for Pro and owner accounts, only
@@ -26,6 +29,7 @@ type Side = {
   title: string;
   platform: string;
   views: number | null;
+  format: string | null;
   hookType: string | null;
   onScreen: string[];
   spoken: string | null;
@@ -80,6 +84,7 @@ export async function POST(request: NextRequest) {
       title: video.title as string,
       platform: video.platform as string,
       views: typeof metric?.views === "number" ? metric.views : null,
+      format: clip(fields.format?.value, 60),
       hookType: clip(fields.hook_type?.value, 60),
       onScreen: texts.filter((item) => item.role !== "scene").map((item) => clip(item.text, 200) ?? "").filter(Boolean),
       spoken: clip(fields.spoken_hook_text?.value),
@@ -168,10 +173,11 @@ Rules:
 
   // What else differs (always stated when the AI saw a clear difference).
   const diffs: string[] = [];
-  if (contentDiffers && content.a && content.b) {
+  const sameKind = a.format !== null && a.format === b.format;
+  if (sameKind && contentDiffers && content.a && content.b) {
     diffs.push(t("compare.diffContent", { a: name(a), b: name(b), x: content.a, y: content.b }));
   }
-  if (settingDiffers && setting.a && setting.b) {
+  if (sameKind && settingDiffers && setting.a && setting.b) {
     diffs.push(t("compare.diffSetting", { a: name(a), b: name(b), x: setting.a, y: setting.b }));
   }
 
@@ -183,7 +189,34 @@ Rules:
     b.views !== null &&
     Math.min(a.views, b.views) > 0 &&
     Math.max(a.views, b.views) / Math.min(a.views, b.views) >= CLEAR_GAP;
-  if (clear) {
+  // Hooks, songs and settings can only be swapped between videos of the same kind (the same format): a
+  // sung original song and a viral sound with a caption are different worlds, and a hook that works in one
+  // says nothing about the other. For two different formats the sensible next step is to compare the
+  // formats across all the creator's videos.
+  const sameFormat = a.format !== null && a.format === b.format;
+  let formatCompare: { a: string; b: string } | null = null;
+  if (!sameFormat && a.format && b.format) {
+    diffs.unshift(t("compare.diffFormat", { a: name(a), b: name(b), x: formatLabel(a.format, t) ?? a.format, y: formatLabel(b.format, t) ?? b.format }));
+    if (clear) {
+      const betterIsA = (a.views ?? 0) >= (b.views ?? 0);
+      const better = betterIsA ? a : b;
+      const weaker = betterIsA ? b : a;
+      recommendations.push(t("compare.recOtherFormats", { better: name(better), weaker: name(weaker) }));
+      // A link to compare the two formats, when each has enough read YouTube videos.
+      if (a.platform === "youtube" && b.platform === "youtube") {
+        const { data: rows } = await admin
+          .from("video_ai_profiles")
+          .select("format:fields->format->>value, videos!inner(profile_id, platform)")
+          .eq("is_current", true)
+          .eq("videos.profile_id", profileId)
+          .eq("videos.platform", "youtube");
+        const count = (id: string) => (rows ?? []).filter((row) => (row as { format?: string }).format === id).length;
+        if (count(a.format) >= GROUP_MIN && count(b.format) >= GROUP_MIN) formatCompare = { a: a.format, b: b.format };
+      }
+    }
+  }
+
+  if (clear && sameFormat) {
     const betterIsA = (a.views ?? 0) >= (b.views ?? 0);
     const better = betterIsA ? a : b;
     const weaker = betterIsA ? b : a;
@@ -209,5 +242,5 @@ Rules:
     }
   }
 
-  return NextResponse.json({ differences, diffs, recommendations });
+  return NextResponse.json({ differences, diffs, recommendations, formatCompare });
 }

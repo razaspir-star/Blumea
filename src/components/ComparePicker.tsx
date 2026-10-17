@@ -25,7 +25,7 @@ const TYPES: { id: CompareType; title: TextKey; desc: TextKey }[] = [
 ];
 
 function thumbOf(video: DashboardVideo): string | null {
-  return video.platform === "youtube" ? `https://i.ytimg.com/vi/${video.platformVideoId}/mqdefault.jpg` : video.thumbnailUrl;
+  return video.platform === "youtube" ? `https://i.ytimg.com/vi/${video.platformVideoId}/maxresdefault.jpg` : video.thumbnailUrl;
 }
 
 // Choose what to compare, then what exactly: two videos, one video against the creator's

@@ -100,7 +100,7 @@ export default function AnalyzePage() {
               <div className="relative aspect-video overflow-hidden bg-slate-100">
                 {(video.platform === "youtube" || video.thumbnailUrl) && (
                   <Image
-                    src={video.platform === "youtube" ? `https://i.ytimg.com/vi/${video.platformVideoId}/mqdefault.jpg` : (video.thumbnailUrl as string)}
+                    src={video.platform === "youtube" ? `https://i.ytimg.com/vi/${video.platformVideoId}/maxresdefault.jpg` : (video.thumbnailUrl as string)}
                     alt={video.title}
                     fill
                     unoptimized
