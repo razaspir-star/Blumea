@@ -65,6 +65,11 @@ const compare: Dictionary["compare"] = {
   readingNow: "Blumea קוראת את {title} כדי שההשוואה תראה איך הוא בנוי. זה משתמש באחד הניתוחים שלך.",
   readFailed: "Blumea לא הצליחה לקרוא את {title}: {reason}",
   tiktokHint: "{title} הוא סרטון TikTok. סרטוני TikTok נקראים אחרי שמעלים אותם (תכנים, ואז ניתוח הסרטון); אז ההשוואה תראה איך הוא בנוי.",
+  deepTitle: "להפוך להשוואה מעמיקה",
+  deepBody: "ההשוואה הרגילה משתמשת במספרים. ההשוואה המעמיקה משווה גם איך שני הסרטונים בנויים: פורמט, פתיחה, מה הם מבקשים. סרטוני TikTok נקראים אחרי שמעלים כל אחד מהם, פעם אחת.",
+  deepButton: "להפוך למעמיקה",
+  notReadYet: "{title} עדיין לא נקרא.",
+  uploadToRead: "העלאת הסרטון",
   openCompare: "השוואה לסרטון אחר",
   compareButton: "השוואה",
 };

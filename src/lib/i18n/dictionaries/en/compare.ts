@@ -63,6 +63,11 @@
   readingNow: "Blumea is reading {title} so the comparison can show how it is built. This uses one of your analyses.",
   readFailed: "Blumea couldn't read {title}: {reason}",
   tiktokHint: "{title} is a TikTok video. TikTok videos are read after you upload them (Content, then Analyze this video); then the comparison shows how it is built.",
+  deepTitle: "Make it in-depth",
+  deepBody: "The regular comparison uses the numbers. The in-depth one also compares how the two videos are built: format, opening, the ask. TikTok videos are read after you upload each one, once.",
+  deepButton: "Make it in-depth",
+  notReadYet: "{title} hasn't been read yet.",
+  uploadToRead: "Upload this video",
   openCompare: "Compare with another video",
   compareButton: "Compare",
 };

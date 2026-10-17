@@ -60,9 +60,11 @@ type AnalyzeModalProps = {
   // Real videos (from the First Scan): start straight at a YouTube video, or at a
   // platform's video list.
   startReal?: { platform: "youtube" | "tiktok"; platformVideoId?: string };
+  // After a TikTok upload is read: do this instead of opening the analysis page.
+  onTiktokAnalyzed?: () => void;
 };
 
-export default function AnalyzeModal({ onClose, initialVideoId, startReal }: AnalyzeModalProps) {
+export default function AnalyzeModal({ onClose, initialVideoId, startReal, onTiktokAnalyzed }: AnalyzeModalProps) {
   const t = useT();
   const router = useAppRouter();
   const profile = useProfile();
@@ -165,6 +167,10 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal }: Ana
         setTiktokListError(body.error ?? t("analyzeModal.couldNotLoadTiktok"));
       } else {
         setTiktokVideos(body.videos);
+        // Opened for one specific TikTok video: go straight to its upload step.
+        const wanted = startReal?.platform === "tiktok" ? startReal.platformVideoId : undefined;
+        const match = wanted ? (body.videos as RealTiktokVideo[]).find((video) => video.platformVideoId === wanted) : undefined;
+        if (match) setTiktokSelected(match);
       }
     }
 
@@ -172,7 +178,7 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal }: Ana
     return () => {
       cancelled = true;
     };
-  }, [platform, tiktokVideos, t]);
+  }, [platform, tiktokVideos, t, startReal]);
 
   // Kicks off the real analysis once the animated "analyzing" stage starts for
   // a real video. The step animation below is cosmetic; navigation waits for
@@ -599,7 +605,7 @@ export default function AnalyzeModal({ onClose, initialVideoId, startReal }: Ana
                   {t("analyzeModal.computerNote")}
                 </p>
 
-                <TiktokUploadStep video={tiktokSelected} onDone={(id) => router.push(`/analysis/${id}`)} />
+                <TiktokUploadStep video={tiktokSelected} onDone={(id) => (onTiktokAnalyzed ? onTiktokAnalyzed() : router.push(`/analysis/${id}`))} />
               </div>
             ) : platform === "tiktok" ? (
               <>

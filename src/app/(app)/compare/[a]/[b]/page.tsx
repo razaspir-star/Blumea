@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from "react";
 import Image from "next/image";
 import AppLink from "@/components/AppLink";
+import AnalyzeModal from "@/components/AnalyzeModal";
 import ComparePicker from "@/components/ComparePicker";
 import PlatformBadge from "@/components/PlatformBadge";
 import VideoText from "@/components/VideoText";
@@ -80,6 +81,10 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
   // What Blumea is reading right now so the comparison can say how a video is built, and why a read failed.
   const [reading, setReading] = useState<string | null>(null);
   const [readError, setReadError] = useState<string | null>(null);
+  // TikTok: the regular comparison uses numbers; "in-depth" also needs both videos read (uploaded once).
+  const [deep, setDeep] = useState(false);
+  const [uploadFor, setUploadFor] = useState<CompareVideo | null>(null);
+  const [version, setVersion] = useState(0);
   const valid = UUID.test(idA) && UUID.test(idB);
 
   useEffect(() => {
@@ -125,7 +130,7 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
     return () => {
       cancelled = true;
     };
-  }, [idA, idB, valid, unlocked, t]);
+  }, [idA, idB, valid, unlocked, t, version]);
 
   if (!valid) notFound();
 
@@ -160,6 +165,10 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
 
   const mixed = a.platform !== b.platform;
   const comparison = mixed ? null : buildComparison(a, b, t);
+  const tiktokPair = a.platform === "tiktok" && b.platform === "tiktok";
+  const bothRead = a.fields !== null && b.fields !== null;
+  // YouTube videos are read automatically; a TikTok pair is in-depth once both are read or the creator asks for it.
+  const showBuilt = !tiktokPair || bothRead || deep;
 
   const body = (
     <>
@@ -182,14 +191,38 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
         </p>
       )}
       {readError && <p className="mt-4 rounded-2xl bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-700">{readError}</p>}
+      {unlocked && !mixed && tiktokPair && !bothRead && !deep && (
+        <div className="mt-4 rounded-2xl border border-blumea-blue/25 bg-white p-4 shadow-sm">
+          <p className="text-sm font-semibold text-blumea-navy">{t("compare.deepTitle")}</p>
+          <p className="mt-1 text-sm leading-6 text-blumea-slate">{t("compare.deepBody")}</p>
+          <button
+            type="button"
+            onClick={() => setDeep(true)}
+            className="mt-3 rounded-full bg-blumea-navy px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blumea-blue"
+          >
+            {t("compare.deepButton")}
+          </button>
+        </div>
+      )}
       {unlocked &&
         !mixed &&
+        tiktokPair &&
+        deep &&
         [a, b]
-          .filter((video) => video.platform === "tiktok" && video.fields === null)
+          .filter((video) => video.fields === null)
           .map((video) => (
-            <p key={video.id} className="mt-4 rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-3 text-sm leading-6 text-blumea-slate">
-              <VideoRef text={t("compare.tiktokHint", { title: videoRef(video.id, video.title) })} />
-            </p>
+            <div key={video.id} className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-3">
+              <p className="text-sm leading-6 text-blumea-slate">
+                <VideoRef text={t("compare.notReadYet", { title: videoRef(video.id, video.title) })} />
+              </p>
+              <button
+                type="button"
+                onClick={() => setUploadFor(video)}
+                className="rounded-full bg-blumea-navy px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blumea-blue"
+              >
+                {t("compare.uploadToRead")}
+              </button>
+            </div>
           ))}
 
       {mixed || !comparison ? (
@@ -225,7 +258,7 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
             </div>
           </section>
 
-          {comparison.identity.length > 0 && (
+          {showBuilt && comparison.identity.length > 0 && (
             <section className="mt-8">
               <h2 className="text-xl font-semibold tracking-tight text-blumea-navy">{t("compare.built")}</h2>
               <div className="mt-3 overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-sm">
@@ -291,6 +324,17 @@ export default function ComparePage({ params }: PageProps<"/compare/[a]/[b]">) {
       )}
 
       {pickerOpen && <ComparePicker onClose={() => setPickerOpen(false)} />}
+
+      {uploadFor && (
+        <AnalyzeModal
+          onClose={() => setUploadFor(null)}
+          startReal={{ platform: "tiktok", platformVideoId: uploadFor.platformVideoId }}
+          onTiktokAnalyzed={() => {
+            setUploadFor(null);
+            setVersion((current) => current + 1);
+          }}
+        />
+      )}
     </div>
   );
 }
