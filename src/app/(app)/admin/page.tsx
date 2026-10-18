@@ -5,6 +5,7 @@ import { useAppRouter } from "@/lib/use-app-router";
 import { supabase } from "@/lib/supabase";
 import { useProfile } from "@/components/AppShell";
 import { useT } from "@/lib/i18n/client";
+import { copyInvite } from "@/lib/invite-message";
 
 type AccessRequest = {
   id: string;
@@ -32,6 +33,7 @@ export default function AdminPage() {
   const profile = useProfile();
   const [requests, setRequests] = useState<AccessRequest[] | null>(null);
   const [email, setEmail] = useState("");
+  const [copied, setCopied] = useState<string | null>(null);
   const [overview, setOverview] = useState<Overview | null>(null);
 
   const call = useCallback(async (init?: { method: "POST"; body: object }) => {
@@ -87,13 +89,22 @@ export default function AdminPage() {
         </div>
         <div className="flex gap-2">
           {item.status === "approved" && (
-            <button
-              type="button"
-              onClick={() => navigator.clipboard.writeText(t("admin.inviteText", { url: `${window.location.origin}/register` }))}
-              className="rounded-full border border-slate-200 px-4 py-1.5 text-xs font-semibold text-blumea-navy hover:bg-slate-50"
-            >
+            <span className="flex items-center gap-1.5 text-xs text-blumea-slate">
               {t("admin.copyInvite")}
-            </button>
+              {(["he", "en"] as const).map((language) => (
+                <button
+                  key={language}
+                  type="button"
+                  onClick={async () => {
+                    await copyInvite(language, window.location.origin);
+                    setCopied(`${item.id}-${language}`);
+                  }}
+                  className="rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-blumea-navy hover:bg-slate-50"
+                >
+                  {copied === `${item.id}-${language}` ? t("admin.copied") : language === "he" ? "עברית" : "English"}
+                </button>
+              ))}
+            </span>
           )}
           {item.status !== "approved" && (
             <button type="button" onClick={() => act({ action: "approve", id: item.id })} className="rounded-full bg-blumea-blue px-4 py-1.5 text-xs font-semibold text-white hover:bg-blumea-blue-hover">
