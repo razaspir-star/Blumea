@@ -5,6 +5,7 @@ import Image from "next/image";
 import AppLink from "@/components/AppLink";
 import { GitCompareArrows, PlaySquare } from "lucide-react";
 import AnalyzeModal from "@/components/AnalyzeModal";
+import PageLoader from "@/components/PageLoader";
 import ComparePicker from "@/components/ComparePicker";
 import PlatformBadge from "@/components/PlatformBadge";
 import { loadDashboardData, type DashboardVideo } from "@/lib/dashboard-data";
@@ -75,6 +76,9 @@ export default function ContentPage() {
   const visible = (videos ?? [])
     .filter((video) => filter === "all" || video.platform === filter)
     .sort((a, b) => (b.publishedAt ?? "").localeCompare(a.publishedAt ?? ""));
+
+  // Until the videos arrive, a loader: the page used to show its header and then jump when the cards came in.
+  if (videos === null) return <PageLoader />;
 
   return (
     <div className="mx-auto w-full max-w-7xl">
@@ -151,8 +155,6 @@ export default function ContentPage() {
           </button>
         ))}
       </div>
-
-      {videos === null && <p className="mt-8 text-sm text-blumea-slate">{t("content.loading")}</p>}
 
       <div className="mt-6 grid grid-cols-1 gap-4 pb-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {visible.map((video) => {

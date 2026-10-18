@@ -1,6 +1,6 @@
 ﻿const formats = {
-  title: "Your formats",
-  intro: "How your own YouTube videos compare by format: what a typical video of each format got (the middle value, so one viral video does not distort it), with the number of videos behind each.",
+  title: "Your formats on {platform}",
+  intro: "How your own {platform} videos compare by format: what a typical video of each format got (the middle value, so one viral video does not distort it), with the number of videos behind each.",
   colFormat: "Format",
   colVideos: "Videos",
   colViews: "Views",
@@ -31,7 +31,7 @@
     "Blumea compares formats once it has {total} analyzed videos ({have} so far) and at least two formats with {per} videos each. Nothing here is a problem to fix.",
   noGap: "No clear difference between your formats yet.",
   tooFew: "Too few videos to compare yet: {list}.",
-  basedOn: "Based on {total} analyzed YouTube videos. Small groups are noisy - take the numbers loosely.",
+  basedOn: "Based on {total} analyzed {platform} videos. Small groups are noisy - take the numbers loosely.",
   nicheTitle: "Formats in your niche",
   nicheBody:
     "Coming later. To say which formats suit your niche, Blumea needs data from other creators in it, and won't guess in the meantime.",

@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import AppLink from "@/components/AppLink";
-import FormatRankingSection from "@/components/FormatRankingSection";
+import FormatRankingSection, { loadFormatRows } from "@/components/FormatRankingSection";
+import PageLoader from "@/components/PageLoader";
+import type { FormatVideoRow } from "@/lib/format-ranking";
 import { deriveDashboard, loadDashboardData, type DashboardData } from "@/lib/dashboard-data";
 import { realInsightCards } from "@/lib/insight-cards";
 import CardFeedback from "@/components/CardFeedback";
@@ -40,15 +42,21 @@ export default function InsightsPage() {
   // Only real insights. An account with no analyzed video sees an honest note;
   // while loading, nothing flashes.
   const [data, setData] = useState<DashboardData | null>(null);
+  const [formatRows, setFormatRows] = useState<Record<string, FormatVideoRow[]> | null>(null);
   useEffect(() => {
     let cancelled = false;
-    loadDashboardData().then((loaded) => {
-      if (!cancelled) setData(loaded);
+    // Everything is loaded before anything is drawn, so the page does not jump while sections arrive.
+    Promise.all([loadDashboardData(), loadFormatRows("youtube"), loadFormatRows("tiktok")]).then(([loaded, youtube, tiktok]) => {
+      if (cancelled) return;
+      setData(loaded);
+      setFormatRows({ youtube, tiktok });
     });
     return () => {
       cancelled = true;
     };
   }, []);
+  if (!data || !formatRows) return <PageLoader />;
+
   const hasRealVideos = (data?.videos.length ?? 0) > 0;
   const realCards = data && hasRealVideos ? realInsightCards(deriveDashboard(data.videos, data.accounts), t) : [];
 
@@ -62,8 +70,9 @@ export default function InsightsPage() {
         {t("insightsPage.subtitle")}
       </p>
 
-      {/* REAL: computed from the creator's own analyzed YouTube videos. */}
-      <FormatRankingSection />
+      {/* REAL: computed from the creator's own analyzed videos, one section per platform (raw numbers of different platforms are never compared). */}
+      <FormatRankingSection platform="youtube" rows={formatRows.youtube} />
+      <FormatRankingSection platform="tiktok" rows={formatRows.tiktok} />
 
       {hasRealVideos && (
         <section className="mt-8 grid grid-cols-1 gap-4">

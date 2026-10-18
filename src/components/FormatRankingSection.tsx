@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Layers } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { formatCount } from "@/lib/format";
 import { formatLabel } from "@/lib/format-library";
 import { stayedToWatchPct } from "@/lib/insight-rules";
 import { useT } from "@/lib/i18n/client";
+import { platformName } from "@/lib/platform-capabilities";
 import {
   bestFormats,
   withinFormatLength,
@@ -17,80 +17,64 @@ import {
   type FormatVideoRow,
 } from "@/lib/format-ranking";
 
-// REAL (not mock): how the creator's own YouTube videos compare by format
+// REAL (not mock): how the creator's own videos on one platform compare by format
 // (Insight_Engine_Spec.md §3.5 "Ranking formats"). Medians with counts, never a
 // "best format" verdict the data cannot carry.
-function useFormatRows() {
-  const [rows, setRows] = useState<FormatVideoRow[] | null>(null);
+export async function loadFormatRows(platform: string): Promise<FormatVideoRow[]> {
+  const { data: videos } = await supabase
+    .from("videos")
+    .select("id, duration_sec")
+    .eq("platform", platform);
+  if (!videos || videos.length === 0) return [];
+  const ids = videos.map((video) => video.id);
 
-  useEffect(() => {
-    let cancelled = false;
+  const [{ data: snapshots }, { data: profiles }] = await Promise.all([
+    supabase
+      .from("video_metric_snapshots")
+      .select("video_id, views, likes, avg_watch_sec, breakdowns, captured_at")
+      .in("video_id", ids)
+      .order("captured_at", { ascending: false }),
+    supabase.from("video_ai_profiles").select("video_id, fields").in("video_id", ids).eq("is_current", true),
+  ]);
 
-    async function load() {
-      const { data: videos } = await supabase
-        .from("videos")
-        .select("id, duration_sec")
-        .eq("platform", "youtube");
-      if (!videos || videos.length === 0) {
-        if (!cancelled) setRows([]);
-        return;
-      }
-      const ids = videos.map((video) => video.id);
+  const latest = new Map<string, NonNullable<typeof snapshots>[number]>();
+  for (const snapshot of snapshots ?? []) if (!latest.has(snapshot.video_id)) latest.set(snapshot.video_id, snapshot);
 
-      const [{ data: snapshots }, { data: profiles }] = await Promise.all([
-        supabase
-          .from("video_metric_snapshots")
-          .select("video_id, views, likes, avg_watch_sec, breakdowns, captured_at")
-          .in("video_id", ids)
-          .order("captured_at", { ascending: false }),
-        supabase.from("video_ai_profiles").select("video_id, fields").in("video_id", ids).eq("is_current", true),
-      ]);
+  const built: FormatVideoRow[] = [];
+  for (const video of videos) {
+    const fields = profiles?.find((profile) => profile.video_id === video.id)?.fields as
+      | Record<string, { value?: unknown }>
+      | undefined;
+    const formatId = fields?.format?.value;
+    const snapshot = latest.get(video.id);
+    if (typeof formatId !== "string" || !snapshot) continue;
 
-      const latest = new Map<string, NonNullable<typeof snapshots>[number]>();
-      for (const snapshot of snapshots ?? []) if (!latest.has(snapshot.video_id)) latest.set(snapshot.video_id, snapshot);
-
-      const built: FormatVideoRow[] = [];
-      for (const video of videos) {
-        const fields = profiles?.find((profile) => profile.video_id === video.id)?.fields as
-          | Record<string, { value?: unknown }>
-          | undefined;
-        const formatId = fields?.format?.value;
-        const snapshot = latest.get(video.id);
-        if (typeof formatId !== "string" || !snapshot) continue;
-
-        const duration = video.duration_sec as number | null;
-        const engagement = (snapshot.breakdowns as { engagement?: { views: number; engagedViews: number } } | null)?.engagement;
-        built.push({
-          formatId,
-          durationSec: duration,
-          avgWatchSec: snapshot.avg_watch_sec !== null ? Number(snapshot.avg_watch_sec) : null,
-          views: snapshot.views ?? null,
-          likes: snapshot.likes ?? null,
-          stayedPct: stayedToWatchPct(engagement),
-          watchSharePct: snapshot.avg_watch_sec !== null && duration ? (Number(snapshot.avg_watch_sec) / duration) * 100 : null,
-        });
-      }
-      if (!cancelled) setRows(built);
-    }
-
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  return rows;
+    const duration = video.duration_sec as number | null;
+    const engagement = (snapshot.breakdowns as { engagement?: { views: number; engagedViews: number } } | null)?.engagement;
+    built.push({
+      formatId,
+      durationSec: duration,
+      avgWatchSec: snapshot.avg_watch_sec !== null ? Number(snapshot.avg_watch_sec) : null,
+      views: snapshot.views ?? null,
+      likes: snapshot.likes ?? null,
+      stayedPct: stayedToWatchPct(engagement),
+      watchSharePct: snapshot.avg_watch_sec !== null && duration ? (Number(snapshot.avg_watch_sec) / duration) * 100 : null,
+    });
+  }
+  return built;
 }
 
 const pct = (value: number | null) => (value === null ? "—" : `${Math.round(value)}%`);
 const count = (value: number | null) => (value === null ? "—" : formatCount(Math.round(value)));
-export default function FormatRankingSection() {
+export default function FormatRankingSection({ platform, rows }: { platform: string; rows: FormatVideoRow[] }) {
   const t = useT();
-  const rows = useFormatRows();
+  const platformLabel = platformName(platform, t);
   const secs = (value: number | null) => (value === null ? "—" : t("formats.seconds", { n: Math.round(value) }));
-  if (rows === null || rows.length === 0) return null;
+  if (rows.length === 0) return null;
 
   const { ranked, tooFew, total } = summarizeFormats(rows);
+  const hasStayed = ranked.some((format) => format.medianStayedPct !== null);
+  const hasWatched = ranked.some((format) => format.medianWatchSharePct !== null);
   const gap = formatGap(ranked, total);
   const best = bestFormats(rows);
   const withinLength = withinFormatLength(rows);
@@ -101,11 +85,11 @@ export default function FormatRankingSection() {
     <section className="mt-8 rounded-3xl border border-slate-200/70 bg-white p-5 shadow-sm sm:p-6">
       <div className="flex items-center gap-2">
         <Layers size={18} strokeWidth={1.8} className="text-blumea-blue" />
-        <p className="text-sm font-semibold text-blumea-navy">{t("formats.title")}</p>
+        <p className="text-sm font-semibold text-blumea-navy">{t("formats.title", { platform: platformLabel })}</p>
       </div>
 
       <p className="mt-1 text-sm text-blumea-slate">
-        {t("formats.intro")}
+        {t("formats.intro", { platform: platformLabel })}
       </p>
 
       {ranked.length > 0 ? (
@@ -117,8 +101,8 @@ export default function FormatRankingSection() {
                 <th className="px-3 py-2 text-start font-semibold">{t("formats.colVideos")}</th>
                 <th className="px-3 py-2 text-start font-semibold">{t("formats.colViews")}</th>
                 <th className="px-3 py-2 text-start font-semibold">{t("formats.colLikes")}</th>
-                <th className="px-3 py-2 text-start font-semibold" title={t("formats.colStayedTitle")}>{t("formats.colStayed")}</th>
-                <th className="px-3 py-2 text-start font-semibold">{t("formats.colWatched")}</th>
+                {hasStayed && <th className="px-3 py-2 text-start font-semibold" title={t("formats.colStayedTitle")}>{t("formats.colStayed")}</th>}
+                {hasWatched && <th className="px-3 py-2 text-start font-semibold">{t("formats.colWatched")}</th>}
                 <th className="py-2 ps-3 text-start font-semibold">{t("formats.colLength")}</th>
               </tr>
             </thead>
@@ -131,8 +115,8 @@ export default function FormatRankingSection() {
                   </td>
                   <td className="px-3 py-3">{count(format.medianViews)}</td>
                   <td className="px-3 py-3">{count(format.medianLikes)}</td>
-                  <td className="px-3 py-3">{pct(format.medianStayedPct)}</td>
-                  <td className="px-3 py-3">{pct(format.medianWatchSharePct)}</td>
+                  {hasStayed && <td className="px-3 py-3">{pct(format.medianStayedPct)}</td>}
+                  {hasWatched && <td className="px-3 py-3">{pct(format.medianWatchSharePct)}</td>}
                   <td className="py-3 ps-3">{secs(format.medianDurationSec)}</td>
                 </tr>
               ))}
@@ -242,7 +226,7 @@ export default function FormatRankingSection() {
       )}
 
       <p className="mt-3 text-xs text-blumea-slate">
-        {t("formats.basedOn", { total })}
+        {t("formats.basedOn", { total, platform: platformLabel })}
       </p>
 
       {/* Not built: which formats suit a niche needs other creators' data (spec
