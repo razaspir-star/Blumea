@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import PageLoader from "@/components/PageLoader";
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useProfile } from "@/components/AppShell";
@@ -165,6 +166,9 @@ function ConnectionsPageInner() {
     }
     return connections[id] ?? ((profile.platforms ?? []).includes(id) ? "connected" : "disconnected");
   }
+
+  // Until the connections are read, a loader: otherwise every platform first shows "Connect" and then flips.
+  if (youtube.connected === null || tiktok.connected === null) return <PageLoader />;
 
   return (
     <div className="mx-auto w-full max-w-4xl">
