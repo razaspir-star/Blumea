@@ -4,6 +4,8 @@ const admin = {
     guestListHelp: "The beta guest list. Only approved emails can use Blumea. You, and Pro accounts, are always in.",
     addPlaceholder: "Add an email by hand",
     add: "Add and approve",
+    copyInvite: "Copy invite message",
+    inviteText: "Hi! You are approved for the Blumea private beta. Sign up here with the same email you used in your request: {url}",
     approve: "Approve",
     decline: "Decline",
     pending: "Waiting for a decision",

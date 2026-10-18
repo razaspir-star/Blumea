@@ -86,6 +86,15 @@ export default function AdminPage() {
           <p className="mt-1 text-[11px] text-blumea-slate">{new Date(item.created_at).toLocaleDateString(t.locale)}</p>
         </div>
         <div className="flex gap-2">
+          {item.status === "approved" && (
+            <button
+              type="button"
+              onClick={() => navigator.clipboard.writeText(t("admin.inviteText", { url: `${window.location.origin}/register` }))}
+              className="rounded-full border border-slate-200 px-4 py-1.5 text-xs font-semibold text-blumea-navy hover:bg-slate-50"
+            >
+              {t("admin.copyInvite")}
+            </button>
+          )}
           {item.status !== "approved" && (
             <button type="button" onClick={() => act({ action: "approve", id: item.id })} className="rounded-full bg-blumea-blue px-4 py-1.5 text-xs font-semibold text-white hover:bg-blumea-blue-hover">
               {t("admin.approve")}

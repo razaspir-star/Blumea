@@ -5,6 +5,8 @@ const admin: Dictionary["admin"] = {
   guestListHelp: "רשימת האורחים של הבטא. רק אימיילים שאושרו יכולים להשתמש ב-Blumea. אתה, וחשבונות Pro, תמיד בפנים.",
   addPlaceholder: "הוספת אימייל ידנית",
   add: "הוספה ואישור",
+  copyInvite: "העתקת הודעת הזמנה",
+  inviteText: "היי! אושרת לבטא הפרטית של Blumea. נרשמים כאן עם אותו אימייל שהשתמשת בו בבקשה: {url}",
   approve: "אישור",
   decline: "דחייה",
   pending: "ממתינים להחלטה",

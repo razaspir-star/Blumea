@@ -8,11 +8,12 @@ const beta = {
   fieldHandle: "Your name or handle on the platform",
   fieldNiche: "What do you make videos about?",
   formSend: "Send my request",
-  formDone: "Thank you. Your request was received. If you are approved we will write to you at this email.",
+  formDone: "Thank you. Your request was received. We will let you know when you are approved. Then sign up here with this same email.",
   formError: "Something went wrong. Please try again in a moment.",
   registerNotice: "Blumea is in a private beta. It is free, it may change or have mistakes, and your feedback shapes it. Please use it on your own accounts only.",
+  checkAgain: "Check again",
   waitingTitle: "You are on the list",
-  waitingBody: "Blumea is in a small private beta, and your account has not been approved yet. You will be able to use Blumea as soon as it is. Thank you for waiting.",
+  waitingBody: "Blumea is in a small private beta, and your account has not been approved yet. You will be able to use Blumea as soon as it is. Thank you for waiting. This page checks again by itself.",
 };
 
 const betaTexts = { beta };
