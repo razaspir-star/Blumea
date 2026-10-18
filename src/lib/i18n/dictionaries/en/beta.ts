@@ -15,6 +15,7 @@ const beta = {
   alreadyApproved: "Already approved, or already requested before?",
   signUp: "Sign up",
   signIn: "Sign in",
+  waitingContact: "Questions? Write to us:",
   waitingTitle: "You are on the list",
   waitingBody: "Blumea is in a small private beta, and your account has not been approved yet. You will be able to use Blumea as soon as it is. Thank you for waiting. This page checks again by itself.",
 };

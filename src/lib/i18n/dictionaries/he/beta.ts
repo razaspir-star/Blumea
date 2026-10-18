@@ -17,6 +17,7 @@ const beta: Dictionary["beta"] = {
   alreadyApproved: "כבר אושרת, או כבר ביקשת בעבר?",
   signUp: "הרשמה",
   signIn: "כניסה",
+  waitingContact: "שאלות? כתוב לנו:",
   waitingTitle: "אתה ברשימה",
   waitingBody: "Blumea נמצאת בבטא פרטית קטנה, והחשבון שלך עוד לא אושר. ברגע שיאושר תוכל להשתמש ב-Blumea. תודה על הסבלנות. הדף בודק שוב בעצמו.",
 };

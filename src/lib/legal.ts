@@ -1,6 +1,6 @@
 // Shared facts for the public legal pages (/privacy, /terms) and the site footer.
-// The contact address comes from the environment so no address is invented in
-// code; until it is set, the pages say how to reach Blumea through the product.
+// The public contact address (a real mailbox, set up 2026-10-18). NEXT_PUBLIC_CONTACT_EMAIL overrides it;
+// set it to an empty value to hide the address and fall back to "through the product" wording.
 
 export const LEGAL_EFFECTIVE_DATE = "October 10, 2026";
 
@@ -14,4 +14,4 @@ export function legalEffectiveDate(locale: string): string {
   });
 }
 
-export const CONTACT_EMAIL: string | null = process.env.NEXT_PUBLIC_CONTACT_EMAIL?.trim() || null;
+export const CONTACT_EMAIL: string | null = (process.env.NEXT_PUBLIC_CONTACT_EMAIL ?? "hello@blumea.io").trim() || null;

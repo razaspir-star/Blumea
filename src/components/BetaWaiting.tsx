@@ -6,6 +6,7 @@ import { useAppRouter } from "@/lib/use-app-router";
 import LanguageSwitch from "@/components/LanguageSwitch";
 import { supabase } from "@/lib/supabase";
 import { useT } from "@/lib/i18n/client";
+import { CONTACT_EMAIL } from "@/lib/legal";
 
 // Shown to someone who signed in but is not on the guest list yet.
 export default function BetaWaiting() {
@@ -36,6 +37,14 @@ export default function BetaWaiting() {
       <div className="mt-10 w-full max-w-md rounded-3xl border border-slate-200/70 bg-white p-7 text-center shadow-sm">
         <h1 className="text-2xl font-semibold text-blumea-navy">{t("beta.waitingTitle")}</h1>
         <p className="mt-3 text-sm leading-6 text-blumea-slate">{t("beta.waitingBody")}</p>
+        {CONTACT_EMAIL && (
+          <p className="mt-3 text-sm text-blumea-slate">
+            {t("beta.waitingContact")}{" "}
+            <a href={`mailto:${CONTACT_EMAIL}`} dir="ltr" className="font-semibold text-blumea-blue">
+              {CONTACT_EMAIL}
+            </a>
+          </p>
+        )}
         <button
           type="button"
           onClick={check}
