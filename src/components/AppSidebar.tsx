@@ -9,6 +9,7 @@ import {
   PlaySquare,
   Sparkles,
   Lightbulb,
+  History,
   Link2,
   Settings,
   ShieldCheck,
@@ -33,6 +34,12 @@ const navigation = [
     icon: PlaySquare,
     path: "/content",
     matches: ["/content", "/analyze", "/analysis", "/compare"],
+  },
+  {
+    label: "nav.history" as TextKey,
+    icon: History,
+    path: "/history",
+    matches: ["/history"],
   },
   {
     label: "nav.insights" as TextKey,

@@ -16,6 +16,7 @@ import compare2 from "./he/compare2";
 import idea from "./he/idea";
 import beta from "./he/beta";
 import admin from "./he/admin";
+import historyTexts from "./he/history";
 import feedbackTexts from "./he/feedback";
 
 // Hebrew texts, same keys as en.ts. Plain, short, spoken-style Hebrew; platform names (YouTube, TikTok)
@@ -38,6 +39,7 @@ const he: Dictionary = {
   ...idea,
   ...beta,
   ...admin,
+  ...historyTexts,
   ...feedbackTexts,
   common: {
     language: "שפה",
@@ -50,6 +52,7 @@ const he: Dictionary = {
   nav: {
     dashboard: "לוח בקרה",
     content: "תכנים",
+    history: "ניתוחים",
     insights: "תובנות",
     connections: "חיבורים",
     ideas: "רעיונות",

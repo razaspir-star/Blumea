@@ -17,6 +17,7 @@ import compare2 from "./en/compare2";
 import idea from "./en/idea";
 import beta from "./en/beta";
 import admin from "./en/admin";
+import historyTexts from "./en/history";
 import feedbackTexts from "./en/feedback";
 
 const en = {
@@ -37,6 +38,7 @@ const en = {
   ...idea,
   ...beta,
   ...admin,
+  ...historyTexts,
   ...feedbackTexts,
   common: {
     language: "Language",
@@ -49,6 +51,7 @@ const en = {
   nav: {
     dashboard: "Dashboard",
     content: "Content",
+    history: "Analyses",
     insights: "Insights",
     connections: "Connections",
     ideas: "Ideas",
