@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useAppRouter } from "@/lib/use-app-router";
+import AppLink from "@/components/AppLink";
 import {
   LayoutDashboard,
   PlaySquare,
@@ -76,9 +77,10 @@ function useActivePath() {
     matches.some((match) => pathname === match || pathname.startsWith(`${match}/`));
 }
 
+// The logo takes a signed-in creator back to the Dashboard (both the sidebar and the mobile bar are signed-in only).
 function Brand() {
   return (
-    <div dir="ltr" className="flex items-center gap-3">
+    <AppLink href="/dashboard" aria-label="Blumea" dir="ltr" className="flex items-center gap-3">
       <Image
         src="/blumea-logo-v2.png"
         alt="Blumea"
@@ -90,7 +92,7 @@ function Brand() {
       <span className="text-2xl font-semibold tracking-tight text-blumea-navy">
         Blum<span className="text-blumea-blue">ea</span>
       </span>
-    </div>
+    </AppLink>
   );
 }
 
