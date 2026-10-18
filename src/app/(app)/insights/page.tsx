@@ -70,9 +70,8 @@ export default function InsightsPage() {
         {t("insightsPage.subtitle")}
       </p>
 
-      {/* REAL: computed from the creator's own analyzed videos, one section per platform (raw numbers of different platforms are never compared). */}
-      <FormatRankingSection platform="youtube" rows={formatRows.youtube} />
-      <FormatRankingSection platform="tiktok" rows={formatRows.tiktok} />
+      {/* REAL: computed from the creator's own analyzed videos, one section, a chip per platform (raw numbers of different platforms are never compared). */}
+      <FormatRankingSection rowsByPlatform={formatRows} />
 
       {hasRealVideos && (
         <section className="mt-8 grid grid-cols-1 gap-4">

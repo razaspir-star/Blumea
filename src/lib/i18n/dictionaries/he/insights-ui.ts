@@ -1,7 +1,7 @@
 ﻿import type { Dictionary } from "../en";
 
 const formats: Dictionary["formats"] = {
-  title: "הפורמטים שלך ב-{platform}",
+  title: "הפורמטים שלך",
   intro: "איך הסרטונים שלך משתווים לפי פורמט. מה סרטון טיפוסי מכל פורמט קיבל (הערך האמצעי, כך שסרטון ויראלי אחד לא מעוות), עם מספר הסרטונים שמאחורי כל אחד.",
   colFormat: "פורמט",
   colVideos: "סרטונים",

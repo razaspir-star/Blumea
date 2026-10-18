@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Layers } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { formatCount } from "@/lib/format";
@@ -66,9 +67,15 @@ export async function loadFormatRows(platform: string): Promise<FormatVideoRow[]
 
 const pct = (value: number | null) => (value === null ? "—" : `${Math.round(value)}%`);
 const count = (value: number | null) => (value === null ? "—" : formatCount(Math.round(value)));
-export default function FormatRankingSection({ platform, rows }: { platform: string; rows: FormatVideoRow[] }) {
+export default function FormatRankingSection({ rowsByPlatform }: { rowsByPlatform: Record<string, FormatVideoRow[]> }) {
   const t = useT();
-  const platformLabel = platformName(platform, t);
+  // The platforms that have analyzed videos. Raw numbers of different platforms are never put together, so each platform
+  // has its own chip; with one platform there is nothing to choose.
+  const available = Object.keys(rowsByPlatform).filter((id) => rowsByPlatform[id].length > 0);
+  const [chosen, setChosen] = useState<string | null>(null);
+  const platform = chosen && available.includes(chosen) ? chosen : available[0];
+  const rows = platform ? rowsByPlatform[platform] : [];
+  const platformLabel = platform ? platformName(platform, t) : "";
   const secs = (value: number | null) => (value === null ? "—" : t("formats.seconds", { n: Math.round(value) }));
   if (rows.length === 0) return null;
 
@@ -85,12 +92,32 @@ export default function FormatRankingSection({ platform, rows }: { platform: str
     <section className="mt-8 rounded-3xl border border-slate-200/70 bg-white p-5 shadow-sm sm:p-6">
       <div className="flex items-center gap-2">
         <Layers size={18} strokeWidth={1.8} className="text-blumea-blue" />
-        <p className="text-sm font-semibold text-blumea-navy">{t("formats.title", { platform: platformLabel })}</p>
+        <p className="text-sm font-semibold text-blumea-navy">{t("formats.title")}</p>
       </div>
 
       <p className="mt-1 text-sm text-blumea-slate">
         {t("formats.intro")}
       </p>
+
+      {available.length > 1 && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {available.map((id) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setChosen(id)}
+              aria-pressed={id === platform}
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                id === platform
+                  ? "bg-blumea-navy text-white"
+                  : "border border-slate-200 bg-white text-blumea-slate hover:border-blumea-blue hover:text-blumea-navy"
+              }`}
+            >
+              {platformName(id, t)}
+            </button>
+          ))}
+        </div>
+      )}
 
       {ranked.length > 0 ? (
         <div className="mt-4 overflow-x-auto">
