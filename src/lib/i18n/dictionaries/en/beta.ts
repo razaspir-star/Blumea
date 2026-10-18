@@ -12,6 +12,9 @@ const beta = {
   formError: "Something went wrong. Please try again in a moment.",
   registerNotice: "Blumea is in a private beta. It is free, it may change or have mistakes, and your feedback shapes it. Please use it on your own accounts only.",
   checkAgain: "Check again",
+  alreadyApproved: "Already approved, or already requested before?",
+  signUp: "Sign up",
+  signIn: "Sign in",
   waitingTitle: "You are on the list",
   waitingBody: "Blumea is in a small private beta, and your account has not been approved yet. You will be able to use Blumea as soon as it is. Thank you for waiting. This page checks again by itself.",
 };

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import AppLink from "@/components/AppLink";
 import { useT } from "@/lib/i18n/client";
 
 // "Request access" on the homepage: the private beta is by guest list.
@@ -28,7 +29,19 @@ export default function AccessRequestForm() {
       <p className="mt-2 text-sm leading-6 text-blumea-slate">{t("beta.formBody")}</p>
 
       {state === "done" ? (
-        <p className="mt-5 rounded-2xl bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-800">{t("beta.formDone")}</p>
+        <div className="mt-5 rounded-2xl bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-800">
+          <p>{t("beta.formDone")}</p>
+          <p className="mt-2">
+            {t("beta.alreadyApproved")}{" "}
+            <AppLink href="/register" className="font-semibold underline">
+              {t("beta.signUp")}
+            </AppLink>
+            {" · "}
+            <AppLink href="/login" className="font-semibold underline">
+              {t("beta.signIn")}
+            </AppLink>
+          </p>
+        </div>
       ) : (
         <form onSubmit={submit} className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label className="text-xs font-semibold text-blumea-navy sm:col-span-2">
