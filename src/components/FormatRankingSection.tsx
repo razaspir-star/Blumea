@@ -89,7 +89,7 @@ export default function FormatRankingSection({ platform, rows }: { platform: str
       </div>
 
       <p className="mt-1 text-sm text-blumea-slate">
-        {t("formats.intro", { platform: platformLabel })}
+        {t("formats.intro")}
       </p>
 
       {ranked.length > 0 ? (

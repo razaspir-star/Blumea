@@ -1,6 +1,6 @@
 ﻿const formats = {
   title: "Your formats on {platform}",
-  intro: "How your own {platform} videos compare by format: what a typical video of each format got (the middle value, so one viral video does not distort it), with the number of videos behind each.",
+  intro: "How your own videos compare by format: what a typical video of each format got (the middle value, so one viral video does not distort it), with the number of videos behind each.",
   colFormat: "Format",
   colVideos: "Videos",
   colViews: "Views",
