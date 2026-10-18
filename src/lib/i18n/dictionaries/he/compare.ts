@@ -122,6 +122,8 @@ const compare: Dictionary["compare"] = {
   pickPlatformOne: "בחירת הפלטפורמה של הסרטון",
   updateNumbers: "עדכון צילומי מסך",
   proTag: "Pro",
+  pickerLockedTitle: "ההשוואה הזו היא חלק מ-Blumea Pro",
+  pickerLockedBody: "במסלול החינמי אפשר להשוות שני סרטונים שלך, עד 3 השוואות בחודש. Blumea Pro פותחת את כל שאר סוגי ההשוואה. משתתפי הבטא מקבלים אותה ראשונים.",
   noGap: "אין פער מספיק גדול בין שני הסרטונים.",
   differ: "הם נבדלים ב: {list}. כדי להבין מה משפיע, כדאי לשנות רק דבר אחד בכל פעם בסרטון הבא.",
   disclaimer: "מבוסס על שני הסרטונים האלה.",

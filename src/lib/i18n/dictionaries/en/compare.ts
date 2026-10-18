@@ -120,6 +120,8 @@
   pickPlatformOne: "Choose the platform of the video",
   updateNumbers: "Update screenshots",
   proTag: "Pro",
+  pickerLockedTitle: "This comparison is part of Blumea Pro",
+  pickerLockedBody: "On the free plan you can compare two of your videos, up to 3 comparisons a month. Blumea Pro opens every other kind of comparison. Beta testers get it first.",
   noGap: "There's no big enough gap between these two videos.",
   differ: "They differ in: {list}. To learn which one matters, change just one thing at a time in your next video.",
   disclaimer: "Based on these two videos.",

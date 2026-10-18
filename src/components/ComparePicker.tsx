@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Lock } from "lucide-react";
 import Image from "next/image";
 import { Check } from "lucide-react";
 import Modal from "@/components/Modal";
@@ -47,6 +48,8 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
   const free = profile.plan !== "pro" && profile.plan !== "owner";
   const [videos, setVideos] = useState<DashboardVideo[] | null>(null);
   const [type, setType] = useState<CompareType | null>(null);
+  // A free creator who picks a Pro-only way of comparing is told at once, before choosing anything.
+  const [lockedType, setLockedType] = useState<CompareType | null>(null);
   const [aId, setAId] = useState<string | null>(initialA ?? null);
   const [bId, setBId] = useState<string | null>(null);
   // The platform chosen for each of the two videos (video vs video picks the platform first).
@@ -78,6 +81,10 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
   }
 
   function chooseType(next: CompareType) {
+    if (free && next !== "videos") {
+      setLockedType(next);
+      return;
+    }
     if (next === "platforms") {
       router.push("/compare/platforms");
       return;
@@ -98,7 +105,7 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
   const visibleTypes = initialA ? TYPES.filter((item) => item.id === "videos" || item.id === "usual") : TYPES;
   const inHookFlow = type !== null && HOOK_FLOWS.includes(type);
   const titleOf = (id: CompareType) => [...TYPES, ...HOOK_OPTIONS].find((item) => item.id === id)!.title;
-  const heading = <p className="text-sm font-semibold text-blumea-navy">{type ? t(titleOf(inHookFlow ? "hook" : type)) : t("compare2.typeTitle")}</p>;
+  const heading = <p className="text-sm font-semibold text-blumea-navy">{lockedType ? t(titleOf(lockedType)) : type ? t(titleOf(inHookFlow ? "hook" : type)) : t("compare2.typeTitle")}</p>;
   // Back from a way of comparing hooks goes to the hook options; from anything else to the list.
   function backToHookOptions() {
     setType("hook");
@@ -109,7 +116,21 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
     setHookFormat(null);
     setChosenHook(null);
   }
-  const back = type && (
+  const lockedPanel = lockedType && (
+    <div className="blumea-step mt-3">
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm">
+        <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-blumea-mist text-blumea-blue">
+          <Lock size={18} strokeWidth={1.8} />
+        </div>
+        <h2 className="mt-3 text-lg font-semibold text-blumea-navy">{t("compare.pickerLockedTitle")}</h2>
+        <p className="mt-2 text-sm leading-6 text-blumea-slate">{t("compare.pickerLockedBody")}</p>
+      </div>
+      <button type="button" onClick={() => setLockedType(null)} className="mt-3 text-xs font-semibold text-blumea-blue hover:opacity-70">
+        {t("compare2.backToTypes")}
+      </button>
+    </div>
+  );
+  const back = !lockedType && type && (
     <button type="button" onClick={inHookFlow ? backToHookOptions : backToTypes} className="mt-1 text-xs font-semibold text-blumea-blue hover:opacity-70">
       {inHookFlow ? t("compare2.backToHookOptions") : t("compare2.backToTypes")}
     </button>
@@ -289,7 +310,9 @@ export default function ComparePicker({ onClose, initialA }: { onClose: () => vo
           {heading}
           {back}
 
-          {type === null && (
+          {lockedPanel}
+
+          {type === null && !lockedType && (
             <div className="blumea-step mt-3 grid grid-cols-1 gap-2.5">
               {visibleTypes.map((item) => (
                 <button
