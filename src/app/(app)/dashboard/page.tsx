@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useAppRouter } from "@/lib/use-app-router";
 import { useEffect, useState } from "react";
+import PageLoader from "@/components/PageLoader";
 import { useProfile } from "@/components/AppShell";
 import { supabase } from "@/lib/supabase";
 import { formatCount } from "@/lib/format";
@@ -65,6 +66,8 @@ function useDashboardData() {
   const [syncing, setSyncing] = useState(false);
   const [updatedLabel, setUpdatedLabel] = useState<string | null>(null);
   const [lookProgress, setLookProgress] = useState<{ done: number; total: number } | null>(null);
+  // How many videos the First Look read, kept on screen after it ends so the creator sees that the analysis happened.
+  const [lookDone, setLookDone] = useState<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -111,22 +114,28 @@ function useDashboardData() {
 
       setLookProgress({ done: 0, total: picks.length });
       let done = 0;
+      let read = 0;
       await Promise.allSettled(
         picks.map((video) =>
           fetch("/api/analyze/youtube", {
             method: "POST",
             headers: { ...headers, "Content-Type": "application/json" },
             body: JSON.stringify({ videoId: video.platformVideoId }),
-          }).finally(() => {
-            done += 1;
-            if (!cancelled) setLookProgress({ done, total: picks.length });
           })
+            .then((response) => {
+              if (response.ok) read += 1;
+            })
+            .finally(() => {
+              done += 1;
+              if (!cancelled) setLookProgress({ done, total: picks.length });
+            })
         )
       );
       if (cancelled) return;
       const fresh = await loadDashboardData();
       if (!cancelled) setData(fresh);
       setLookProgress(null);
+      if (!cancelled && read > 0) setLookDone(read);
     }
 
     run();
@@ -136,7 +145,7 @@ function useDashboardData() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once; the language only matters for the label text
   }, []);
 
-  return { data, syncing, updatedLabel, lookProgress };
+  return { data, syncing, updatedLabel, lookProgress, lookDone };
 }
 // "↑ 23 (0.7%) since 6 days ago" -- only when a comparison snapshot exists; no
 // change is ever invented.
@@ -236,7 +245,7 @@ export default function DashboardPage() {
   const t = useT();
   const router = useAppRouter();
   const profile = useProfile();
-  const { data, syncing, updatedLabel, lookProgress } = useDashboardData();
+  const { data, syncing, updatedLabel, lookProgress, lookDone } = useDashboardData();
 
   // Platforms shown in the selector: the ones picked at onboarding plus every
   // connected account (YouTube was connected but missing from this list).
@@ -282,6 +291,9 @@ export default function DashboardPage() {
         ? t("dashboard.greetingAfternoon")
         : t("dashboard.greetingEvening");
 
+  // Until the numbers arrive, a loader instead of empty cards: a first-time creator would not know anything is happening.
+  if (!data) return <PageLoader />;
+
   return (
     <div>  <div className="flex items-end justify-between">
     <div>
@@ -304,6 +316,23 @@ export default function DashboardPage() {
       )}
     </div>
   </div>
+
+  {syncing && !lookProgress && (
+    <div className="mt-6 flex items-center gap-3 rounded-2xl border border-blumea-blue/30 bg-blumea-mist px-5 py-4">
+      <Image src="/blumea-logo-v2.png" alt="" width={28} height={28} className="h-7 w-7 animate-pulse" />
+      <div>
+        <p className="text-sm font-semibold text-blumea-navy">{t("dashboard.syncTitle")}</p>
+        <p className="text-xs text-blumea-slate">{t("dashboard.syncBody")}</p>
+      </div>
+    </div>
+  )}
+
+  {lookDone !== null && !lookProgress && (
+    <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4">
+      <p className="text-sm font-semibold text-emerald-900">{t("dashboard.lookDoneTitle", { count: lookDone })}</p>
+      <p className="text-xs text-emerald-800">{t("dashboard.lookDoneBody")}</p>
+    </div>
+  )}
 
   {lookProgress && (
     <div className="mt-6 flex items-center gap-3 rounded-2xl border border-blumea-blue/30 bg-blumea-mist px-5 py-4">

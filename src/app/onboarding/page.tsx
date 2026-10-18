@@ -458,7 +458,7 @@ useEffect(() => {
 
     setSelectedGoals(currentProfile.goals ?? []);
     setSelectedCategories(currentProfile.content_categories ?? []);
-    setSelectedPlatforms(currentProfile.platforms ?? []);
+    setSelectedPlatforms((currentProfile.platforms ?? []).filter((id) => id === "youtube" || id === "tiktok"));
 
     setProfile(currentProfile);
     setIsCheckingAuth(false);
@@ -479,7 +479,9 @@ useEffect(() => {
         ? categoriesRef.current
         : profile.onboarding_step === 3
           ? platformsRef.current
-          : null;
+          : profile.onboarding_step >= 4
+            ? connectRef.current
+            : null;
 
   if (!target) {
     return;
@@ -502,7 +504,7 @@ if (access === "waiting") return <BetaWaiting />;
 return (
 <main
   ref={mainRef}
-  className="relative h-screen overflow-hidden bg-gradient-to-b from-white to-blumea-mist"
+  className="relative h-[100dvh] overflow-hidden bg-gradient-to-b from-white to-blumea-mist"
 >
   {/* Permanent Blumea logo */}
   <div className="fixed start-6 top-6 z-50">
@@ -524,12 +526,13 @@ return (
 
 
   {/* STEP 1 - GOALS */}
-
   <section
-  ref={goalsRef}
-  className="relative flex h-screen w-full shrink-0 items-center justify-center overflow-hidden px-6"
->
-      <div className="flex w-full max-w-2xl flex-col gap-4">
+    ref={goalsRef}
+    className="relative flex h-[100dvh] w-full shrink-0 flex-col overflow-hidden px-6"
+  >
+    <div className="shrink-0 pt-20 sm:pt-6" />
+    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+      <div className="mx-auto my-auto flex w-full max-w-2xl flex-col gap-4 py-2">
         <h1 className="text-center text-3xl font-semibold tracking-tight text-blumea-navy">
           {t("onboarding.goalsTitle")}
         </h1>
@@ -538,7 +541,6 @@ return (
           {t("onboarding.goalsSubtitle")}
         </p>
 
-        {/* Goals */}
         <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-3">
           {goals.map((goal) => (
             <button
@@ -556,121 +558,27 @@ return (
             </button>
           ))}
         </div>
-
-        {/* Continue */}
-        <div className="mt-8 flex flex-col items-center gap-2">
-          <button
-            onClick={handleContinue}
-            disabled={selectedGoals.length === 0}
-            aria-label={t("onboarding.continue")}
-            className="flex h-12 w-12 items-center justify-center rounded-full bg-blumea-navy text-white transition-all duration-300 hover:translate-y-1 hover:bg-blumea-blue disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:translate-y-0"
-          >
-            <ChevronDown size={26} strokeWidth={2} />
-          </button>
-
-          <span className="text-xs font-medium text-blumea-slate">
-            {t("onboarding.continue")}
-          </span>
-        </div>
       </div>
-    </section>
- 
+    </div>
+    <div className="flex shrink-0 flex-col items-center gap-1 pb-5 pt-3">
+      <button
+        onClick={handleContinue}
+        disabled={selectedGoals.length === 0}
+        aria-label={t("onboarding.continue")}
+        className="flex h-12 w-12 items-center justify-center rounded-full bg-blumea-navy text-white transition-all duration-300 hover:translate-y-1 hover:bg-blumea-blue disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:translate-y-0"
+      >
+        <ChevronDown size={26} strokeWidth={2} />
+      </button>
+      <span className="text-xs font-medium text-blumea-slate">{t("onboarding.continue")}</span>
+    </div>
+  </section>
 
   {/* STEP 2 - CATEGORIES */}
-
-<section
-  ref={categoriesRef}
-  className="relative flex h-screen w-full shrink-0 items-center justify-center overflow-hidden px-6"
->
-  {/* Back */}
- <div className="absolute top-3 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-1">
-    <button
-      onClick={handleBackStep}
-      aria-label={t("onboarding.back")}
-      className="flex h-12 w-12 items-center justify-center rounded-full bg-blumea-navy text-white transition-all duration-300 hover:-translate-y-1 hover:bg-blumea-blue"
-    >
-      <ChevronUp size={26} strokeWidth={2} />
-    </button>
-
-    <span className="text-xs font-medium text-blumea-slate">
-      {t("onboarding.back")}
-    </span>
-  </div>
-
-  {/* Content */}
-  <div className="flex w-full max-w-3xl flex-col gap-3 px-2">
-    <h1 className="text-center text-3xl font-semibold tracking-tight text-blumea-navy">
-      {t("onboarding.categoriesTitle")}
-    </h1>
-
-    <p className="mb-2 text-center text-sm text-blumea-slate">
-      {t("onboarding.categoriesSubtitle")}
-    </p>
-
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-      {contentCategories.map((category) => {
-        const Icon = category.icon;
-        const isSelected = selectedCategories.includes(category.id);
-
-        return (
-          <button
-            key={category.id}
-            onClick={() => toggleCategory(category.id)}
-            className={
-  isSelected
-    ? "flex min-h-[150px] flex-col items-center justify-center rounded-3xl border-2 border-blumea-blue bg-white px-4 py-3 text-center shadow-sm transition-colors duration-[400ms] ease-in-out"
-    : "flex min-h-[150px] flex-col items-center justify-center rounded-3xl border-2 border-slate-200 bg-white px-4 py-3 text-center transition-colors duration-[400ms] ease-in-out hover:border-blumea-blue hover:shadow-md"
-}
-          >
-            <div
-              className={
-                isSelected
-                  ? "mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-blumea-blue text-white transition-colors duration-[400ms]"
-                  : "mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-blumea-mist text-blumea-blue transition-colors duration-[400ms]"
-              }
-            >
-              <Icon size={27} strokeWidth={1.7} />
-            </div>
-
-            <span className="font-semibold text-blumea-navy">
-              {t(`onboarding.category.${category.id}` as TextKey)}
-            </span>
-
-            <span className="mt-2 text-xs leading-5 text-blumea-slate">
-              {t(`onboarding.category.${category.id}_desc` as TextKey)}
-            </span>
-          </button>
-        );
-      })}
-    </div>
-  </div>
-
-  {/* Continue */}
-  <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-1">
-    <button
-      onClick={handleCategoriesContinue}
-      disabled={selectedCategories.length === 0}
-      aria-label={t("onboarding.continue")}
-      className="flex h-12 w-12 items-center justify-center rounded-full bg-blumea-navy text-white transition-all duration-300 hover:translate-y-1 hover:bg-blumea-blue disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:translate-y-0"
-    >
-      <ChevronDown size={26} strokeWidth={2} />
-    </button>
-
-    <span className="text-xs font-medium text-blumea-slate">
-      {t("onboarding.continue")}
-    </span>
-  </div>
-</section>
-
-{/* STEP 3 - PLATFORMS */}
-<section
-  ref={platformsRef}
-  className="relative flex h-screen w-full shrink-0 items-center justify-center overflow-hidden px-6"
->
-  <div className="flex w-full max-w-3xl flex-col items-center gap-6">
-
-    {/* Back */}
-    <div className="absolute top-6 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2">
+  <section
+    ref={categoriesRef}
+    className="relative flex h-[100dvh] w-full shrink-0 flex-col overflow-hidden px-6"
+  >
+    <div className="flex shrink-0 flex-col items-center gap-1 pt-20 sm:pt-6 ">
       <button
         onClick={handleBackStep}
         aria-label={t("onboarding.back")}
@@ -678,169 +586,218 @@ return (
       >
         <ChevronUp size={26} strokeWidth={2} />
       </button>
-
-      <span className="text-xs font-medium text-blumea-slate">
-        {t("onboarding.back")}
-      </span>
+      <span className="text-xs font-medium text-blumea-slate">{t("onboarding.back")}</span>
     </div>
+    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+      <div className="mx-auto my-auto flex w-full max-w-3xl flex-col gap-3 px-2 py-2">
+        <h1 className="text-center text-3xl font-semibold tracking-tight text-blumea-navy">
+          {t("onboarding.categoriesTitle")}
+        </h1>
 
-    {/* Title */}
-    <div className="text-center">
-      <h1 className="text-3xl font-semibold tracking-tight text-blumea-navy">
-        {t("onboarding.platformsTitle")}
-      </h1>
+        <p className="mb-2 text-center text-sm text-blumea-slate">
+          {t("onboarding.categoriesSubtitle")}
+        </p>
 
-      <p className="mt-2 text-sm text-blumea-slate">
-        {t("onboarding.platformsSubtitle")}
-      </p>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+          {contentCategories.map((category) => {
+            const Icon = category.icon;
+            const isSelected = selectedCategories.includes(category.id);
+
+            return (
+              <button
+                key={category.id}
+                onClick={() => toggleCategory(category.id)}
+                className={
+                  isSelected
+                    ? "flex min-h-[150px] flex-col items-center justify-center rounded-3xl border-2 border-blumea-blue bg-white px-4 py-3 text-center shadow-sm transition-colors duration-[400ms] ease-in-out"
+                    : "flex min-h-[150px] flex-col items-center justify-center rounded-3xl border-2 border-slate-200 bg-white px-4 py-3 text-center transition-colors duration-[400ms] ease-in-out hover:border-blumea-blue hover:shadow-md"
+                }
+              >
+                <div
+                  className={
+                    isSelected
+                      ? "mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-blumea-blue text-white transition-colors duration-[400ms]"
+                      : "mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-blumea-mist text-blumea-blue transition-colors duration-[400ms]"
+                  }
+                >
+                  <Icon size={27} strokeWidth={1.7} />
+                </div>
+
+                <span className="font-semibold text-blumea-navy">
+                  {t(`onboarding.category.${category.id}` as TextKey)}
+                </span>
+
+                <span className="mt-2 text-xs leading-5 text-blumea-slate">
+                  {t(`onboarding.category.${category.id}_desc` as TextKey)}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
+    <div className="flex shrink-0 flex-col items-center gap-1 pb-5 pt-3">
+      <button
+        onClick={handleCategoriesContinue}
+        disabled={selectedCategories.length === 0}
+        aria-label={t("onboarding.continue")}
+        className="flex h-12 w-12 items-center justify-center rounded-full bg-blumea-navy text-white transition-all duration-300 hover:translate-y-1 hover:bg-blumea-blue disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:translate-y-0"
+      >
+        <ChevronDown size={26} strokeWidth={2} />
+      </button>
+      <span className="text-xs font-medium text-blumea-slate">{t("onboarding.continue")}</span>
+    </div>
+  </section>
 
-    {/* Platforms */}
-    <div className="grid w-full grid-cols-2 gap-4 sm:grid-cols-4">
-      {platforms.map((platform) => {
-        const isSelected = selectedPlatforms.includes(platform.id);
+  {/* STEP 3 - PLATFORMS */}
+  <section
+    ref={platformsRef}
+    className="relative flex h-[100dvh] w-full shrink-0 flex-col overflow-hidden px-6"
+  >
+    <div className="flex shrink-0 flex-col items-center gap-1 pt-20 sm:pt-6 ">
+      <button
+        onClick={handleBackStep}
+        aria-label={t("onboarding.back")}
+        className="flex h-12 w-12 items-center justify-center rounded-full bg-blumea-navy text-white transition-all duration-300 hover:-translate-y-1 hover:bg-blumea-blue"
+      >
+        <ChevronUp size={26} strokeWidth={2} />
+      </button>
+      <span className="text-xs font-medium text-blumea-slate">{t("onboarding.back")}</span>
+    </div>
+    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+      <div className="mx-auto my-auto flex w-full max-w-3xl flex-col items-center gap-6 py-2">
+        <div className="text-center">
+          <h1 className="text-3xl font-semibold tracking-tight text-blumea-navy">
+            {t("onboarding.platformsTitle")}
+          </h1>
 
-        return (
-          <button
-            key={platform.id}
-            onClick={() => togglePlatform(platform.id)}
-            className={
-              isSelected
-                ? "flex h-[165px] flex-col items-center justify-center rounded-3xl border-2 border-blumea-blue bg-white px-4 py-4 text-center shadow-sm transition-colors duration-[400ms] ease-in-out"
-                : "flex h-[165px] flex-col items-center justify-center rounded-3xl border-2 border-slate-200 bg-white px-4 py-4 text-center transition-colors duration-[400ms] ease-in-out hover:border-blumea-blue hover:shadow-md"
+          <p className="mt-2 text-sm text-blumea-slate">
+            {t("onboarding.platformsSubtitle")}
+          </p>
+        </div>
+
+        <div className="grid w-full grid-cols-2 gap-4 sm:grid-cols-4">
+          {platforms.map((platform) => {
+            const isSelected = selectedPlatforms.includes(platform.id);
+            const available = platform.id === "youtube" || platform.id === "tiktok";
+
+            // Instagram and Facebook are not connectable yet: shown, greyed out, not selectable.
+            if (!available) {
+              return (
+                <div
+                  key={platform.id}
+                  aria-disabled
+                  className="flex h-[165px] cursor-not-allowed flex-col items-center justify-center rounded-3xl border-2 border-slate-200 bg-slate-50 px-4 py-4 text-center opacity-60"
+                >
+                  <Image src={platform.image} alt={platform.label} width={64} height={64} className="mb-4 h-16 w-16 object-contain grayscale" />
+                  <span className="font-semibold text-blumea-slate">{platform.label}</span>
+                  <span className="mt-1 text-xs font-medium text-blumea-slate">{t("onboarding.comingSoon")}</span>
+                </div>
+              );
             }
-          >
-            <Image
-              src={platform.image}
-              alt={platform.label}
-              width={64}
-              height={64}
-              className="mb-4 h-16 w-16 object-contain"
-            />
 
-            <span className="font-semibold text-blumea-navy">
-              {platform.label}
-            </span>
-          </button>
-        );
-      })}
+            return (
+              <button
+                key={platform.id}
+                onClick={() => togglePlatform(platform.id)}
+                className={
+                  isSelected
+                    ? "flex h-[165px] flex-col items-center justify-center rounded-3xl border-2 border-blumea-blue bg-white px-4 py-4 text-center shadow-sm transition-colors duration-[400ms] ease-in-out"
+                    : "flex h-[165px] flex-col items-center justify-center rounded-3xl border-2 border-slate-200 bg-white px-4 py-4 text-center transition-colors duration-[400ms] ease-in-out hover:border-blumea-blue hover:shadow-md"
+                }
+              >
+                <Image src={platform.image} alt={platform.label} width={64} height={64} className="mb-4 h-16 w-16 object-contain" />
+
+                <span className="font-semibold text-blumea-navy">{platform.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
     </div>
-
-    {/* Finish */}
-    <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2">
-       <button
+    <div className="flex shrink-0 flex-col items-center gap-1 pb-5 pt-3">
+      <button
         onClick={handlePlatformsContinue}
         disabled={selectedPlatforms.length === 0}
-       aria-label={t("onboarding.continue")}
-       className="flex h-12 w-12 items-center justify-center rounded-full bg-blumea-navy text-white transition-all duration-300 hover:translate-y-1 hover:bg-blumea-blue disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:translate-y-0"
-     >
-    <ChevronDown size={26} strokeWidth={2} />
-     </button>
-
-  <span className="text-xs font-medium text-blumea-slate">
-    {t("onboarding.continue")}
-  </span>
-</div>
-  </div>
-</section>
-{/* STEP 4 - CONNECT ACCOUNTS */}
-<section
-  ref={connectRef}
-  className="relative flex h-screen w-full shrink-0 items-center justify-center overflow-hidden px-6"
->
-  {/* Back */}
-  <div className="absolute top-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-2">
-    <button
-      onClick={handleBackStep}
-      aria-label={t("onboarding.back")}
-      className="flex h-12 w-12 items-center justify-center rounded-full bg-blumea-navy text-white transition-all duration-300 hover:-translate-y-1 hover:bg-blumea-blue"
-    >
-      <ChevronUp size={26} strokeWidth={2} />
-    </button>
-
-    <span className="text-xs font-medium text-blumea-slate">
-      {t("onboarding.back")}
-    </span>
-  </div>
-
-  {/* Content */}
-  <div className="flex w-full max-w-4xl flex-col items-center gap-8">
-    <div className="text-center">
-      <h1 className="text-3xl font-semibold tracking-tight text-blumea-navy">
-        {t("onboarding.connectTitle")}
-      </h1>
-
-      <p className="mt-2 text-sm text-blumea-slate">
-        {t("onboarding.connectSubtitle")}
-      </p>
+        aria-label={t("onboarding.continue")}
+        className="flex h-12 w-12 items-center justify-center rounded-full bg-blumea-navy text-white transition-all duration-300 hover:translate-y-1 hover:bg-blumea-blue disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:translate-y-0"
+      >
+        <ChevronDown size={26} strokeWidth={2} />
+      </button>
+      <span className="text-xs font-medium text-blumea-slate">{t("onboarding.continue")}</span>
     </div>
+  </section>
 
-  <div className="grid w-full grid-cols-2 gap-4 sm:grid-cols-4">
-  {platforms
-    .filter((platform) => selectedPlatforms.includes(platform.id))
-    .map((platform) => {
-      const isConnected = connectedPlatforms.includes(platform.id);
-      const isConnecting = connectingPlatform === platform.id;
-
-      return (
-        <div
-          key={platform.id}
-          className="flex h-[180px] flex-col items-center justify-center rounded-3xl border-2 border-slate-200 bg-white p-5 text-center shadow-sm"
-        >
-          <Image
-            src={platform.image}
-            alt={platform.label}
-            width={64}
-            height={64}
-            className="h-16 w-16 object-contain"
-          />
-
-          <span className="mt-4 font-semibold text-blumea-navy">
-            {platform.label}
-          </span>
-
-        <button
-  onClick={() => handleConnect(platform.id)}
-  disabled={isConnecting || isConnected || (platform.id !== "youtube" && platform.id !== "tiktok")}
-  className={
-    isConnected
-      ? "mt-4 cursor-default rounded-full border border-blumea-blue bg-blumea-mist px-5 py-2 text-sm font-medium text-blumea-blue"
-      : "mt-4 flex min-h-[38px] min-w-[110px] items-center justify-center rounded-full bg-blumea-navy px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-blumea-blue disabled:cursor-wait"
-  }
->
-  {isConnecting ? (
-    <BlumeaFlowerLoader size={24} />
-  ) : isConnected ? (
-    t("onboarding.connected")
-  ) : platform.id !== "youtube" && platform.id !== "tiktok" ? (
-    t("onboarding.comingLater")
-  ) : (
-    t("onboarding.connect")
-  )}
-</button>
-        </div>
-      );
-    })}
-
-   <div className="absolute bottom-20 left-1/2 -translate-x-1/2">
-  <button
-    onClick={handleFinishOnboarding}
-    className="flex items-center justify-center gap-2 rounded-full bg-blumea-navy px-6 py-3 text-sm font-medium text-white transition-all duration-300 hover:-translate-y-1 hover:bg-blumea-blue"
+  {/* STEP 4 - CONNECT ACCOUNTS */}
+  <section
+    ref={connectRef}
+    className="relative flex h-[100dvh] w-full shrink-0 flex-col overflow-hidden px-6"
   >
-    <span>{t("onboarding.goToDashboard")}</span>
+    <div className="flex shrink-0 flex-col items-center gap-1 pt-20 sm:pt-6 ">
+      <button
+        onClick={handleBackStep}
+        aria-label={t("onboarding.back")}
+        className="flex h-12 w-12 items-center justify-center rounded-full bg-blumea-navy text-white transition-all duration-300 hover:-translate-y-1 hover:bg-blumea-blue"
+      >
+        <ChevronUp size={26} strokeWidth={2} />
+      </button>
+      <span className="text-xs font-medium text-blumea-slate">{t("onboarding.back")}</span>
+    </div>
+    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+      <div className="mx-auto my-auto flex w-full max-w-4xl flex-col items-center gap-8 py-2">
+        <div className="text-center">
+          <h1 className="text-3xl font-semibold tracking-tight text-blumea-navy">
+            {t("onboarding.connectTitle")}
+          </h1>
 
-    <Image
-      src="/blumea-logo-v2.png"
-      alt=""
-      width={22}
-      height={22}
-      className="h-[22px] w-[22px] object-contain"
-    />
-  </button>
-</div>
-</div>
-  </div>
-</section>
+          <p className="mt-2 text-sm text-blumea-slate">
+            {t("onboarding.connectSubtitle")}
+          </p>
+        </div>
+
+        <div className="flex w-full flex-wrap justify-center gap-4">
+          {platforms
+            .filter((platform) => selectedPlatforms.includes(platform.id))
+            .map((platform) => {
+              const isConnected = connectedPlatforms.includes(platform.id);
+              const isConnecting = connectingPlatform === platform.id;
+
+              return (
+                <div
+                  key={platform.id}
+                  className="flex h-[180px] w-[170px] flex-col items-center justify-center rounded-3xl border-2 border-slate-200 bg-white p-5 text-center shadow-sm"
+                >
+                  <Image src={platform.image} alt={platform.label} width={64} height={64} className="h-16 w-16 object-contain" />
+
+                  <span className="mt-4 font-semibold text-blumea-navy">{platform.label}</span>
+
+                  <button
+                    onClick={() => handleConnect(platform.id)}
+                    disabled={isConnecting || isConnected}
+                    className={
+                      isConnected
+                        ? "mt-4 cursor-default rounded-full border border-blumea-blue bg-blumea-mist px-5 py-2 text-sm font-medium text-blumea-blue"
+                        : "mt-4 flex min-h-[38px] min-w-[110px] items-center justify-center rounded-full bg-blumea-navy px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-blumea-blue disabled:cursor-wait"
+                    }
+                  >
+                    {isConnecting ? <BlumeaFlowerLoader size={24} /> : isConnected ? t("onboarding.connected") : t("onboarding.connect")}
+                  </button>
+                </div>
+              );
+            })}
+        </div>
+      </div>
+    </div>
+    <div className="flex shrink-0 justify-center pb-6 pt-3">
+      <button
+        onClick={handleFinishOnboarding}
+        className="flex items-center justify-center gap-2 rounded-full bg-blumea-navy px-6 py-3 text-sm font-medium text-white transition-all duration-300 hover:-translate-y-1 hover:bg-blumea-blue"
+      >
+        <span>{t("onboarding.goToDashboard")}</span>
+        <Image src="/blumea-logo-v2.png" alt="" width={22} height={22} className="h-[22px] w-[22px] object-contain" />
+      </button>
+    </div>
+  </section>
 
 </main>
 );

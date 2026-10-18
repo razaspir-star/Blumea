@@ -57,6 +57,7 @@ const onboarding = {
   connect: "Connect",
   connected: "Connected ✓",
   comingLater: "Coming later",
+  comingSoon: "Coming soon",
   goToDashboard: "Go to my Dashboard",
 };
 

@@ -59,6 +59,7 @@ const onboarding: Dictionary["onboarding"] = {
   connect: "חיבור",
   connected: "מחובר ✓",
   comingLater: "בקרוב",
+  comingSoon: "בקרוב",
   goToDashboard: "לדשבורד שלי",
 };
 
