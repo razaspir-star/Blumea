@@ -20,7 +20,10 @@ export default function AppLink({ onClick, ...props }: AppLinkProps) {
       event.shiftKey ||
       event.altKey;
 
-    if (!isModified) {
+    // A link to a spot on the same page (#something) never changes the path, so the bar would never switch off.
+    const staysOnPage = typeof props.href === "string" && props.href.startsWith("#");
+
+    if (!isModified && !staysOnPage) {
       startNavigationProgress();
     }
 
