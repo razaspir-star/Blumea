@@ -17,7 +17,6 @@ import {
 } from "@/lib/dashboard-data";
 import { platformName } from "@/lib/platform-capabilities";
 import { realInsightCards } from "@/lib/insight-cards";
-import { pickFirstLook } from "@/lib/first-look";
 import { nextExperiments } from "@/lib/next-experiments";
 import type { TextKey } from "@/lib/i18n/translate";
 import NextExperiments from "@/components/NextExperiments";
@@ -56,18 +55,11 @@ function agoLabel(iso: string | null, now: number, t: Translator): string | null
   return t.plural("dashboard.updatedDays", Math.round(hours / 24));
 }
 
-// Guards the First Look against React's development double-run, which would
-// start the same three AI analyses twice.
-let firstLookStarted = false;
-
 function useDashboardData() {
   const t = useT();
   const [data, setData] = useState<DashboardData | null>(null);
   const [syncing, setSyncing] = useState(false);
   const [updatedLabel, setUpdatedLabel] = useState<string | null>(null);
-  const [lookProgress, setLookProgress] = useState<{ done: number; total: number } | null>(null);
-  // How many videos the First Look read, kept on screen after it ends so the creator sees that the analysis happened.
-  const [lookDone, setLookDone] = useState<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -107,35 +99,6 @@ function useDashboardData() {
         }
       }
 
-      // First Look: three videos read by AI, once, for a creator with none yet.
-      const picks = pickFirstLook(current.videos);
-      if (cancelled || picks.length === 0 || firstLookStarted) return;
-      firstLookStarted = true;
-
-      setLookProgress({ done: 0, total: picks.length });
-      let done = 0;
-      let read = 0;
-      await Promise.allSettled(
-        picks.map((video) =>
-          fetch("/api/analyze/youtube", {
-            method: "POST",
-            headers: { ...headers, "Content-Type": "application/json" },
-            body: JSON.stringify({ videoId: video.platformVideoId }),
-          })
-            .then((response) => {
-              if (response.ok) read += 1;
-            })
-            .finally(() => {
-              done += 1;
-              if (!cancelled) setLookProgress({ done, total: picks.length });
-            })
-        )
-      );
-      if (cancelled) return;
-      const fresh = await loadDashboardData();
-      if (!cancelled) setData(fresh);
-      setLookProgress(null);
-      if (!cancelled && read > 0) setLookDone(read);
     }
 
     run();
@@ -145,7 +108,7 @@ function useDashboardData() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once; the language only matters for the label text
   }, []);
 
-  return { data, syncing, updatedLabel, lookProgress, lookDone };
+  return { data, syncing, updatedLabel };
 }
 // "↑ 23 (0.7%) since 6 days ago" -- only when a comparison snapshot exists; no
 // change is ever invented.
@@ -245,7 +208,7 @@ export default function DashboardPage() {
   const t = useT();
   const router = useAppRouter();
   const profile = useProfile();
-  const { data, syncing, updatedLabel, lookProgress, lookDone } = useDashboardData();
+  const { data, syncing, updatedLabel } = useDashboardData();
 
   // Platforms shown in the selector: the ones picked at onboarding plus every
   // connected account (YouTube was connected but missing from this list).
@@ -317,7 +280,7 @@ export default function DashboardPage() {
     </div>
   </div>
 
-  {syncing && !lookProgress && (
+  {syncing && (
     <div className="mt-6 flex items-center gap-3 rounded-2xl border border-blumea-blue/30 bg-blumea-mist px-5 py-4">
       <Image src="/blumea-logo-v2.png" alt="" width={28} height={28} className="h-7 w-7 animate-pulse" />
       <div>
@@ -327,22 +290,19 @@ export default function DashboardPage() {
     </div>
   )}
 
-  {lookDone !== null && !lookProgress && (
-    <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4">
-      <p className="text-sm font-semibold text-emerald-900">{t("dashboard.lookDoneTitle", { count: lookDone })}</p>
-      <p className="text-xs text-emerald-800">{t("dashboard.lookDoneBody")}</p>
-    </div>
-  )}
-
-  {lookProgress && (
-    <div className="mt-6 flex items-center gap-3 rounded-2xl border border-blumea-blue/30 bg-blumea-mist px-5 py-4">
-      <Image src="/blumea-logo-v2.png" alt="" width={28} height={28} className="h-7 w-7 animate-pulse" />
-      <div>
-        <p className="text-sm font-semibold text-blumea-navy">{t("dashboard.lookTitle")}</p>
-        <p className="text-xs text-blumea-slate">
-          {t("dashboard.lookProgress", { done: lookProgress.done, total: lookProgress.total })}
-        </p>
+  {data && !syncing && data.videos.length > 0 && data.videos.filter((video) => video.analyzed).length < 3 && (
+    <div className="mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-blumea-blue/30 bg-blumea-mist px-5 py-4">
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold text-blumea-navy">{t("dashboard.deeperTitle")}</p>
+        <p className="mt-1 text-xs leading-5 text-blumea-slate">{t("dashboard.deeperBody")}</p>
       </div>
+      <button
+        type="button"
+        onClick={() => router.push("/analyze")}
+        className="rounded-full bg-blumea-navy px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blumea-blue"
+      >
+        {t("dashboard.deeperAction")}
+      </button>
     </div>
   )}
 
