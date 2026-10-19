@@ -66,6 +66,10 @@ export async function POST(request: NextRequest) {
   // The cover pictures kept in our storage go too (the rows go with the user).
   await removeThumbnails(supabaseAdmin, userId);
 
+  // The beta access request is kept by email, not linked to the user, so it would stay behind (it holds the creator's
+  // email, handle and niche). It goes too: to join again the person asks again.
+  if (userData.user.email) await supabaseAdmin.from("access_requests").delete().ilike("email", userData.user.email);
+
   const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(userId);
   if (deleteError) {
     return NextResponse.json({ error: "Could not delete the account. Please try again." }, { status: 500 });
