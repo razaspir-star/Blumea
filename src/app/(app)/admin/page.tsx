@@ -26,6 +26,18 @@ type Overview = {
   feedback: { kind: string; target: string | null; rating: string | null; note: string | null; created_at: string }[];
 };
 
+type AccountRow = {
+  id: string;
+  email: string;
+  plan: string;
+  createdAt: string;
+  lastSignIn: string | null;
+  videos: number;
+  analyses: number;
+  platforms: string[];
+  needsReconnect: boolean;
+};
+
 // The owner's page. For now: the guest list of the private beta. Events, errors and cost will join it.
 export default function AdminPage() {
   const t = useT();
@@ -34,6 +46,7 @@ export default function AdminPage() {
   const [requests, setRequests] = useState<AccessRequest[] | null>(null);
   const [email, setEmail] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
+  const [accounts, setAccounts] = useState<AccountRow[] | null>(null);
   const [overview, setOverview] = useState<Overview | null>(null);
 
   const call = useCallback(async (init?: { method: "POST"; body: object }) => {
@@ -53,6 +66,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (profile.plan === "owner") {
+      loadAccounts();
       supabase.auth.getSession().then(async ({ data }) => {
         const response = await fetch("/api/admin/overview", { headers: { Authorization: `Bearer ${data.session?.access_token ?? ""}` } });
         if (response.ok) setOverview(await response.json());
@@ -67,6 +81,22 @@ export default function AdminPage() {
     }
     load();
   }, [profile.plan, router, load]);
+
+  async function loadAccounts() {
+    const { data } = await supabase.auth.getSession();
+    const response = await fetch("/api/admin/accounts", { headers: { Authorization: `Bearer ${data.session?.access_token ?? ""}` } });
+    if (response.ok) setAccounts((await response.json()).accounts);
+  }
+
+  async function setPlan(id: string, plan: "pro" | "free") {
+    const { data } = await supabase.auth.getSession();
+    await fetch("/api/admin/accounts", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${data.session?.access_token ?? ""}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ id, plan }),
+    });
+    await loadAccounts();
+  }
 
   async function act(body: object) {
     await call({ method: "POST", body });
@@ -180,6 +210,41 @@ export default function AdminPage() {
           {section("approved", t("admin.approved"))}
           {section("declined", t("admin.declined"))}
         </>
+      )}
+
+      {accounts && (
+        <section className="mt-10">
+          <h2 className="text-sm font-semibold text-blumea-navy">
+            {t("admin.accounts")} <span className="font-normal text-blumea-slate">({accounts.length})</span>
+          </h2>
+          <ul className="mt-3 space-y-2">
+            {accounts.map((account) => (
+              <li key={account.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-white px-4 py-3 text-xs text-blumea-slate shadow-sm">
+                <div className="min-w-0">
+                  <p className="break-all text-sm font-semibold text-blumea-navy">{account.email}</p>
+                  <p className="mt-0.5">
+                    {account.plan} · {t("admin.accVideos", { n: account.videos })} · {t("admin.accAnalyses", { n: account.analyses })}
+                    {account.platforms.length > 0 ? ` · ${account.platforms.join(" + ")}` : ""}
+                    {account.needsReconnect ? ` · ${t("admin.accReconnect")}` : ""}
+                  </p>
+                  <p className="mt-0.5">
+                    {t("admin.accJoined", { date: new Date(account.createdAt).toLocaleDateString(t.locale) })}
+                    {account.lastSignIn ? ` · ${t("admin.accLast", { date: new Date(account.lastSignIn).toLocaleDateString(t.locale) })}` : ""}
+                  </p>
+                </div>
+                {account.plan !== "owner" && (
+                  <button
+                    type="button"
+                    onClick={() => setPlan(account.id, account.plan === "pro" ? "free" : "pro")}
+                    className="rounded-full border border-slate-200 px-4 py-1.5 text-xs font-semibold text-blumea-navy hover:bg-slate-50"
+                  >
+                    {account.plan === "pro" ? t("admin.makeFree") : t("admin.makePro")}
+                  </button>
+                )}
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
 
       {overview && (

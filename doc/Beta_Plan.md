@@ -84,7 +84,7 @@ Order agreed with the owner: (1) finish reviewing the remaining Compare categori
 
 ## Stage 5 — Safety net before real people
 
-**Status (2026-10-17): built, waiting for the owner's checklist and the dry run. See "Stage 5 summary" in doc/CLAUDE.md.**
+**Status (2026-10-19): CLOSED, signed off by the owner ("push it and we can go to wave 0"). See "Stage 5 summary" and its additions in doc/CLAUDE.md. Wave 0 steps: doc/Wave0_Guide.md.**
 
 - Second real account: sign up, connect, scan, analyse, check it never sees account 1's data; delete account 2 and verify everything is gone (database rows, vault tokens, bucket).
 - Error visibility: Vercel logs checked, an error notification to the owner for failed analyses and failed syncs, a simple "something went wrong" page that is not a stack trace.
