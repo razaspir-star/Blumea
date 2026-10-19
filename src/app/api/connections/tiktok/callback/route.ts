@@ -74,6 +74,15 @@ export async function GET(request: NextRequest) {
     return redirectToConnections(request, "tiktok_error=secret_storage_failed");
   }
 
+  // A reconnect stores new secrets; the ones of the previous connection are deleted once the new ones are saved,
+  // so no old token stays behind in the vault.
+  const { data: previous } = await supabaseAdmin
+    .from("connected_accounts")
+    .select("access_token_secret_id, refresh_token_secret_id")
+    .eq("profile_id", verified.profileId)
+    .eq("platform", "tiktok")
+    .maybeSingle();
+
   const { error: upsertError } = await supabaseAdmin.from("connected_accounts").upsert(
     {
       profile_id: verified.profileId,
@@ -89,6 +98,11 @@ export async function GET(request: NextRequest) {
   );
 
   if (upsertError) return redirectToConnections(request, "tiktok_error=save_failed");
+
+  if (previous) {
+    await supabaseAdmin.rpc("delete_oauth_secret", { secret_id: previous.access_token_secret_id });
+    await supabaseAdmin.rpc("delete_oauth_secret", { secret_id: previous.refresh_token_secret_id });
+  }
 
   return redirectToConnections(request, "tiktok_connected=1");
 }
